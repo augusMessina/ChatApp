@@ -19,10 +19,10 @@ export const createChat: RequestHandler = async (req, res) => {
   await chatsCollection.insertOne({
     _id: new ObjectId(),
     chatname,
-    members: [{ id: user_id, username: user.username }],
+    members: [{ id: user_id, username: user.username! }],
     password,
     allowedLanguages,
-    languages: [user.language],
+    languages: [user.language!],
     messages: [],
   });
 

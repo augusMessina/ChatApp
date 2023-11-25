@@ -35,7 +35,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
 
   await chatsCollection.updateOne(
     { _id: new ObjectId(id_chat) },
-    { $push: { members: { id, username: user.username } } }
+    { $push: { members: { id, username: user.username! } } }
   );
   res.status(200);
 };

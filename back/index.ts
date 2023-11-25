@@ -14,4 +14,4 @@ app.use(
   })
 );
 
-app.listen(3001, () => console.log("API running on http://localhost:3001s"));
+app.listen(8080, () => console.log("API running on http://localhost:8080"));

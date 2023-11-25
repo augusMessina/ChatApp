@@ -29,7 +29,7 @@ export const sendFriendRequest: RequestHandler = async (req, res) => {
         $push: {
           mailbox: {
             id_sender,
-            username_sender: sender.username,
+            username_sender: sender.username!,
             type: NotifType.CHAT,
             id_chat,
           },

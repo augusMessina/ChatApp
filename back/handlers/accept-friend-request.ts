@@ -28,7 +28,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     {
       $pull: { mailbox: { id_sender, type: NotifType.FRIEND } },
       $push: {
-        friendList: { friendId: id_sender, friendName: sender.username },
+        friendList: { friendId: id_sender, friendName: sender.username! },
       },
     }
   );
@@ -37,7 +37,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     { _id: sender._id },
     {
       $push: {
-        friendList: { friendId: id, friendName: user.username },
+        friendList: { friendId: id, friendName: user.username! },
       },
     }
   );
@@ -45,11 +45,11 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
   await chatsCollection.insertOne({
     _id: new ObjectId(),
     members: [
-      { id: id_sender, username: sender.username },
-      { id: id, username: user.username },
+      { id: id_sender, username: sender.username! },
+      { id: id, username: user.username! },
     ],
     messages: [],
-    languages: Array.from(new Set([...sender.language, ...user.language])),
+    languages: Array.from(new Set([...sender.language!, ...user.language!])),
   });
 
   res.status(200);

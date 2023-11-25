@@ -1,17 +1,15 @@
 import { RequestHandler } from "express";
 import { usersCollection } from "../db/dbconnection";
+import { ObjectId } from "mongodb";
 
-export const logIn: RequestHandler = async (req, res) => {
+export const getUserId: RequestHandler = async (req, res) => {
   const { email } = req.body;
   if (!email) {
-    res.status(400);
+    res.status(400).send({});
     return;
   }
+
   const user = await usersCollection.findOne({ email });
 
-  if (user) {
-    res.status(200).send({ id: user._id.toString() });
-  } else {
-    res.status(202);
-  }
+  res.status(200).send({ id: user?._id });
 };

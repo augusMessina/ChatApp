@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export const getUserData: RequestHandler = async (req, res) => {
   const { id } = req.body;
   if (!id) {
-    res.status(400);
+    res.status(400).send();
     return;
   }
 
@@ -14,7 +14,7 @@ export const getUserData: RequestHandler = async (req, res) => {
   });
 
   if (!user) {
-    res.status(400);
+    res.status(400).send();
     return;
   }
 
@@ -27,7 +27,7 @@ export const getUserData: RequestHandler = async (req, res) => {
       return {
         id: chat.id,
         chatname: chatObj!.members
-          .filter((member) => member.id !== id)
+          .filter((member) => member.id !== user._id.toString())
           .join(", "),
       };
     })
@@ -37,5 +37,6 @@ export const getUserData: RequestHandler = async (req, res) => {
     chats: user.chats,
     friendList: user.friendList,
     mailbox: user?.mailbox,
+    username: user.username,
   });
 };
