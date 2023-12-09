@@ -37,6 +37,6 @@ export const getUserData: RequestHandler = async (req, res) => {
     chats: user.chats,
     friendList: user.friendList,
     mailbox: user?.mailbox,
-    username: user.username,
+    language: user.language,
   });
 };

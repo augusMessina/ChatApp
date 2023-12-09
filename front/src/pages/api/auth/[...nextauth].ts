@@ -23,6 +23,25 @@ export const authOptions: NextAuthOptions = {
 
       session.user.image = "default_image.jpg";
 
+      if (session.user.id) {
+        const res = await fetch("http://back:8080/getUserData", {
+          method: "POST",
+          body: JSON.stringify({
+            id: session.user.id,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await res.json();
+
+        session.user.chats = data.chats;
+        session.user.friendList = data.friendList;
+        session.user.mailbox = data.mailbox;
+        session.user.language = data.language;
+      }
+
       return session;
     },
   },

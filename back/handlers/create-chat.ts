@@ -5,19 +5,29 @@ import { ObjectId } from "mongodb";
 export const createChat: RequestHandler = async (req, res) => {
   const { user_id, chatname, password, allowedLanguages } = req.body;
   if (!user_id || !chatname) {
-    res.status(400);
+    res.status(400).send({});
     return;
   }
 
   const user = await usersCollection.findOne({ _id: new ObjectId(user_id) });
 
   if (!user) {
-    res.status(400);
+    res.status(400).send({});
     return;
   }
 
+  if (!password) {
+    const chat = await chatsCollection.findOne({ chatname });
+    if (chat) {
+      res.status(400).send("Chatname already taken");
+      return;
+    }
+  }
+
+  const newChatId = new ObjectId();
+
   await chatsCollection.insertOne({
-    _id: new ObjectId(),
+    _id: newChatId,
     chatname,
     members: [{ id: user_id, username: user.username! }],
     password,
@@ -26,5 +36,10 @@ export const createChat: RequestHandler = async (req, res) => {
     messages: [],
   });
 
-  res.status(200);
+  await usersCollection.updateOne(
+    { _id: user._id },
+    { $push: { chats: { id: newChatId.toString(), chatname } } }
+  );
+
+  res.status(200).send("Chat created");
 };
