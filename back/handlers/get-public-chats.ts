@@ -1,9 +1,23 @@
 import { RequestHandler } from "express";
 import { chatsCollection, usersCollection } from "../db/dbconnection";
 import { ObjectId } from "mongodb";
+import { ChatSchema } from "../db/schema";
 
 export const getPublicChats: RequestHandler = async (req, res) => {
-  const chats = await chatsCollection.find({ password: undefined }).toArray();
+  const { chatname } = req.body;
+
+  let chats: ChatSchema[];
+
+  if (chatname) {
+    chats = await chatsCollection
+      .find({
+        password: undefined,
+        chatname: { $regex: `^${chatname}`, $options: "i" },
+      })
+      .toArray();
+  } else {
+    chats = await chatsCollection.find({ password: undefined }).toArray();
+  }
 
   res.send({
     chats: chats.map((chat) => ({

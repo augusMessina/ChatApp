@@ -6,7 +6,7 @@ export type User = {
   email: string;
   password?: string;
   friendList: { friendId: string; friendName: string }[];
-  chats: { chatname: string; id: string }[];
+  chats: { chatname?: string; id: string }[];
   mailbox: Notif[];
   language?: string;
 };

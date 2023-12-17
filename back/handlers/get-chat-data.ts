@@ -25,5 +25,6 @@ export const getChatData: RequestHandler = async (req, res) => {
     members: chat.members,
     allowedLanguages: chat.allowedLanguages,
     languages: chat.languages,
+    password: chat.password,
   });
 };

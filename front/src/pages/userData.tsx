@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { FC, useState } from "react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
@@ -21,11 +21,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       session: session,
       userId: session.user.id,
+      isFirstTime:
+        !session.user.name ||
+        session.user.name === "default_username" ||
+        !session.user.language ||
+        session.user.language === "no_language",
     },
   };
 };
 
-const UserDataPage: FC<{ session: Session; userId: string }> = ({ userId }) => {
+const UserDataPage: FC<{
+  session: Session;
+  userId: string;
+  isFirstTime: boolean;
+}> = ({ userId, isFirstTime }) => {
   const [username, setUsername] = useState("");
   const [language, setLanguage] = useState("");
 
@@ -58,6 +67,16 @@ const UserDataPage: FC<{ session: Session; userId: string }> = ({ userId }) => {
 
   return (
     <MainContainer>
+      {isFirstTime && (
+        <button
+          style={{ marginRight: "24px" }}
+          onClick={() => {
+            signOut();
+          }}
+        >
+          Cancel
+        </button>
+      )}
       <FormContainer>
         <input
           placeholder="username"
@@ -71,6 +90,7 @@ const UserDataPage: FC<{ session: Session; userId: string }> = ({ userId }) => {
           onClick={async () => {
             await setUserdata();
           }}
+          type="submit"
         >
           Set values
         </button>

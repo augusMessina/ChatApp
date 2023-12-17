@@ -18,12 +18,19 @@ export const createUser: RequestHandler = async (req, res) => {
       email,
       username: "default_username",
       password,
+      language: "no_language",
       chats: [],
       friendList: [],
       mailbox: [],
     });
 
-    res.status(200).send({ id: userId, username: "default_username" });
+    res
+      .status(200)
+      .send({
+        id: userId,
+        username: "default_username",
+        language: "default_language",
+      });
     return;
   }
 

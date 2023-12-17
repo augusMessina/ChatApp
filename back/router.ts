@@ -9,6 +9,7 @@ import { clearUsers } from "./handlers/clear-users";
 import { getPublicChats } from "./handlers/get-public-chats";
 import { clearChats } from "./handlers/clear-chats";
 import { getChatData } from "./handlers/get-chat-data";
+import { joinChat } from "./handlers/join-chat";
 
 export const router = Router();
 
@@ -21,9 +22,10 @@ router.post("/setUserData", setUserData);
 
 router.post("/getUserId", getUserId);
 router.post("/createChat", createChat);
+router.post("/joinChat", joinChat);
 
 router.post("/clearUsers", clearUsers);
 router.post("/clearChats", clearChats);
 
 router.get("/getUsers", getUsers);
-router.get("/getPublicChats", getPublicChats);
+router.post("/getPublicChats", getPublicChats);

@@ -23,12 +23,15 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     return;
   }
 
+  const chatId = new ObjectId();
+
   await usersCollection.updateOne(
     { _id: user._id },
     {
       $pull: { mailbox: { id_sender, type: NotifType.FRIEND } },
       $push: {
         friendList: { friendId: id_sender, friendName: sender.username! },
+        chats: { id: chatId.toString() },
       },
     }
   );
@@ -38,12 +41,13 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     {
       $push: {
         friendList: { friendId: id, friendName: user.username! },
+        chats: { id: chatId.toString() },
       },
     }
   );
 
   await chatsCollection.insertOne({
-    _id: new ObjectId(),
+    _id: chatId,
     members: [
       { id: id_sender, username: sender.username! },
       { id: id, username: user.username! },

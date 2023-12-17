@@ -2,10 +2,11 @@ import styled from "@emotion/styled";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import ChatContainer from "@/components/ChatContainer";
 import { Notif } from "../types/notif";
 import { io } from "socket.io-client";
+import { signOut } from "next-auth/react";
 
 const socket = io("ws://localhost:8080");
 
@@ -49,10 +50,20 @@ type HomeProps = {
 };
 
 const Home: FC<HomeProps> = ({ user }) => {
+  const [chats, setChats] = useState(user.chats);
+
   return (
     <MainContainer>
+      <button
+        onClick={() => {
+          signOut();
+        }}
+      >
+        logout
+      </button>
       <ChatContainer
-        chats={user.chats}
+        chats={chats}
+        setChats={setChats}
         userId={user.id}
         userLanguage={user.language}
         socket={socket}

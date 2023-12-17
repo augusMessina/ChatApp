@@ -8,7 +8,17 @@ const LogInPage: FC = () => {
 
   return (
     <MainContainer>
-      <FormContainer>
+      <FormContainer
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await signIn("credentials", {
+            email,
+            password,
+            redirect: true,
+            callbackUrl: "/",
+          });
+        }}
+      >
         <input
           placeholder="e-mail"
           onChange={(e) => setEmail(e.target.value)}
@@ -17,18 +27,7 @@ const LogInPage: FC = () => {
           placeholder="password"
           onChange={(e) => setPassword(e.target.value)}
         ></input>
-        <button
-          onClick={async () => {
-            await signIn("credentials", {
-              email,
-              password,
-              redirect: true,
-              callbackUrl: "/",
-            });
-          }}
-        >
-          Access
-        </button>
+        <button type="submit">Access</button>
       </FormContainer>
     </MainContainer>
   );
@@ -44,7 +43,7 @@ const MainContainer = styled.div`
   height: 100%;
 `;
 
-const FormContainer = styled.div`
+const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: center;

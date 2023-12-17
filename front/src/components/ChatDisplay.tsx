@@ -28,6 +28,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatname, setChatname] = useState<string>("");
+  const [chetKey, setChatKey] = useState("");
   const [newMessage, setNewMessage] = useState<string>("");
 
   useEffect(() => {
@@ -52,6 +53,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
       setChatname(data.chatname);
       setMessages(data.messages);
+      setChatKey(data.password ?? "");
     };
 
     socket.emit("join", chatId);
@@ -61,6 +63,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   return (
     <ChatDisplayContainer>
       <h2>{chatname}</h2>
+      {chetKey && <h2>{chetKey}</h2>}
       <ChatMessages
         messages={messages}
         userId={userId}

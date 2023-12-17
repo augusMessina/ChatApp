@@ -29,33 +29,37 @@ const ChatMessages: FC<MessagesProps> = ({
 
   return (
     <MessagesDisplay ref={chatRef}>
-      <MessagesColumn>
-        {messages.map((message) =>
-          message.message.some(
-            (message) => message.language === userLanguage
-          ) ? (
-            <Message
-              key={message.id}
-              position={
-                message.author.authorId === userId ? "flex-end" : "flex-start"
-              }
-            >
-              <MessageHeader>
-                <UserBubble>{message.author.authorName}</UserBubble>
-              </MessageHeader>
-              <MessageBubble>
-                {
-                  message.message.find(
-                    (message) => message.language === userLanguage
-                  )?.content
+      {messages && messages.length > 0 ? (
+        <MessagesColumn>
+          {messages.map((message) =>
+            message.message.some(
+              (message) => message.language === userLanguage
+            ) ? (
+              <Message
+                key={message.id}
+                position={
+                  message.author.authorId === userId ? "flex-end" : "flex-start"
                 }
-              </MessageBubble>
-            </Message>
-          ) : (
-            <></>
-          )
-        )}
-      </MessagesColumn>
+              >
+                <MessageHeader>
+                  <UserBubble>{message.author.authorName}</UserBubble>
+                </MessageHeader>
+                <MessageBubble>
+                  {
+                    message.message.find(
+                      (message) => message.language === userLanguage
+                    )?.content
+                  }
+                </MessageBubble>
+              </Message>
+            ) : (
+              <></>
+            )
+          )}
+        </MessagesColumn>
+      ) : (
+        <h3>No messages to display</h3>
+      )}
     </MessagesDisplay>
   );
 };

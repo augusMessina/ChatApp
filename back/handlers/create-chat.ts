@@ -16,12 +16,15 @@ export const createChat: RequestHandler = async (req, res) => {
     return;
   }
 
+  let key: number | undefined = undefined;
   if (!password) {
     const chat = await chatsCollection.findOne({ chatname });
     if (chat) {
       res.status(400).send("Chatname already taken");
       return;
     }
+  } else {
+    key = Math.floor(Math.random() * 90000) + 10000;
   }
 
   const newChatId = new ObjectId();
@@ -30,7 +33,7 @@ export const createChat: RequestHandler = async (req, res) => {
     _id: newChatId,
     chatname,
     members: [{ id: user_id, username: user.username! }],
-    password,
+    password: key !== undefined ? `${key}` : key,
     allowedLanguages,
     languages: [user.language!],
     messages: [],
@@ -41,5 +44,5 @@ export const createChat: RequestHandler = async (req, res) => {
     { $push: { chats: { id: newChatId.toString(), chatname } } }
   );
 
-  res.status(200).send("Chat created");
+  res.status(200).send({ chatname, id: newChatId });
 };
