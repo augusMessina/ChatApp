@@ -3,14 +3,14 @@ import { chatsCollection, usersCollection } from "../db/dbconnection";
 import { ObjectId } from "mongodb";
 
 export const getChatData: RequestHandler = async (req, res) => {
-  const { id } = req.body;
-  if (!id) {
+  const { chat_id, user_id } = req.body;
+  if (!chat_id) {
     res.status(400).send({});
     return;
   }
 
   const chat = await chatsCollection.findOne({
-    _id: new ObjectId(id),
+    _id: new ObjectId(chat_id),
   });
 
   if (!chat) {
@@ -21,7 +21,11 @@ export const getChatData: RequestHandler = async (req, res) => {
   res.send({
     messages: chat.messages,
     chatname:
-      chat.chatname ?? chat.members.map((member) => member.username).join(", "),
+      chat.chatname ??
+      chat.members
+        .filter((member) => member.id !== user_id)
+        .map((member) => member.username)
+        .join(", "),
     members: chat.members,
     allowedLanguages: chat.allowedLanguages,
     languages: chat.languages,

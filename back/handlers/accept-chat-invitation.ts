@@ -3,7 +3,7 @@ import { chatsCollection, usersCollection } from "../db/dbconnection";
 import { ObjectId } from "mongodb";
 import { NotifType } from "../types/notif";
 
-export const acceptFriendRequest: RequestHandler = async (req, res) => {
+export const acceptChatRequest: RequestHandler = async (req, res) => {
   const { id_chat, id } = req.body;
   if (!id_chat || !id) {
     res.status(400);

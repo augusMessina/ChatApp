@@ -1,5 +1,5 @@
 import { DefaultSession } from "next-auth";
-import { Notif } from "./notif";
+import { Notif, OutgoingRequest } from "./notif";
 
 declare module "next-auth" {
   interface Session {
@@ -8,6 +8,7 @@ declare module "next-auth" {
       chats?: { id: string; chatname: string }[];
       friendList?: { friendId: string; friendName: string }[];
       mailbox?: Notif[];
+      outgoingRequests?: OutgoingRequest[];
       language: string;
     } & DefaultSession["user"];
   }

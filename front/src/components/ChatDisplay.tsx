@@ -42,7 +42,8 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       const res = await fetch("http://localhost:8080/getChatData", {
         method: "POST",
         body: JSON.stringify({
-          id: chatId,
+          chat_id: chatId,
+          user_id: userId,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -58,7 +59,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
     socket.emit("join", chatId);
     getChatData(chatId);
-  }, [chatId, socket]);
+  }, [chatId, socket, userId]);
 
   return (
     <ChatDisplayContainer>

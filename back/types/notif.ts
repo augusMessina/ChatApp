@@ -5,6 +5,12 @@ export type Notif = {
   id_chat?: string;
 };
 
+export type OutgoingRequest = {
+  type: NotifType;
+  id_receiver: string;
+  id_chat?: string;
+};
+
 export enum NotifType {
   "FRIEND" = "FRIEND",
   "CHAT" = "CHAT",

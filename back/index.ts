@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import { chatsCollection, usersCollection } from "./db/dbconnection";
 import { ObjectId } from "mongodb";
 import { Message } from "./types/message";
+import { Notif, NotifType } from "./types/notif";
 
 const PORT = 8080;
 
@@ -37,11 +38,26 @@ type MessageEvent = {
   }[];
 };
 
+type NotifEvent = {
+  id_sender: string;
+  id_receiver: string;
+  type: NotifType;
+  id_chat?: string;
+};
+
 io.on("connection", (socket) => {
   console.log("Client connected!");
 
+  socket.on("login", (userId: string) => {
+    socket.join(userId);
+  });
+
   socket.on("join", (chatId: string) => {
     socket.join(chatId);
+  });
+
+  socket.on("leave", (chatId: string) => {
+    socket.leave(chatId);
   });
 
   socket.on(
@@ -52,8 +68,9 @@ io.on("connection", (socket) => {
         _id: new ObjectId(authorId),
       });
 
-      console.log(authorId);
-      if (user) {
+      const chat = await chatsCollection.findOne({ _id: new ObjectId(chatId) });
+
+      if (user && chat) {
         const newMessage: Message = {
           author: {
             authorId,
@@ -69,8 +86,62 @@ io.on("connection", (socket) => {
           { $push: { messages: newMessage } }
         );
 
+        const chatMembers = chat.members.map(
+          (member) => new ObjectId(member.id)
+        );
+        const members = await usersCollection
+          .find({ _id: { $in: chatMembers } })
+          .toArray();
+
+        members.forEach(async (member) => {
+          let newChats = member.chats;
+          newChats.splice(
+            newChats.findIndex((memberChat) => memberChat.id === chatId),
+            1
+          );
+
+          newChats.unshift({ id: chatId, chatname: chat.chatname });
+          await usersCollection.updateOne(
+            { _id: member._id },
+            { $set: { chats: newChats } }
+          );
+        });
+
         io.to(chatId).emit("new-message", newMessage);
+
+        members.forEach((member) =>
+          io
+            .to(member._id.toString())
+            .emit("chat-new-message", { chatId, chatname: chat.chatname })
+        );
       }
+    }
+  );
+
+  socket.on("new-notif", async (newNotif: NotifEvent) => {
+    const sender = await usersCollection.findOne({
+      _id: new ObjectId(newNotif.id_sender),
+    });
+    const forwardedNotif: Notif = {
+      id_sender: newNotif.id_sender,
+      type: newNotif.type,
+      id_chat: newNotif.id_chat,
+      username_sender: sender ? sender.username : "",
+    };
+    io.to(newNotif.id_receiver).emit("new-notif", forwardedNotif);
+  });
+
+  socket.on(
+    "accepted-fr",
+    async (data: { id_sender: string; user_id: string; chat_id: string }) => {
+      const receiver = await usersCollection.findOne({
+        _id: new ObjectId(data.user_id),
+      });
+      console.log("se manda");
+      io.to(data.id_sender).emit("accepted-fr", {
+        chat_id: data.chat_id,
+        chatname: receiver?.username,
+      });
     }
   );
 });

@@ -26,6 +26,10 @@ export const sendFriendRequest: RequestHandler = async (req, res) => {
     !receiver.mailbox.some(
       (notif) =>
         notif.id_sender === id_sender && notif.type === NotifType.FRIEND
+    ) &&
+    !sender.outgoingRequests.some(
+      (request) =>
+        request.type === NotifType.FRIEND && request.id_receiver === id_receiver
     )
   ) {
     await usersCollection.updateOne(
@@ -40,7 +44,18 @@ export const sendFriendRequest: RequestHandler = async (req, res) => {
         },
       }
     );
+    await usersCollection.updateOne(
+      { _id: new ObjectId(id_sender) },
+      {
+        $push: {
+          outgoingRequests: {
+            id_receiver,
+            type: NotifType.FRIEND,
+          },
+        },
+      }
+    );
   }
 
-  res.status(200);
+  res.status(200).send({});
 };

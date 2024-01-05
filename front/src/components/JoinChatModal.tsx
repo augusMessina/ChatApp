@@ -38,6 +38,10 @@ const JoinChatModal: FC<ModalProps> = ({
   }, [close]);
 
   useEffect(() => {
+    console.log("holita");
+  }, [isOpen]);
+
+  useEffect(() => {
     const getPublicChats = async () => {
       const res = await fetch("http://localhost:8080/getPublicChats", {
         method: "POST",
@@ -63,11 +67,18 @@ const JoinChatModal: FC<ModalProps> = ({
         closeModal();
       }
     };
+    const checkIfEscPressed = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    };
     document.addEventListener("click", checkIfClickedOutside);
+    document.addEventListener("keydown", checkIfEscPressed);
     return () => {
       document.removeEventListener("click", checkIfClickedOutside);
+      document.removeEventListener("keydown", checkIfEscPressed);
     };
-  }, [closeModal, isOpen]);
+  }, [closeModal, isOpen, close]);
 
   const joinChat = async (
     chatId?: string,
@@ -94,90 +105,106 @@ const JoinChatModal: FC<ModalProps> = ({
   };
 
   return (
-    <ModalContainer isOpen={isOpen} ref={modalRef}>
-      <button onClick={() => closeModal()}>Close</button>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={chatType === "public"}
-            onChange={() => {
-              setChatType("public");
-            }}
-          ></input>
-          Public
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={chatType === "private"}
-            onChange={() => {
-              setChatType("private");
-            }}
-          ></input>
-          Private
-        </label>
-      </div>
+    <ModalBackground isOpen={isOpen}>
+      <ModalContainer ref={modalRef}>
+        <button onClick={() => closeModal()}>Close</button>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={chatType === "public"}
+              onChange={() => {
+                setChatType("public");
+              }}
+            ></input>
+            Public
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={chatType === "private"}
+              onChange={() => {
+                setChatType("private");
+              }}
+            ></input>
+            Private
+          </label>
+        </div>
 
-      {chatType === "public" && (
-        <PublicChatContainer>
-          <input
-            onChange={(e) => {
-              setSearchName(e.target.value);
-            }}
-            placeholder="Enter chat name..."
-          ></input>
-          <Scrollable>
-            <ChatsColumn>
-              {publicChats.map((chat) => (
-                <ChatJoin key={chat.id}>
-                  <p>{chat.chatname}</p>
-                  <button
-                    onClick={() => {
-                      joinChat(chat.id, chat.chatname);
-                    }}
-                    disabled={chats.some((chat2) => chat2.id === chat.id)}
-                  >
-                    Join
-                  </button>
-                </ChatJoin>
-              ))}
-            </ChatsColumn>
-          </Scrollable>
-        </PublicChatContainer>
-      )}
+        {chatType === "public" && (
+          <PublicChatContainer>
+            <input
+              onChange={(e) => {
+                setSearchName(e.target.value);
+              }}
+              placeholder="Enter chat name..."
+            ></input>
+            <Scrollable>
+              {publicChats.length > 0 && (
+                <ChatsColumn>
+                  {publicChats.map((chat) => (
+                    <ChatJoin key={chat.id}>
+                      <p>{chat.chatname}</p>
+                      <button
+                        onClick={() => {
+                          joinChat(chat.id, chat.chatname);
+                        }}
+                        disabled={chats.some((chat2) => chat2.id === chat.id)}
+                      >
+                        Join
+                      </button>
+                    </ChatJoin>
+                  ))}
+                </ChatsColumn>
+              )}
 
-      {chatType === "private" && (
-        <PublicChatContainer>
-          <input
-            onChange={(e) => {
-              setChatname(e.target.value);
-            }}
-            placeholder="Enter chat name..."
-          ></input>
-          <input
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
-            placeholder="Enter chat password..."
-          ></input>
-          <button
-            onClick={() => {
-              joinChat(undefined, chatname, password);
-            }}
-          >
-            Join
-          </button>
-        </PublicChatContainer>
-      )}
-    </ModalContainer>
+              {publicChats.length === 0 && <h3>No chats available</h3>}
+            </Scrollable>
+          </PublicChatContainer>
+        )}
+
+        {chatType === "private" && (
+          <PublicChatContainer>
+            <input
+              onChange={(e) => {
+                setChatname(e.target.value);
+              }}
+              placeholder="Enter chat name..."
+            ></input>
+            <input
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+              placeholder="Enter chat password..."
+            ></input>
+            <button
+              onClick={() => {
+                joinChat(undefined, chatname, password);
+              }}
+            >
+              Join
+            </button>
+          </PublicChatContainer>
+        )}
+      </ModalContainer>
+    </ModalBackground>
   );
 };
 
 export default JoinChatModal;
 
-const ModalContainer = styled.div<{ isOpen: boolean }>`
-  display: ${(props) => (props.isOpen ? "flex" : "none")};
+const ModalBackground = styled.div<{ isOpen: boolean }>`
+  display: ${(props) => (props.isOpen ? "block" : "none")};
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000b5;
+`;
+
+const ModalContainer = styled.div`
+  display: flex;
   position: fixed;
   top: 50%;
   left: 50%;

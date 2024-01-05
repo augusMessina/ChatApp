@@ -35,9 +35,16 @@ const CreateChatModal: FC<ModalProps> = ({
         close();
       }
     };
+    const checkIfEscPressed = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        close();
+      }
+    };
     document.addEventListener("click", checkIfClickedOutside);
+    document.addEventListener("keydown", checkIfEscPressed);
     return () => {
       document.removeEventListener("click", checkIfClickedOutside);
+      document.removeEventListener("keydown", checkIfEscPressed);
     };
   }, [close, isOpen]);
 
@@ -63,39 +70,51 @@ const CreateChatModal: FC<ModalProps> = ({
   };
 
   return (
-    <ModalContainer isOpen={isOpen} ref={modalRef}>
-      <button onClick={() => close()}>Close</button>
-      <label>Chat name:</label>
-      <input
-        onChange={(e) => {
-          setChatname(e.target.value);
-        }}
-      ></input>
-      <div>
-        <label>Private</label>
+    <ModalBackground isOpen={isOpen}>
+      <ModalContainer ref={modalRef}>
+        <button onClick={() => close()}>Close</button>
+        <label>Chat name:</label>
         <input
-          type="checkbox"
           onChange={(e) => {
-            setIsPrivate(e.target.checked);
+            setChatname(e.target.value);
           }}
         ></input>
-      </div>
+        <div>
+          <label>Private</label>
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              setIsPrivate(e.target.checked);
+            }}
+          ></input>
+        </div>
 
-      <button
-        onClick={() => {
-          createChat();
-        }}
-      >
-        Create
-      </button>
-    </ModalContainer>
+        <button
+          onClick={() => {
+            createChat();
+          }}
+        >
+          Create
+        </button>
+      </ModalContainer>
+    </ModalBackground>
   );
 };
 
 export default CreateChatModal;
 
-const ModalContainer = styled.div<{ isOpen: boolean }>`
-  display: ${(props) => (props.isOpen ? "flex" : "none")};
+const ModalBackground = styled.div<{ isOpen: boolean }>`
+  display: ${(props) => (props.isOpen ? "block" : "none")};
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000000b5;
+`;
+
+const ModalContainer = styled.div`
+  display: flex;
   position: fixed;
   top: 50%;
   left: 50%;

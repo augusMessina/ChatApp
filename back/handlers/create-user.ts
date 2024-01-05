@@ -22,15 +22,14 @@ export const createUser: RequestHandler = async (req, res) => {
       chats: [],
       friendList: [],
       mailbox: [],
+      outgoingRequests: [],
     });
 
-    res
-      .status(200)
-      .send({
-        id: userId,
-        username: "default_username",
-        language: "default_language",
-      });
+    res.status(200).send({
+      id: userId,
+      username: "default_username",
+      language: "default_language",
+    });
     return;
   }
 

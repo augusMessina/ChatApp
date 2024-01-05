@@ -24,10 +24,14 @@ export const getUserData: RequestHandler = async (req, res) => {
       const chatObj = await chatsCollection.findOne({
         _id: new ObjectId(chat.id),
       });
+      console.log(
+        chatObj!.members.filter((member) => member.id !== user._id.toString())
+      );
       return {
         id: chat.id,
         chatname: chatObj!.members
           .filter((member) => member.id !== user._id.toString())
+          .map((member) => member.username)
           .join(", "),
       };
     })
@@ -36,7 +40,8 @@ export const getUserData: RequestHandler = async (req, res) => {
   res.send({
     chats: user.chats,
     friendList: user.friendList,
-    mailbox: user?.mailbox,
+    mailbox: user.mailbox,
     language: user.language,
+    outgoingRequests: user.outgoingRequests,
   });
 };

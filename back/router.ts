@@ -10,6 +10,9 @@ import { getPublicChats } from "./handlers/get-public-chats";
 import { clearChats } from "./handlers/clear-chats";
 import { getChatData } from "./handlers/get-chat-data";
 import { joinChat } from "./handlers/join-chat";
+import { getPublicUsers } from "./handlers/get-public-users";
+import { sendFriendRequest } from "./handlers/send-friend-request";
+import { acceptFriendRequest } from "./handlers/accept-friend-request";
 
 export const router = Router();
 
@@ -28,4 +31,8 @@ router.post("/clearUsers", clearUsers);
 router.post("/clearChats", clearChats);
 
 router.get("/getUsers", getUsers);
+router.post("/getPublicUsers", getPublicUsers);
 router.post("/getPublicChats", getPublicChats);
+
+router.post("/sendFriendRequest", sendFriendRequest);
+router.post("/acceptFriendRequest", acceptFriendRequest);

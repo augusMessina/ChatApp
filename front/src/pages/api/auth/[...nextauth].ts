@@ -40,6 +40,7 @@ export const authOptions: NextAuthOptions = {
         session.user.friendList = data.friendList;
         session.user.mailbox = data.mailbox;
         session.user.language = data.language;
+        session.user.outgoingRequests = data.outgoingRequests;
 
         console.log(session.user.language, session.user.name);
       }

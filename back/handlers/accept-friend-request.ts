@@ -4,8 +4,8 @@ import { ObjectId } from "mongodb";
 import { NotifType } from "../types/notif";
 
 export const acceptFriendRequest: RequestHandler = async (req, res) => {
-  const { id_sender, id } = req.body;
-  if (!id_sender || !id) {
+  const { id_sender, user_id } = req.body;
+  if (!id_sender || !user_id) {
     res.status(400);
     return;
   }
@@ -15,7 +15,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
   });
 
   const user = await usersCollection.findOne({
-    _id: new ObjectId(id),
+    _id: new ObjectId(user_id),
   });
 
   if (!sender || !user) {
@@ -40,7 +40,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     { _id: sender._id },
     {
       $push: {
-        friendList: { friendId: id, friendName: user.username! },
+        friendList: { friendId: user_id, friendName: user.username! },
         chats: { id: chatId.toString() },
       },
     }
@@ -50,11 +50,11 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     _id: chatId,
     members: [
       { id: id_sender, username: sender.username! },
-      { id: id, username: user.username! },
+      { id: user_id, username: user.username! },
     ],
     messages: [],
     languages: Array.from(new Set([...sender.language!, ...user.language!])),
   });
 
-  res.status(200);
+  res.status(200).send({ chat_id: chatId });
 };

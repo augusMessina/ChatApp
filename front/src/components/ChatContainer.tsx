@@ -1,13 +1,28 @@
 import styled from "@emotion/styled";
-import { FC, useState } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import ChatDisplay from "./ChatDisplay";
 import { Socket } from "socket.io-client";
 import JoinChatModal from "./JoinChatModal";
-import CreateChatModal from "./CreateChatModa";
+import CreateChatModal from "./CreateChatModal";
+import SearchUserModal from "./SearchUserModal";
+import { Notif, OutgoingRequest } from "@/types/notif";
+import MailboxModal from "./MailboxModal";
 
 type ChatDisplayProps = {
   chats: { id: string; chatname: string }[];
-  setChats: (chats: { id: string; chatname: string }[]) => void;
+  setChats: Dispatch<
+    SetStateAction<
+      {
+        id: string;
+        chatname: string;
+      }[]
+    >
+  >;
+  mailbox: Notif[];
+  setMailbox: Dispatch<SetStateAction<Notif[]>>;
+  friendList: { friendId: string; friendName: string }[];
+  outgoingRequests: OutgoingRequest[];
+  setOutgoingRequests: (newReqs: OutgoingRequest[]) => void;
   userId: string;
   userLanguage: string;
   socket: Socket;
@@ -16,6 +31,11 @@ type ChatDisplayProps = {
 const ChatConitainer: FC<ChatDisplayProps> = ({
   chats,
   setChats,
+  mailbox,
+  setMailbox,
+  friendList,
+  outgoingRequests,
+  setOutgoingRequests,
   userId,
   userLanguage,
   socket,
@@ -26,6 +46,8 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
 
   const [joinChatOpen, setJoinChatOpen] = useState(false);
   const [createChatOpen, setCreateChatOpen] = useState(false);
+  const [searchUserOpen, setSearchUserOpen] = useState(false);
+  const [mailboxOpen, setMailboxOpen] = useState(false);
 
   const closeJoinChat = () => {
     setJoinChatOpen(false);
@@ -33,6 +55,14 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
 
   const closeCreateChat = () => {
     setCreateChatOpen(false);
+  };
+
+  const closeSearchUser = () => {
+    setSearchUserOpen(false);
+  };
+
+  const closeMailbox = () => {
+    setMailboxOpen(false);
   };
 
   return (
@@ -51,19 +81,25 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         chats={chats}
         setChats={setChats}
       ></CreateChatModal>
+      <SearchUserModal
+        isOpen={searchUserOpen}
+        close={closeSearchUser}
+        userId={userId}
+        outgoingRequests={outgoingRequests}
+        setOutgoingRequests={setOutgoingRequests}
+        mailbox={mailbox}
+        socket={socket}
+      ></SearchUserModal>
+      <MailboxModal
+        isOpen={mailboxOpen}
+        close={closeMailbox}
+        userId={userId}
+        mailbox={mailbox}
+        setMailbox={setMailbox}
+        setChats={setChats}
+        socket={socket}
+      ></MailboxModal>
       <LeftMenu>
-        <Chats>
-          {chats.map((chat) => (
-            <p
-              key={chat.id}
-              onClick={() => {
-                setCurrentChat(chat.id);
-              }}
-            >
-              {chat.chatname}
-            </p>
-          ))}
-        </Chats>
         <ToolBar>
           <button
             onClick={(e) => {
@@ -81,8 +117,38 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           >
             Create
           </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSearchUserOpen(true);
+            }}
+          >
+            Add
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setMailboxOpen(true);
+            }}
+          >
+            Mailbox
+          </button>
           <button>Options</button>
         </ToolBar>
+        <Chats>
+          {chats.map((chat) => (
+            <Chat
+              key={chat.id}
+              onClick={() => {
+                socket.emit("leave", currentChat);
+                setCurrentChat(chat.id);
+              }}
+              isSelected={currentChat === chat.id}
+            >
+              {chat.chatname}
+            </Chat>
+          ))}
+        </Chats>
       </LeftMenu>
       <ChatDisplay
         chatId={currentChat}
@@ -126,6 +192,10 @@ const Chats = styled.div`
   width: 100%;
   gap: 8px;
   flex: 1;
+`;
+
+const Chat = styled.p<{ isSelected: boolean }>`
+  ${(props) => (props.isSelected ? "background: #fabada;" : "")}
 `;
 
 const ToolBar = styled.div`
