@@ -38,10 +38,6 @@ const JoinChatModal: FC<ModalProps> = ({
   }, [close]);
 
   useEffect(() => {
-    console.log("holita");
-  }, [isOpen]);
-
-  useEffect(() => {
     const getPublicChats = async () => {
       const res = await fetch("http://localhost:8080/getPublicChats", {
         method: "POST",

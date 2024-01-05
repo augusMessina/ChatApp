@@ -43,7 +43,6 @@ const UserDataPage: FC<{
   const router = useRouter();
 
   const setUserdata = async () => {
-    console.log("hmm", userId);
     const res = await fetch("http://localhost:8080/setUserData", {
       method: "POST",
       body: JSON.stringify({ username, language, id: userId }),

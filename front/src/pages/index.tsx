@@ -64,14 +64,18 @@ const Home: FC<HomeProps> = ({ user }) => {
       "chat-new-message",
       (data: { chatId: string; chatname: string }) => {
         setChats((prevChats) => {
-          const newChats = [...prevChats]; // Create a shallow copy
-          const index = newChats.findIndex((chat) => chat.id === data.chatId);
+          if (prevChats.length > 1) {
+            const newChats = [...prevChats]; // Create a shallow copy
+            const index = newChats.findIndex((chat) => chat.id === data.chatId);
 
-          if (index !== -1) {
-            newChats.splice(index, 1);
+            if (index !== -1) {
+              newChats.splice(index, 1);
+            }
+            newChats.unshift({ id: data.chatId, chatname: data.chatname });
+            console.log(newChats);
+            return newChats;
           }
-          newChats.unshift({ id: data.chatId, chatname: data.chatname });
-          return newChats;
+          return prevChats;
         });
       }
     );
@@ -87,7 +91,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         ]);
       }
     );
-  }, [user, chats]);
+  }, [user, chats, mailbox]);
 
   return (
     <MainContainer>

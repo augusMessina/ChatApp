@@ -110,9 +110,15 @@ io.on("connection", (socket) => {
         io.to(chatId).emit("new-message", newMessage);
 
         members.forEach((member) =>
-          io
-            .to(member._id.toString())
-            .emit("chat-new-message", { chatId, chatname: chat.chatname })
+          io.to(member._id.toString()).emit("chat-new-message", {
+            chatId,
+            chatname:
+              chat.chatname ??
+              chat.members
+                .filter((chatmember) => chatmember.id !== member._id.toString())
+                .map((member) => member.username)
+                .join(", "),
+          })
         );
       }
     }

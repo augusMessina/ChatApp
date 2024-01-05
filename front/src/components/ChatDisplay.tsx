@@ -54,11 +54,14 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
       setChatname(data.chatname);
       setMessages(data.messages);
+      console.log(data);
       setChatKey(data.password ?? "");
     };
 
-    socket.emit("join", chatId);
-    getChatData(chatId);
+    if (chatId) {
+      socket.emit("join", chatId);
+      getChatData(chatId);
+    }
   }, [chatId, socket, userId]);
 
   return (
@@ -70,25 +73,28 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         userId={userId}
         userLanguage={userLanguage}
       ></ChatMessages>
-      <InputArea
-        onSubmit={(e) => {
-          e.preventDefault();
-          socket.emit("new-message", {
-            chatId,
-            message: [{ language: userLanguage, content: newMessage }],
-            authorId: userId,
-          });
-          setNewMessage("");
-        }}
-      >
-        <input
-          onChange={(e) => {
-            setNewMessage(e.target.value);
+
+      {chatId && (
+        <InputArea
+          onSubmit={(e) => {
+            e.preventDefault();
+            socket.emit("new-message", {
+              chatId,
+              message: [{ language: userLanguage, content: newMessage }],
+              authorId: userId,
+            });
+            setNewMessage("");
           }}
-          value={newMessage}
-        ></input>
-        <button type="submit">Send</button>
-      </InputArea>
+        >
+          <input
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+            }}
+            value={newMessage}
+          ></input>
+          <button type="submit">Send</button>
+        </InputArea>
+      )}
     </ChatDisplayContainer>
   );
 };
