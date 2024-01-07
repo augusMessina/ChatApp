@@ -20,12 +20,14 @@ export const getPublicChats: RequestHandler = async (req, res) => {
   }
 
   res.send({
-    chats: chats.map((chat) => ({
-      chatname: chat.chatname,
-      id: chat._id,
-      languages: chat.languages,
-      allowedLanguages: chat.allowedLanguages,
-      members: chat.members.length,
-    })),
+    chats: chats
+      .filter((chat) => chat.chatname)
+      .map((chat) => ({
+        chatname: chat.chatname,
+        id: chat._id,
+        languages: chat.languages,
+        allowedLanguages: chat.allowedLanguages,
+        members: chat.members.length,
+      })),
   });
 };

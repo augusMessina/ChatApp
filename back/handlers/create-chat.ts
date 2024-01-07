@@ -37,6 +37,7 @@ export const createChat: RequestHandler = async (req, res) => {
     allowedLanguages,
     languages: [user.language!],
     messages: [],
+    isFriendChat: false,
   });
 
   await usersCollection.updateOne(

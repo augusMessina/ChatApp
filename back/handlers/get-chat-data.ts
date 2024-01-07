@@ -30,5 +30,6 @@ export const getChatData: RequestHandler = async (req, res) => {
     allowedLanguages: chat.allowedLanguages,
     languages: chat.languages,
     password: chat.password,
+    isFriendChat: chat.isFriendChat,
   });
 };

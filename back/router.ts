@@ -14,6 +14,8 @@ import { getPublicUsers } from "./handlers/get-public-users";
 import { sendFriendRequest } from "./handlers/send-friend-request";
 import { acceptFriendRequest } from "./handlers/accept-friend-request";
 import { getChats } from "./handlers/get-chats";
+import { sendChatInvitation } from "./handlers/send-chat-invitation";
+import { acceptChatRequest } from "./handlers/accept-chat-invitation";
 
 export const router = Router();
 
@@ -38,3 +40,6 @@ router.post("/getPublicChats", getPublicChats);
 
 router.post("/sendFriendRequest", sendFriendRequest);
 router.post("/acceptFriendRequest", acceptFriendRequest);
+
+router.post("/sendChatInvitation", sendChatInvitation);
+router.post("/acceptChatInvitation", acceptChatRequest);

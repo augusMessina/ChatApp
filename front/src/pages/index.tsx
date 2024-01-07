@@ -72,7 +72,6 @@ const Home: FC<HomeProps> = ({ user }) => {
               newChats.splice(index, 1);
             }
             newChats.unshift({ id: data.chatId, chatname: data.chatname });
-            console.log(newChats);
             return newChats;
           }
           return prevChats;
@@ -84,10 +83,16 @@ const Home: FC<HomeProps> = ({ user }) => {
     });
     socket.on(
       "accepted-fr",
-      (newChat: { chat_id: string; chatname: string }) => {
-        setChats([
-          { id: newChat.chat_id, chatname: newChat.chatname },
-          ...chats,
+      (data: {
+        chat_id: string;
+        chatname: string;
+        friend_id: string;
+        friend_name: string;
+      }) => {
+        setChats([{ id: data.chat_id, chatname: data.chatname }, ...chats]);
+        setFriendList((prev) => [
+          ...prev,
+          { friendId: data.friend_id, friendName: data.friend_name },
         ]);
       }
     );
@@ -108,6 +113,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         mailbox={mailbox}
         setMailbox={setMailbox}
         friendList={friendList}
+        setFriendList={setFriendList}
         outgoingRequests={outgoingRequests}
         setOutgoingRequests={setOutgoingRequests}
         userId={user.id}

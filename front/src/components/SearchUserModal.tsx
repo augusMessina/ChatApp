@@ -1,4 +1,5 @@
 import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
+import { sendFriendRequest } from "@/utils/send-friend-request";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -73,27 +74,6 @@ const SearchUserModal: FC<ModalProps> = ({
     };
   }, [isOpen, close]);
 
-  const sendFriendRequest = async (otherUserId: string) => {
-    const res = await fetch("http://localhost:8080/sendFriendRequest", {
-      method: "POST",
-      body: JSON.stringify({
-        id_sender: userId,
-        id_receiver: otherUserId,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    if (res.ok) {
-      const newNotif = {
-        id_sender: userId,
-        type: NotifType.FRIEND,
-        id_receiver: otherUserId,
-      };
-      socket.emit("new-notif", newNotif);
-    }
-  };
-
   return (
     <ModalBackground isOpen={isOpen}>
       <ModalContainer ref={modalRef}>
@@ -114,11 +94,13 @@ const SearchUserModal: FC<ModalProps> = ({
                     <p>{user.username}</p>
                     <button
                       onClick={() => {
-                        sendFriendRequest(user.id);
-                        setOutgoingRequests([
-                          ...outgoingRequests,
-                          { type: NotifType.FRIEND, id_receiver: user.id },
-                        ]);
+                        sendFriendRequest(
+                          userId,
+                          user.id,
+                          socket,
+                          outgoingRequests,
+                          setOutgoingRequests
+                        );
                       }}
                       disabled={
                         outgoingRequests.some(

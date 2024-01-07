@@ -24,9 +24,7 @@ export const getUserData: RequestHandler = async (req, res) => {
       const chatObj = await chatsCollection.findOne({
         _id: new ObjectId(chat.id),
       });
-      console.log(
-        chatObj!.members.filter((member) => member.id !== user._id.toString())
-      );
+
       return {
         id: chat.id,
         chatname: chatObj!.members

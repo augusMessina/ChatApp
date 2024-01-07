@@ -19,6 +19,7 @@ type Notif = {
   id_sender: string;
   username_sender: string;
   id_chat?: string;
+  chatname?: string;
 };
 
 enum NotifType {

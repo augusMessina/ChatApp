@@ -54,6 +54,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     ],
     messages: [],
     languages: Array.from(new Set([...sender.language!, ...user.language!])),
+    isFriendChat: true,
   });
 
   res.status(200).send({ chat_id: chatId });

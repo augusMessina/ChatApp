@@ -43,6 +43,7 @@ type NotifEvent = {
   id_receiver: string;
   type: NotifType;
   id_chat?: string;
+  chatname?: string;
 };
 
 io.on("connection", (socket) => {
@@ -63,7 +64,6 @@ io.on("connection", (socket) => {
   socket.on(
     "new-message",
     async ({ chatId, authorId, message }: MessageEvent) => {
-      console.log("new message", chatId);
       const user = await usersCollection.findOne({
         _id: new ObjectId(authorId),
       });
@@ -132,6 +132,7 @@ io.on("connection", (socket) => {
       id_sender: newNotif.id_sender,
       type: newNotif.type,
       id_chat: newNotif.id_chat,
+      chatname: newNotif.chatname,
       username_sender: sender ? sender.username : "",
     };
     io.to(newNotif.id_receiver).emit("new-notif", forwardedNotif);
@@ -143,10 +144,14 @@ io.on("connection", (socket) => {
       const receiver = await usersCollection.findOne({
         _id: new ObjectId(data.user_id),
       });
-      console.log("se manda");
+      const sender = await usersCollection.findOne({
+        _id: new ObjectId(data.id_sender),
+      });
       io.to(data.id_sender).emit("accepted-fr", {
         chat_id: data.chat_id,
         chatname: receiver?.username,
+        friend_id: data.id_sender,
+        friend_name: sender?.username,
       });
     }
   );

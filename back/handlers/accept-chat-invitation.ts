@@ -4,8 +4,8 @@ import { ObjectId } from "mongodb";
 import { NotifType } from "../types/notif";
 
 export const acceptChatRequest: RequestHandler = async (req, res) => {
-  const { id_chat, id } = req.body;
-  if (!id_chat || !id) {
+  const { id_chat, user_id } = req.body;
+  if (!id_chat || !user_id) {
     res.status(400);
     return;
   }
@@ -15,7 +15,7 @@ export const acceptChatRequest: RequestHandler = async (req, res) => {
   });
 
   const user = await usersCollection.findOne({
-    _id: new ObjectId(id),
+    _id: new ObjectId(user_id),
   });
 
   if (!chat || !user) {
@@ -35,7 +35,7 @@ export const acceptChatRequest: RequestHandler = async (req, res) => {
 
   await chatsCollection.updateOne(
     { _id: new ObjectId(id_chat) },
-    { $push: { members: { id, username: user.username! } } }
+    { $push: { members: { id: user_id, username: user.username! } } }
   );
-  res.status(200);
+  res.status(200).send({});
 };

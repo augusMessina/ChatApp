@@ -18,6 +18,14 @@ type ModalProps = {
   userId: ISODateString;
   mailbox: Notif[];
   setMailbox: Dispatch<SetStateAction<Notif[]>>;
+  setFriendList: Dispatch<
+    SetStateAction<
+      {
+        friendId: string;
+        friendName: string;
+      }[]
+    >
+  >;
   socket: Socket;
   setChats: Dispatch<
     SetStateAction<
@@ -41,6 +49,7 @@ const MailboxModal: FC<ModalProps> = ({
   userId,
   mailbox,
   setMailbox,
+  setFriendList,
   socket,
   setChats,
 }) => {
@@ -85,11 +94,36 @@ const MailboxModal: FC<ModalProps> = ({
         { chatname: username_sender, id: data.chat_id },
         ...prev,
       ]);
+      setFriendList((prev) => [
+        ...prev,
+        { friendId: id_sender, friendName: username_sender },
+      ]);
       socket.emit("accepted-fr", {
         id_sender,
         user_id: userId,
         chat_id: data.chat_id,
       });
+    }
+  };
+
+  const acceptChatInvitation = async (id_chat: string, chatname: string) => {
+    const res = await fetch("http://localhost:8080/acceptChatInvitation", {
+      method: "POST",
+      body: JSON.stringify({
+        id_chat,
+        user_id: userId,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (res.ok) {
+      setChats((prev) => [{ chatname, id: id_chat }, ...prev]);
+      // socket.emit("accepted-fr", {
+      //   id_sender,
+      //   user_id: userId,
+      //   chat_id: data.chat_id,
+      // });
     }
   };
 
@@ -108,27 +142,52 @@ const MailboxModal: FC<ModalProps> = ({
                     key={`${mail.id_sender}-${mail.type}-${mail.id_chat ?? ""}`}
                   >
                     <p>From: {mail.username_sender}</p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        acceptFriendRequest(
-                          mail.id_sender,
-                          mail.username_sender
-                        );
-                        setMailbox((prev) => {
-                          return prev.filter(
-                            (notif) =>
-                              !(
-                                notif.type === mail.type &&
-                                notif.id_sender === mail.id_sender &&
-                                notif.id_chat === mail.id_chat
-                              )
+                    {mail.type === "CHAT" && <p> | to {mail.chatname}</p>}
+                    {mail.type === "FRIEND" ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          acceptFriendRequest(
+                            mail.id_sender,
+                            mail.username_sender
                           );
-                        });
-                      }}
-                    >
-                      Accept
-                    </button>
+                          setMailbox((prev) => {
+                            return prev.filter(
+                              (notif) =>
+                                !(
+                                  notif.type === mail.type &&
+                                  notif.id_sender === mail.id_sender &&
+                                  notif.id_chat === mail.id_chat
+                                )
+                            );
+                          });
+                        }}
+                      >
+                        Accept
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          acceptChatInvitation(
+                            mail.id_chat as string,
+                            mail.chatname as string
+                          );
+                          setMailbox((prev) => {
+                            return prev.filter(
+                              (notif) =>
+                                !(
+                                  notif.type === mail.type &&
+                                  notif.id_sender === mail.id_sender &&
+                                  notif.id_chat === mail.id_chat
+                                )
+                            );
+                          });
+                        }}
+                      >
+                        Join
+                      </button>
+                    )}
                   </ChatJoin>
                 ))}
               </ChatsColumn>

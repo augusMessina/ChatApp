@@ -2,12 +2,22 @@ import styled from "@emotion/styled";
 import { FC, useEffect, useState } from "react";
 import ChatMessages from "./ChatMessages";
 import { Socket } from "socket.io-client";
+import ScrollableDropdown from "./ScrollableDropdown";
+import { sendFriendRequest } from "@/utils/send-friend-request";
+import { OutgoingRequest } from "@/types/notif";
+import { sendChatInvitation } from "@/utils/send-chat-invitation";
 
 type ChatDisplayProps = {
   chatId: string;
   userId: string;
   userLanguage: string;
   socket: Socket;
+  friendList: {
+    friendId: string;
+    friendName: string;
+  }[];
+  outgoingRequests: OutgoingRequest[];
+  setOutgoingRequests: (newReq: OutgoingRequest[]) => void;
 };
 
 type Message = {
@@ -25,11 +35,22 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   userId,
   userLanguage,
   socket,
+  friendList,
+  outgoingRequests,
+  setOutgoingRequests,
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chatname, setChatname] = useState<string>("");
+  const [members, setMembers] = useState<{ id: string; username: string }[]>(
+    []
+  );
+  const [chatLang, setChatLang] = useState<string[]>([]);
+  const [isFriendChat, setIsFriendChat] = useState(false);
   const [chetKey, setChatKey] = useState("");
   const [newMessage, setNewMessage] = useState<string>("");
+
+  const [membersDropdownOpen, setMembersDropdownOpen] = useState(false);
+  const [inviteDropdownOpen, setInviteDropdownOpen] = useState(false);
 
   useEffect(() => {
     socket.on("new-message", (newMessage: Message) => {
@@ -51,11 +72,12 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       });
 
       const data = await res.json();
-
       setChatname(data.chatname);
       setMessages(data.messages);
-      console.log(data);
+      setMembers(data.members);
       setChatKey(data.password ?? "");
+      setIsFriendChat(data.isFriendChat);
+      setChatLang(data.languages);
     };
 
     if (chatId) {
@@ -66,8 +88,99 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
   return (
     <ChatDisplayContainer>
-      <h2>{chatname}</h2>
-      {chetKey && <h2>{chetKey}</h2>}
+      <ChatHeader>
+        <Gap></Gap>
+        <h2>{chatname}</h2>
+        <HeaderButtons>
+          {chetKey && <h2>{chetKey}</h2>}
+          {!isFriendChat && (
+            <DropdownButtonContainer>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMembersDropdownOpen(true);
+                }}
+              >
+                Members
+              </button>
+              <ScrollableDropdown
+                items={members
+                  .filter((member) => member.id !== userId)
+                  .map((member) => ({
+                    label: member.username,
+                    id: member.id,
+                    buttonLabel: "Send friend request",
+                  }))}
+                isOpen={membersDropdownOpen}
+                close={() => setMembersDropdownOpen(false)}
+                emptyText="No members"
+                onButtonClick={(memberId: string) =>
+                  sendFriendRequest(
+                    userId,
+                    memberId,
+                    socket,
+                    outgoingRequests,
+                    setOutgoingRequests
+                  )
+                }
+                disabledCondition={(memberId) =>
+                  friendList.some((friend) => friend.friendId === memberId) ||
+                  outgoingRequests.some(
+                    (request) => request.id_receiver === memberId
+                  )
+                }
+                width={300}
+                height={400}
+              ></ScrollableDropdown>
+            </DropdownButtonContainer>
+          )}
+          {!isFriendChat && (
+            <DropdownButtonContainer>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setInviteDropdownOpen(true);
+                }}
+              >
+                Invite
+              </button>
+              <ScrollableDropdown
+                items={friendList.map((friend) => ({
+                  label: friend.friendName,
+                  id: friend.friendId,
+                  buttonLabel: "Invite to chat",
+                }))}
+                isOpen={inviteDropdownOpen}
+                close={() => setInviteDropdownOpen(false)}
+                emptyText="No friends"
+                onButtonClick={(friendId: string) =>
+                  sendChatInvitation(
+                    userId,
+                    friendId,
+                    chatId,
+                    chatname,
+                    socket,
+                    outgoingRequests,
+                    setOutgoingRequests
+                  )
+                }
+                disabledCondition={(friendId) =>
+                  members.some((member) => member.id === friendId) ||
+                  outgoingRequests.some(
+                    (request) =>
+                      request.type === "CHAT" &&
+                      request.id_receiver === friendId &&
+                      request.id_chat === chatId
+                  )
+                }
+                width={300}
+                height={400}
+              ></ScrollableDropdown>
+            </DropdownButtonContainer>
+          )}
+        </HeaderButtons>
+      </ChatHeader>
+
       <ChatMessages
         messages={messages}
         userId={userId}
@@ -110,6 +223,73 @@ const ChatDisplayContainer = styled.div`
   justify-content: flex-end;
   padding: 8px;
   gap: 16px;
+`;
+
+const ChatHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+
+  > h2 {
+    flex: 1;
+    text-align: center;
+  }
+`;
+
+const Gap = styled.div`
+  visibility: hidden;
+  flex: 1;
+`;
+
+const HeaderButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+`;
+
+const DropdownButtonContainer = styled.div`
+  position: relative;
+`;
+
+const DropdownContainer = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: -404px;
+  height: 400px;
+  width: 300px;
+  background: white;
+  border: 2px solid black;
+  box-sizing: border-box;
+`;
+
+const Scrollable = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 300px;
+  width: 100%;
+`;
+
+const ChatsColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  height: fit-content;
+`;
+
+const ChatJoin = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const InputArea = styled.form`

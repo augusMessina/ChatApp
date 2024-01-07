@@ -21,6 +21,14 @@ type ChatDisplayProps = {
   mailbox: Notif[];
   setMailbox: Dispatch<SetStateAction<Notif[]>>;
   friendList: { friendId: string; friendName: string }[];
+  setFriendList: Dispatch<
+    SetStateAction<
+      {
+        friendId: string;
+        friendName: string;
+      }[]
+    >
+  >;
   outgoingRequests: OutgoingRequest[];
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void;
   userId: string;
@@ -34,6 +42,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   mailbox,
   setMailbox,
   friendList,
+  setFriendList,
   outgoingRequests,
   setOutgoingRequests,
   userId,
@@ -97,6 +106,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         mailbox={mailbox}
         setMailbox={setMailbox}
         setChats={setChats}
+        setFriendList={setFriendList}
         socket={socket}
       ></MailboxModal>
       <LeftMenu>
@@ -155,6 +165,9 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         userId={userId}
         userLanguage={userLanguage}
         socket={socket}
+        friendList={friendList}
+        outgoingRequests={outgoingRequests}
+        setOutgoingRequests={setOutgoingRequests}
       ></ChatDisplay>
     </ChatLayout>
   );
