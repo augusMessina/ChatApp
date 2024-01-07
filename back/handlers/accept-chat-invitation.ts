@@ -33,9 +33,26 @@ export const acceptChatRequest: RequestHandler = async (req, res) => {
     }
   );
 
-  await chatsCollection.updateOne(
-    { _id: new ObjectId(id_chat) },
-    { $push: { members: { id: user_id, username: user.username! } } }
-  );
+  if (chat.languages.includes(user.language!)) {
+    await chatsCollection.updateOne(
+      { _id: chat._id },
+      {
+        $push: {
+          members: { username: user.username, id: user._id.toString() },
+        },
+      }
+    );
+  } else {
+    await chatsCollection.updateOne(
+      { _id: chat._id },
+      {
+        $push: {
+          members: { username: user.username, id: user._id.toString() },
+          languages: user.language,
+        },
+      }
+    );
+  }
+
   res.status(200).send({});
 };

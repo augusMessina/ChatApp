@@ -83,20 +83,15 @@ const Home: FC<HomeProps> = ({ user }) => {
     });
     socket.on(
       "accepted-fr",
-      (data: {
-        chat_id: string;
-        chatname: string;
-        friend_id: string;
-        friend_name: string;
-      }) => {
-        setChats([{ id: data.chat_id, chatname: data.chatname }, ...chats]);
-        setFriendList((prev) => [
-          ...prev,
+      (data: { chat_id: string; friend_id: string; friend_name: string }) => {
+        setChats([{ id: data.chat_id, chatname: data.friend_name }, ...chats]);
+        setFriendList([
+          ...friendList,
           { friendId: data.friend_id, friendName: data.friend_name },
         ]);
       }
     );
-  }, [user, chats, mailbox]);
+  }, [user, chats, friendList, mailbox]);
 
   return (
     <MainContainer>

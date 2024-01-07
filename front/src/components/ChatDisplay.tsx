@@ -58,7 +58,23 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
     socket.on("new-message", (newMessage: Message) => {
       setChatMessages([...chatMessages, newMessage]);
     });
-  }, [chatMessages, socket]);
+    socket.on(
+      "new-member",
+      (newMember: {
+        memberId: string;
+        memberName: string;
+        memberLan: string;
+      }) => {
+        setMembers([
+          ...members,
+          { id: newMember.memberId, username: newMember.memberName },
+        ]);
+        if (!chatLang.includes(newMember.memberLan)) {
+          setChatLang([...chatLang, newMember.memberLan]);
+        }
+      }
+    );
+  }, [chatMessages, chatLang, members, socket]);
 
   useEffect(() => {
     const getChatData = async (chatId: string) => {

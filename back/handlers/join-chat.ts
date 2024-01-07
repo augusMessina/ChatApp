@@ -29,10 +29,26 @@ export const joinChat: RequestHandler = async (req, res) => {
     return;
   }
 
-  await chatsCollection.updateOne(
-    { _id: chat._id },
-    { $push: { members: { username: user.username, id: user._id.toString() } } }
-  );
+  if (chat.languages.includes(user.language!)) {
+    await chatsCollection.updateOne(
+      { _id: chat._id },
+      {
+        $push: {
+          members: { username: user.username, id: user._id.toString() },
+        },
+      }
+    );
+  } else {
+    await chatsCollection.updateOne(
+      { _id: chat._id },
+      {
+        $push: {
+          members: { username: user.username, id: user._id.toString() },
+          languages: user.language,
+        },
+      }
+    );
+  }
 
   await usersCollection.updateOne(
     { _id: user._id },

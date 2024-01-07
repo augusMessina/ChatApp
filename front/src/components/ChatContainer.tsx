@@ -82,6 +82,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         userId={userId}
         chats={chats}
         setChats={setChats}
+        socket={socket}
       ></JoinChatModal>
       <CreateChatModal
         isOpen={createChatOpen}

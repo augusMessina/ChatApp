@@ -118,6 +118,10 @@ const MailboxModal: FC<ModalProps> = ({
       },
     });
     if (res.ok) {
+      socket.emit("joined-chat", {
+        chatId: id_chat,
+        userId,
+      });
       setChats((prev) => [{ chatname, id: id_chat }, ...prev]);
       // socket.emit("accepted-fr", {
       //   id_sender,

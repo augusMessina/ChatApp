@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { Socket } from "socket.io-client";
 
 type ModalProps = {
   isOpen: boolean;
@@ -8,6 +9,7 @@ type ModalProps = {
   userId: ISODateString;
   chats: { id: string; chatname: string }[];
   setChats: (chats: { id: string; chatname: string }[]) => void;
+  socket: Socket;
 };
 
 type Chat = {
@@ -24,6 +26,7 @@ const JoinChatModal: FC<ModalProps> = ({
   userId,
   chats,
   setChats,
+  socket,
 }) => {
   const [searchName, setSearchName] = useState("");
   const [chatname, setChatname] = useState("");
@@ -94,6 +97,10 @@ const JoinChatModal: FC<ModalProps> = ({
       },
     });
     if (res.ok) {
+      socket.emit("joined-chat", {
+        chatId,
+        userId,
+      });
       const data = await res.json();
       setChats([...chats, { id: data.id, chatname: data.chatname }]);
       closeModal();

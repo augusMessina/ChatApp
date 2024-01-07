@@ -148,12 +148,28 @@ io.on("connection", (socket) => {
       });
       io.to(data.id_sender).emit("accepted-fr", {
         chat_id: data.chat_id,
-        chatname: receiver?.username,
-        friend_id: data.id_sender,
-        friend_name: sender?.username,
+        friend_id: data.user_id,
+        friend_name: receiver?.username,
       });
     }
   );
+
+  socket.on("joined-chat", async (data: { chatId: string; userId: string }) => {
+    const chat = await chatsCollection.findOne({
+      _id: new ObjectId(data.chatId),
+    });
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(data.userId),
+    });
+
+    if (chat && user) {
+      io.to(data.chatId).emit("new-member", {
+        memberId: data.userId,
+        memberName: user.username,
+        memberLan: user.language,
+      });
+    }
+  });
 });
 
 server.listen(PORT, () =>
