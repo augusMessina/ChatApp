@@ -17,7 +17,6 @@ export const getChatData: RequestHandler = async (req, res) => {
     res.status(400).send();
     return;
   }
-
   res.send({
     messages: chat.messages,
     chatname:

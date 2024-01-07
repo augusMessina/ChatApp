@@ -6,6 +6,7 @@ import ScrollableDropdown from "./ScrollableDropdown";
 import { sendFriendRequest } from "@/utils/send-friend-request";
 import { OutgoingRequest } from "@/types/notif";
 import { sendChatInvitation } from "@/utils/send-chat-invitation";
+import { useChat } from "ai/react";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -39,7 +40,8 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   outgoingRequests,
   setOutgoingRequests,
 }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { messages, input } = useChat({ api: "/api/translator" });
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [chatname, setChatname] = useState<string>("");
   const [members, setMembers] = useState<{ id: string; username: string }[]>(
     []
@@ -54,9 +56,9 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
   useEffect(() => {
     socket.on("new-message", (newMessage: Message) => {
-      setMessages([...messages, newMessage]);
+      setChatMessages([...chatMessages, newMessage]);
     });
-  }, [messages, socket]);
+  }, [chatMessages, socket]);
 
   useEffect(() => {
     const getChatData = async (chatId: string) => {
@@ -73,7 +75,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
       const data = await res.json();
       setChatname(data.chatname);
-      setMessages(data.messages);
+      setChatMessages(data.messages);
       setMembers(data.members);
       setChatKey(data.password ?? "");
       setIsFriendChat(data.isFriendChat);
@@ -182,18 +184,43 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       </ChatHeader>
 
       <ChatMessages
-        messages={messages}
+        messages={chatMessages}
         userId={userId}
         userLanguage={userLanguage}
       ></ChatMessages>
 
       {chatId && (
         <InputArea
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
+            let translation: { language: string; message: string }[] = [];
+            if (chatLang.length > 1) {
+              const aiRes = await fetch("/api/translator", {
+                method: "POST",
+                body: JSON.stringify({
+                  newMessage: {
+                    language: userLanguage,
+                    message: newMessage,
+                    to: chatLang.filter((lang) => lang !== userLanguage),
+                  },
+                }),
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+              const data = await aiRes.json();
+              translation = data.translation;
+            }
+
             socket.emit("new-message", {
               chatId,
-              message: [{ language: userLanguage, content: newMessage }],
+              message: [
+                { language: userLanguage, content: newMessage },
+                ...translation.map((trans) => ({
+                  language: trans.language,
+                  content: trans.message,
+                })),
+              ],
               authorId: userId,
             });
             setNewMessage("");

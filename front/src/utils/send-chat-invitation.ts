@@ -22,7 +22,6 @@ export const sendChatInvitation = async (
     },
   });
   if (res.ok) {
-    console.log("aqui llego");
     setOutgoingRequests([
       ...outgoingRequests,
       { type: NotifType.CHAT, id_receiver: otherUserId, id_chat: chatId },

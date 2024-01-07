@@ -80,7 +80,6 @@ io.on("connection", (socket) => {
           message: message,
           timestamp: new Date().getTime(),
         };
-
         await chatsCollection.updateOne(
           { _id: new ObjectId(chatId) },
           { $push: { messages: newMessage } }

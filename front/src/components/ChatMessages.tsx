@@ -23,7 +23,6 @@ const ChatMessages: FC<MessagesProps> = ({
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log(messages);
     if (chatRef.current)
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages]);
@@ -32,12 +31,6 @@ const ChatMessages: FC<MessagesProps> = ({
     <MessagesDisplay ref={chatRef}>
       {messages && messages.length > 0 ? (
         <MessagesColumn>
-          {messages.map((message) => (
-            <p key={message.id}>
-              {userLanguage}{" "}
-              {message.message.map((message) => message.language).join(", ")}
-            </p>
-          ))}
           {messages.map((message) =>
             message.message.some(
               (message) => message.language === userLanguage

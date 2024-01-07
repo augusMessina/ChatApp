@@ -53,7 +53,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
       { id: user_id, username: user.username! },
     ],
     messages: [],
-    languages: Array.from(new Set([...sender.language!, ...user.language!])),
+    languages: Array.from(new Set([sender.language!, user.language!])),
     isFriendChat: true,
   });
 
