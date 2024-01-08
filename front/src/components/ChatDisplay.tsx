@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { FC, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import ChatMessages from "./ChatMessages";
 import { Socket } from "socket.io-client";
 import ScrollableDropdown from "./ScrollableDropdown";
@@ -7,6 +7,7 @@ import { sendFriendRequest } from "@/utils/send-friend-request";
 import { OutgoingRequest } from "@/types/notif";
 import { sendChatInvitation } from "@/utils/send-chat-invitation";
 import { useChat } from "ai/react";
+import AreYouSureModal from "./AreYouSureModal";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -19,6 +20,23 @@ type ChatDisplayProps = {
   }[];
   outgoingRequests: OutgoingRequest[];
   setOutgoingRequests: (newReq: OutgoingRequest[]) => void;
+  setChats: Dispatch<
+    SetStateAction<
+      {
+        id: string;
+        chatname: string;
+      }[]
+    >
+  >;
+  setFriendList: Dispatch<
+    SetStateAction<
+      {
+        friendId: string;
+        friendName: string;
+      }[]
+    >
+  >;
+  setChatId: Dispatch<SetStateAction<string>>;
 };
 
 type Message = {
@@ -39,8 +57,10 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   friendList,
   outgoingRequests,
   setOutgoingRequests,
+  setChats,
+  setFriendList,
+  setChatId,
 }) => {
-  const { messages, input } = useChat({ api: "/api/translator" });
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [chatname, setChatname] = useState<string>("");
   const [members, setMembers] = useState<{ id: string; username: string }[]>(
@@ -53,6 +73,9 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
   const [membersDropdownOpen, setMembersDropdownOpen] = useState(false);
   const [inviteDropdownOpen, setInviteDropdownOpen] = useState(false);
+
+  const [sureFriendModalOpen, setSureFriendModalOpen] = useState(false);
+  const [sureChatModalOpen, setSureChatModalOpen] = useState(false);
 
   useEffect(() => {
     socket.on("new-message", (newMessage: Message) => {
@@ -74,6 +97,10 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         }
       }
     );
+
+    socket.on("left-chat", (memberId: string) => {
+      setMembers((prev) => prev.filter((member) => member.id !== memberId));
+    });
   }, [chatMessages, chatLang, members, socket]);
 
   useEffect(() => {
@@ -105,7 +132,66 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   }, [chatId, socket, userId]);
 
   return (
-    <ChatDisplayContainer>
+    <ChatDisplayContainer isHidden={chatId === ""}>
+      <AreYouSureModal
+        question={`Are you sure you want to delete ${
+          members.filter((member) => member.id !== userId)[0]?.username
+        }?`}
+        isOpen={sureFriendModalOpen}
+        close={() => {
+          setSureFriendModalOpen(false);
+        }}
+        onYes={async () => {
+          const friendId = members.filter((member) => member.id !== userId)[0]
+            .id;
+          const res = await fetch("http://localhost:8080/deleteFriend", {
+            method: "POST",
+            body: JSON.stringify({
+              friend_id: friendId,
+              user_id: userId,
+              chat_id: chatId,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (res.ok) {
+            socket.emit("unfriended", { userId, friendId, chatId });
+            setChats((prev) => prev.filter((chat) => chat.id !== chatId));
+            setFriendList((prev) =>
+              prev.filter((friend) => friend.friendId !== friendId)
+            );
+            setChatId("");
+          }
+        }}
+      ></AreYouSureModal>
+      <AreYouSureModal
+        question={`Are you sure you want to leave ${chatname}?`}
+        isOpen={sureChatModalOpen}
+        close={() => {
+          setSureChatModalOpen(false);
+        }}
+        onYes={async () => {
+          const res = await fetch("http://localhost:8080/leaveChat", {
+            method: "POST",
+            body: JSON.stringify({
+              user_id: userId,
+              chat_id: chatId,
+            }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (res.ok) {
+            socket.emit("leave", chatId);
+            socket.emit("left-chat", { userId, chatId });
+            setChats((prev) => prev.filter((chat) => chat.id !== chatId));
+            setChatId("");
+          }
+        }}
+      ></AreYouSureModal>
       <ChatHeader>
         <Gap></Gap>
         <h2>{chatname}</h2>
@@ -116,6 +202,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  setInviteDropdownOpen(false);
                   setMembersDropdownOpen(true);
                 }}
               >
@@ -157,6 +244,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  setMembersDropdownOpen(false);
                   setInviteDropdownOpen(true);
                 }}
               >
@@ -195,6 +283,26 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                 height={400}
               ></ScrollableDropdown>
             </DropdownButtonContainer>
+          )}
+
+          {isFriendChat ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSureFriendModalOpen(true);
+              }}
+            >
+              Delete friend
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSureChatModalOpen(true);
+              }}
+            >
+              Leave chat
+            </button>
           )}
         </HeaderButtons>
       </ChatHeader>
@@ -257,7 +365,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
 export default ChatDisplay;
 
-const ChatDisplayContainer = styled.div`
+const ChatDisplayContainer = styled.div<{ isHidden: boolean }>`
   flex: 1;
   border: 2px solid black;
   display: flex;
@@ -266,6 +374,7 @@ const ChatDisplayContainer = styled.div`
   justify-content: flex-end;
   padding: 8px;
   gap: 16px;
+  ${(props) => (props.isHidden ? "visibility: hidden;" : "")}
 `;
 
 const ChatHeader = styled.div`

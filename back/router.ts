@@ -16,6 +16,8 @@ import { acceptFriendRequest } from "./handlers/accept-friend-request";
 import { getChats } from "./handlers/get-chats";
 import { sendChatInvitation } from "./handlers/send-chat-invitation";
 import { acceptChatRequest } from "./handlers/accept-chat-invitation";
+import { deleteFriend } from "./handlers/delete-friend";
+import { leaveChat } from "./handlers/leave-chat";
 
 export const router = Router();
 
@@ -43,3 +45,6 @@ router.post("/acceptFriendRequest", acceptFriendRequest);
 
 router.post("/sendChatInvitation", sendChatInvitation);
 router.post("/acceptChatInvitation", acceptChatRequest);
+
+router.post("/deleteFriend", deleteFriend);
+router.post("/leaveChat", leaveChat);

@@ -170,6 +170,19 @@ io.on("connection", (socket) => {
       });
     }
   });
+
+  socket.on(
+    "unfriended",
+    (data: { userId: string; friendId: string; chatId: string }) => {
+      socket
+        .to(data.friendId)
+        .emit("unfriended", { friendId: data.userId, chatId: data.chatId });
+    }
+  );
+
+  socket.on("left-chat", (data: { userId: string; chatId: string }) => {
+    socket.to(data.chatId).emit("left-chat", data.userId);
+  });
 });
 
 server.listen(PORT, () =>

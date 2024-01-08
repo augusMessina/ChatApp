@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, FC, SetStateAction, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import ChatDisplay from "./ChatDisplay";
 import { Socket } from "socket.io-client";
 import JoinChatModal from "./JoinChatModal";
@@ -57,6 +57,17 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   const [createChatOpen, setCreateChatOpen] = useState(false);
   const [searchUserOpen, setSearchUserOpen] = useState(false);
   const [mailboxOpen, setMailboxOpen] = useState(false);
+
+  useEffect(() => {
+    socket.on("unfriended", (data: { friendId: string; chatId: string }) => {
+      setChats((prev) => prev.filter((chat) => chat.id !== data.chatId));
+      setFriendList((prev) =>
+        prev.filter((friend) => friend.friendId !== data.friendId)
+      );
+      socket.emit("leave", currentChat);
+      setCurrentChat("");
+    });
+  });
 
   const closeJoinChat = () => {
     setJoinChatOpen(false);
@@ -163,6 +174,9 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
       </LeftMenu>
       <ChatDisplay
         chatId={currentChat}
+        setChatId={setCurrentChat}
+        setChats={setChats}
+        setFriendList={setFriendList}
         userId={userId}
         userLanguage={userLanguage}
         socket={socket}
