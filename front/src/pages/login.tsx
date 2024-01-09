@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { FC, useState } from "react";
 import { signIn } from "next-auth/react";
+import { colors } from "@/utils/colors";
 
 const LogInPage: FC = () => {
   const [email, setEmail] = useState("");
@@ -76,13 +77,13 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #e8e8e8;
+  color: ${colors.mainWhite};
   font-size: 60px;
   margin: 0;
 `;
 
 const Subtitle = styled.p`
-  color: #e8e8e8;
+  color: ${colors.mainWhite};
   margin: 0;
   font-style: italic;
 `;
@@ -90,7 +91,7 @@ const Subtitle = styled.p`
 const Separator = styled.div`
   width: 1px;
   height: 400px;
-  background: #e8e8e8;
+  background: ${colors.mainWhite};
 `;
 
 const LoginSection = styled.div`
@@ -98,7 +99,7 @@ const LoginSection = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  max-width: 240px;
+  max-width: 340px;
   gap: 40px;
   width: 100%;
 `;
@@ -126,19 +127,19 @@ const LoginInput = styled.input`
   width: 100%;
   box-sizing: border-box;
   background: transparent;
-  color: #e8e8e8;
-  border-color: #e8e8e8;
+  color: ${colors.mainWhite};
+  border-color: ${colors.mainWhite};
   border-style: solid;
   border-image: none;
   border-width: 1px;
   border-color: transparent;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid ${colors.mainWhite};
   font-weight: 500;
   font-size: 16px;
   transition: 0.4s;
 
   :focus {
-    border: 1px solid #e8e8e8;
+    border: 1px solid ${colors.mainWhite};
     border-radius: 3px;
   }
 `;
@@ -148,8 +149,8 @@ const LoginButton = styled.button`
   width: 100%;
   box-sizing: border-box;
   background: transparent;
-  border: 1px solid #e8e8e8;
-  color: #e8e8e8;
+  border: 1px solid ${colors.mainWhite};
+  color: ${colors.mainWhite};
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -157,6 +158,6 @@ const LoginButton = styled.button`
   transition: 0.3s;
 
   :hover {
-    background: #2a2a2a;
+    background: ${colors.lightHoverGray};
   }
 `;
