@@ -4,20 +4,24 @@ import { ObjectId } from "mongodb";
 
 export const createUser: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
+  console.log(email);
   if (!email) {
-    res.status(400);
+    res.status(400).send({});
     return;
   }
 
   const user = await usersCollection.findOne({ email });
   const userId = new ObjectId();
 
+  console.log(user?._id.toString(), user?.password);
+
   if (!user) {
+    console.log("nonono");
     await usersCollection.insertOne({
       _id: userId,
       email,
       username: "default_username",
-      password,
+      password: password ?? undefined,
       language: "no_language",
       chats: [],
       friendList: [],
@@ -36,5 +40,14 @@ export const createUser: RequestHandler = async (req, res) => {
   if (user.password && user.password === password) {
     res.status(200).send({ id: user._id.toString(), username: user.username });
     return;
+  } else if (!user.password) {
+    console.log("no tiene pass", {
+      id: user._id.toString(),
+      username: user.username,
+    });
+    res.status(200).send({ id: user._id.toString(), username: user.username });
+    return;
   }
+
+  res.status(400).send({});
 };

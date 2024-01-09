@@ -15,11 +15,12 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update") {
         return { ...token, ...session.user };
       }
-
+      // token.name = user.name;
       return { ...token, ...user };
     },
     async session({ session, token }) {
-      session.user.id = token.sub!;
+      session.user.id = token.sub;
+      session.user.name = token.name;
 
       session.user.image = "default_image.jpg";
 
@@ -45,16 +46,37 @@ export const authOptions: NextAuthOptions = {
 
       return session;
     },
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google" || account?.provider === "github") {
+        const res = await fetch("http://back:8080/createUser", {
+          method: "POST",
+          body: JSON.stringify({
+            email: profile?.email,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (res.ok) {
+          console.log("id saved");
+          const data = await res.json();
+          user.id = data.id;
+          user.name = data.username;
+        }
+        return res.ok;
+      }
+      return true;
+    },
   },
   providers: [
     // GoogleProvider({
     //   clientId: process.env.GOOGLE_CLIENT_ID!,
     //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     // }),
-    // GitHubProvider({
-    //   clientId: process.env.GITHUB_CLIENT_ID!,
-    //   clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    // }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
