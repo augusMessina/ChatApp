@@ -11,9 +11,7 @@ import { signOut } from "next-auth/react";
 const socket = io("ws://localhost:8080");
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  console.log("VAMOSSSS");
   const session = await getServerSession(context.req, context.res, authOptions);
-  console.log(session?.user.email, session?.user.name);
   if (!session?.user?.email) {
     return {
       redirect: {

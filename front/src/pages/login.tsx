@@ -20,7 +20,6 @@ const LogInPage: FC = () => {
         <FormContainer
           onSubmit={async (e) => {
             e.preventDefault();
-            console.log("hola");
             await signIn("credentials", {
               email,
               password,
@@ -91,7 +90,7 @@ const Subtitle = styled.p`
 const Separator = styled.div`
   width: 1px;
   height: 400px;
-  background: ${colors.mainWhite};
+  background: ${colors.darkText};
 `;
 
 const LoginSection = styled.div`

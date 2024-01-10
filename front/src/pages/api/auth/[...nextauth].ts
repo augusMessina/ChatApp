@@ -58,7 +58,6 @@ export const authOptions: NextAuthOptions = {
           },
         });
         if (res.ok) {
-          console.log("id saved");
           const data = await res.json();
           user.id = data.id;
           user.name = data.username;

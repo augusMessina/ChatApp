@@ -4,7 +4,6 @@ import { ObjectId } from "mongodb";
 
 export const createUser: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email);
   if (!email) {
     res.status(400).send({});
     return;
@@ -13,10 +12,7 @@ export const createUser: RequestHandler = async (req, res) => {
   const user = await usersCollection.findOne({ email });
   const userId = new ObjectId();
 
-  console.log(user?._id.toString(), user?.password);
-
   if (!user) {
-    console.log("nonono");
     await usersCollection.insertOne({
       _id: userId,
       email,
@@ -41,10 +37,6 @@ export const createUser: RequestHandler = async (req, res) => {
     res.status(200).send({ id: user._id.toString(), username: user.username });
     return;
   } else if (!user.password) {
-    console.log("no tiene pass", {
-      id: user._id.toString(),
-      username: user.username,
-    });
     res.status(200).send({ id: user._id.toString(), username: user.username });
     return;
   }

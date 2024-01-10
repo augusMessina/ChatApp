@@ -21,7 +21,6 @@ export const deleteFriend: RequestHandler = async (req, res) => {
   const chat = await chatsCollection.findOne({ _id: new ObjectId(chat_id) });
 
   if (!friend || !user || !chat) {
-    console.log();
     res.status(400).send({});
     return;
   }

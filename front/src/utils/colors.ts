@@ -3,5 +3,5 @@ export const colors = {
   mainWhite: "#e8e8e8",
   lightHoverGray: "#2a2a2a",
   darkHoverGray: "#1f1f1f",
-  darkText: "#75715b",
+  darkText: "#716e6a",
 };

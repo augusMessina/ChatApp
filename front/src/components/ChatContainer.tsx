@@ -8,6 +8,11 @@ import SearchUserModal from "./SearchUserModal";
 import { Notif, OutgoingRequest } from "@/types/notif";
 import MailboxModal from "./MailboxModal";
 
+import { FaPlus, FaUserPlus } from "react-icons/fa";
+import { IoIosChatboxes, IoMdMail } from "react-icons/io";
+import { TbDotsVertical } from "react-icons/tb";
+import { colors } from "@/utils/colors";
+
 type ChatDisplayProps = {
   chats: { id: string; chatname: string }[];
   setChats: Dispatch<
@@ -123,40 +128,43 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
       ></MailboxModal>
       <LeftMenu>
         <ToolBar>
-          <button
+          <TopBarButton
             onClick={(e) => {
               e.stopPropagation();
               setJoinChatOpen(true);
             }}
           >
-            Join
-          </button>
-          <button
+            <IoIosChatboxes color={colors.mainWhite}></IoIosChatboxes>
+          </TopBarButton>
+          <TopBarButton
             onClick={(e) => {
               e.stopPropagation();
               setCreateChatOpen(true);
             }}
           >
-            Create
-          </button>
-          <button
+            <FaPlus color={colors.mainWhite}></FaPlus>
+          </TopBarButton>
+          <TopBarButton
             onClick={(e) => {
               e.stopPropagation();
               setSearchUserOpen(true);
             }}
           >
-            Add
-          </button>
-          <button
+            <FaUserPlus color={colors.mainWhite}></FaUserPlus>
+          </TopBarButton>
+          <TopBarButton
             onClick={(e) => {
               e.stopPropagation();
               setMailboxOpen(true);
             }}
           >
-            Mailbox
-          </button>
-          <button>Options</button>
+            <IoMdMail color={colors.mainWhite}></IoMdMail>
+          </TopBarButton>
+          <TopBarButton>
+            <TbDotsVertical color={colors.mainWhite}></TbDotsVertical>
+          </TopBarButton>
         </ToolBar>
+        <Separator></Separator>
         <Chats>
           {chats.map((chat) => (
             <Chat
@@ -203,12 +211,13 @@ const ChatLayout = styled.div`
 const LeftMenu = styled.div`
   max-width: 400px;
   flex: 1;
-  border: 2px solid black;
+  border: 1px solid ${colors.lightHoverGray};
+  border-radius: 3px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 8px;
+  padding: 8px 16px;
   gap: 8px;
 `;
 
@@ -223,14 +232,50 @@ const Chats = styled.div`
 `;
 
 const Chat = styled.p<{ isSelected: boolean }>`
-  ${(props) => (props.isSelected ? "background: #fabada;" : "")}
+  ${(props) => (props.isSelected ? `background: ${colors.darkHoverGray};` : "")}
+  color: ${colors.mainWhite};
+  font-size: 17px;
+  margin: 0;
+  padding: 17px 10px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 const ToolBar = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 8px;
+  padding: 8px 0;
+`;
+
+const TopBarButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  padding: 0;
+  background: ${colors.darkHoverGray};
+  cursor: pointer;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  :hover {
+    background: ${colors.lightHoverGray};
+  }
+`;
+
+const Separator = styled.div`
+  height: 1px;
+  width: 100%;
+  background: ${colors.lightHoverGray};
 `;

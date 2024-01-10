@@ -4,7 +4,6 @@ import { ObjectId } from "mongodb";
 
 export const getUserData: RequestHandler = async (req, res) => {
   const { id } = req.body;
-  console.log("y esto?", id);
   if (!id) {
     res.status(400).send();
     return;

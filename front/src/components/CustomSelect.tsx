@@ -4,7 +4,7 @@ import { FC, useEffect, useRef, useState } from "react";
 
 type CustomSelectProps = {
   defaultText: string;
-  items: string[];
+  items: { label: string; value: any }[];
   onChange: (item: string) => void;
 };
 
@@ -57,14 +57,14 @@ const CustomSelect: FC<CustomSelectProps> = ({
         <OptionsColumn>
           {items.map((item) => (
             <Option
-              key={item}
+              key={item.label}
               onClick={() => {
-                setSelectedText(item);
+                setSelectedText(item.label);
                 setIsOpen(false);
-                onChange(item);
+                onChange(item.value);
               }}
             >
-              {item}
+              {item.label}
             </Option>
           ))}
         </OptionsColumn>

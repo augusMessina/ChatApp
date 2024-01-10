@@ -1,5 +1,13 @@
 import styled from "@emotion/styled";
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  FC,
+  FormEvent,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ChatMessages from "./ChatMessages";
 import { Socket } from "socket.io-client";
 import ScrollableDropdown from "./ScrollableDropdown";
@@ -8,6 +16,9 @@ import { OutgoingRequest } from "@/types/notif";
 import { sendChatInvitation } from "@/utils/send-chat-invitation";
 import { useChat } from "ai/react";
 import AreYouSureModal from "./AreYouSureModal";
+import { colors } from "@/utils/colors";
+
+import { FaUserMinus } from "react-icons/fa";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -77,6 +88,10 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   const [sureFriendModalOpen, setSureFriendModalOpen] = useState(false);
   const [sureChatModalOpen, setSureChatModalOpen] = useState(false);
 
+  const [shiftPressed, setShiftPressed] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     socket.on("new-message", (newMessage: Message) => {
       setChatMessages([...chatMessages, newMessage]);
@@ -130,6 +145,41 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       getChatData(chatId);
     }
   }, [chatId, socket, userId]);
+
+  const handleMesageSubmit = async () => {
+    let translation: { language: string; message: string }[] = [];
+    if (chatLang.length > 1) {
+      setIsLoading(true);
+      const aiRes = await fetch("/api/translator", {
+        method: "POST",
+        body: JSON.stringify({
+          newMessage: {
+            language: userLanguage,
+            message: newMessage,
+            to: chatLang.filter((lang) => lang !== userLanguage),
+          },
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await aiRes.json();
+      translation = data.translation;
+    }
+    socket.emit("new-message", {
+      chatId,
+      message: [
+        { language: userLanguage, content: newMessage },
+        ...translation.map((trans) => ({
+          language: trans.language,
+          content: trans.message,
+        })),
+      ],
+      authorId: userId,
+    });
+    setNewMessage("");
+    setIsLoading(false);
+  };
 
   return (
     <ChatDisplayContainer isHidden={chatId === ""}>
@@ -286,14 +336,14 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
           )}
 
           {isFriendChat ? (
-            <button
+            <TopBarButton
               onClick={(e) => {
                 e.stopPropagation();
                 setSureFriendModalOpen(true);
               }}
             >
-              Delete friend
-            </button>
+              <FaUserMinus color={colors.mainWhite}></FaUserMinus>
+            </TopBarButton>
           ) : (
             <button
               onClick={(e) => {
@@ -307,6 +357,8 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         </HeaderButtons>
       </ChatHeader>
 
+      <Separator></Separator>
+
       <ChatMessages
         messages={chatMessages}
         userId={userId}
@@ -317,46 +369,39 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         <InputArea
           onSubmit={async (e) => {
             e.preventDefault();
-            let translation: { language: string; message: string }[] = [];
-            if (chatLang.length > 1) {
-              const aiRes = await fetch("/api/translator", {
-                method: "POST",
-                body: JSON.stringify({
-                  newMessage: {
-                    language: userLanguage,
-                    message: newMessage,
-                    to: chatLang.filter((lang) => lang !== userLanguage),
-                  },
-                }),
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              });
-              const data = await aiRes.json();
-              translation = data.translation;
-            }
 
-            socket.emit("new-message", {
-              chatId,
-              message: [
-                { language: userLanguage, content: newMessage },
-                ...translation.map((trans) => ({
-                  language: trans.language,
-                  content: trans.message,
-                })),
-              ],
-              authorId: userId,
-            });
-            setNewMessage("");
+            await handleMesageSubmit();
           }}
         >
-          <input
+          <TextArea
             onChange={(e) => {
-              setNewMessage(e.target.value);
+              if (!e.target.value.endsWith("\n") || shiftPressed)
+                setNewMessage(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Shift") {
+                setShiftPressed(true);
+              }
+              if (e.key === "Enter" && !shiftPressed) {
+                handleMesageSubmit();
+              }
+              // if (newMessage.endsWith("\n") && e.key === "Backspace") {
+              //   const trimmedMessage = newMessage.slice(0, -1);
+              //   setNewMessage(trimmedMessage);
+              // }
+            }}
+            onKeyUp={(e) => {
+              if (e.key === "Shift") {
+                setShiftPressed(false);
+              }
             }}
             value={newMessage}
-          ></input>
-          <button type="submit">Send</button>
+            maxLength={100}
+            disabled={isLoading}
+          ></TextArea>
+          <SendButton type="submit" disabled={newMessage === "" || isLoading}>
+            Send
+          </SendButton>
         </InputArea>
       )}
     </ChatDisplayContainer>
@@ -367,13 +412,14 @@ export default ChatDisplay;
 
 const ChatDisplayContainer = styled.div<{ isHidden: boolean }>`
   flex: 1;
-  border: 2px solid black;
+  border: 1px solid ${colors.lightHoverGray};
+  border-radius: 3px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding: 8px;
-  gap: 16px;
+  padding: 8px 16px;
+  gap: 8px;
   ${(props) => (props.isHidden ? "visibility: hidden;" : "")}
 `;
 
@@ -382,10 +428,13 @@ const ChatHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding: 8px 0;
 
   > h2 {
     flex: 1;
     text-align: center;
+    color: ${colors.mainWhite};
+    margin: 0;
   }
 `;
 
@@ -448,9 +497,67 @@ const InputArea = styled.form`
   display: flex;
   justify-content: center;
   width: 100%;
+`;
 
-  input {
-    flex: 1;
-    padding: 16px 8px;
+const TextArea = styled.textarea`
+  flex: 1;
+  background: ${colors.lightHoverGray};
+  padding: 12px;
+  color: ${colors.mainWhite};
+  border: 1px solid transparent;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  font-size: 16px;
+  resize: none;
+  height: fit-content;
+  box-sizing: border-box;
+
+  :focus {
+    outline: none;
+    border: 1px solid ${colors.darkText};
   }
+`;
+
+const SendButton = styled.button`
+  border: none;
+  border: 1px solid transparent;
+  background: ${colors.lightHoverGray};
+  color: ${colors.mainWhite};
+  font-size: 14px;
+  padding: 0 20px;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  cursor: pointer;
+
+  :hover {
+    background: ${colors.darkText};
+  }
+`;
+
+const TopBarButton = styled.button`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  padding: 0;
+  background: ${colors.darkHoverGray};
+  cursor: pointer;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  :hover {
+    background: ${colors.lightHoverGray};
+  }
+`;
+
+const Separator = styled.div`
+  height: 1px;
+  width: 100%;
+  background: ${colors.lightHoverGray};
 `;

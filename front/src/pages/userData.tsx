@@ -130,7 +130,7 @@ const Title = styled.h1`
 const Separator = styled.div`
   width: 1px;
   height: 400px;
-  background: ${colors.mainWhite};
+  background: ${colors.darkText};
 `;
 
 const FormContainer = styled.div`
