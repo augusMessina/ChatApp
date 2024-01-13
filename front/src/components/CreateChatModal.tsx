@@ -56,7 +56,7 @@ const CreateChatModal: FC<ModalProps> = ({
     });
     if (res.ok) {
       const data = await res.json();
-      setChats([...chats, { id: data.id, chatname: data.chatname }]);
+      setChats([{ id: data.id, chatname: data.chatname }, ...chats]);
       close();
     } else {
       close();

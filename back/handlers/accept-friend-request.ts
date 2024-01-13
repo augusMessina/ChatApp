@@ -31,7 +31,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
       $pull: { mailbox: { id_sender, type: NotifType.FRIEND } },
       $push: {
         friendList: { friendId: id_sender, friendName: sender.username! },
-        chats: { id: chatId.toString() },
+        chats: { $each: [{ id: chatId.toString() }] },
       },
     }
   );
@@ -41,7 +41,7 @@ export const acceptFriendRequest: RequestHandler = async (req, res) => {
     {
       $push: {
         friendList: { friendId: user_id, friendName: user.username! },
-        chats: { id: chatId.toString() },
+        chats: { $each: [{ id: chatId.toString() }] },
       },
     }
   );

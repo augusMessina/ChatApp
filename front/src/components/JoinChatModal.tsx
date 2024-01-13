@@ -104,7 +104,7 @@ const JoinChatModal: FC<ModalProps> = ({
         userId,
       });
       const data = await res.json();
-      setChats([...chats, { id: data.id, chatname: data.chatname }]);
+      setChats([{ id: data.id, chatname: data.chatname }, ...chats]);
       closeModal();
     }
   };

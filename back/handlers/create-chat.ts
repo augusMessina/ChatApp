@@ -42,7 +42,7 @@ export const createChat: RequestHandler = async (req, res) => {
 
   await usersCollection.updateOne(
     { _id: user._id },
-    { $push: { chats: { id: newChatId.toString(), chatname } } }
+    { $push: { chats: { $each: [{ id: newChatId.toString(), chatname }] } } }
   );
 
   res.status(200).send({ chatname, id: newChatId });

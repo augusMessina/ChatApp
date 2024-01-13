@@ -23,6 +23,7 @@ import { IoSendSharp } from "react-icons/io5";
 import { MdGroupOff } from "react-icons/md";
 import { MdGroupAdd } from "react-icons/md";
 import { MdGroups } from "react-icons/md";
+import { TailSpin } from "react-loader-spinner";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -410,7 +411,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
               if (e.key === "Shift") {
                 setShiftPressed(true);
               }
-              if (e.key === "Enter" && !shiftPressed) {
+              if (e.key === "Enter" && !shiftPressed && newMessage !== "") {
                 handleMesageSubmit();
               }
               // if (newMessage.endsWith("\n") && e.key === "Backspace") {
@@ -433,7 +434,11 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
               await handleMesageSubmit();
             }}
           >
-            <IoSendSharp color={colors.mainWhite}></IoSendSharp>
+            {!isLoading ? (
+              <IoSendSharp color={colors.mainWhite}></IoSendSharp>
+            ) : (
+              <TailSpin color={colors.mainWhite}></TailSpin>
+            )}
           </SendButton>
         </InputArea>
       )}
@@ -553,14 +558,14 @@ const TextArea = styled.textarea`
 
 const SendButton = styled.button`
   border: none;
-  border: 1px solid transparent;
+  border: 1px solid ${colors.lightHoverGray};
   background: ${colors.lightHoverGray};
   color: ${colors.mainWhite};
   font-size: 14px;
   padding: 0 20px;
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
-  cursor: pointer;
+  ${(props) => !props.disabled && "cursor: pointer;"}
 
   svg {
     width: 20px;
@@ -568,7 +573,8 @@ const SendButton = styled.button`
   }
 
   :hover {
-    background: ${colors.darkText};
+    ${(props) => !props.disabled && `background: ${colors.darkText};`}
+    ${(props) => !props.disabled && `border: 1px solid ${colors.darkText};`}
   }
 `;
 

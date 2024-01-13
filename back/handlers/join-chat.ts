@@ -52,7 +52,14 @@ export const joinChat: RequestHandler = async (req, res) => {
 
   await usersCollection.updateOne(
     { _id: user._id },
-    { $push: { chats: { chatname: chat.chatname, id: chat._id.toString() } } }
+    {
+      $push: {
+        chats: {
+          $each: [{ chatname: chat.chatname, id: chat._id.toString() }],
+          $position: 0,
+        },
+      },
+    }
   );
 
   res.status(200).send({ id: chat._id.toString(), chatname: chat.chatname });
