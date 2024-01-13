@@ -82,7 +82,7 @@ const UserDataPage: FC<{
       <LoginSection>
         <FormContainer>
           <LoginInput
-            placeholder="username"
+            placeholder="Username"
             onChange={(e) => {
               setUsername(e.target.value);
               setShowError("");
