@@ -1,3 +1,4 @@
+import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { FC, useEffect, useRef } from "react";
@@ -142,6 +143,10 @@ const MessagesColumn = styled.div`
   width: 100%;
   padding: 16px;
   box-sizing: border-box;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    gap: 16px;
+  }
 `;
 
 const MessageContainer = styled.div`
@@ -156,6 +161,14 @@ const MessageContainer = styled.div`
     color: ${colors.darkText};
     margin: 0;
     font-weight: bold;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 12px;
+    }
+
+    gap: 8px;
   }
 `;
 
@@ -180,11 +193,23 @@ const MessageHeader = styled.div`
     font-size: 12px;
     margin: 0;
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 10px;
+    }
+
+    gap: 8px;
+  }
 `;
 
 const UserBubble = styled.div`
   color: ${colors.mainWhite};
   font-weight: bold;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 14px;
+  }
 `;
 
 const MessageBubble = styled.div`
@@ -193,6 +218,10 @@ const MessageBubble = styled.div`
   border-radius: 7px;
   max-width: 500px;
   padding: 4px 8px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 14px;
+  }
 `;
 
 const UnreadsSeparatorContainer = styled.div`

@@ -500,6 +500,12 @@ const ChatHeader = styled.div`
     color: ${colors.mainWhite};
     margin: 0;
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    h2 {
+      font-size: 16px;
+    }
+  }
 `;
 
 const Gap = styled.div`
@@ -624,6 +630,16 @@ const TopBarButton = styled.button`
 
   :hover {
     background: ${colors.lightHoverGray};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 `;
 

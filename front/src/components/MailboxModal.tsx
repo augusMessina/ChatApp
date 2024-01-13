@@ -271,6 +271,7 @@ export default MailboxModal;
 
 const ModalBackground = styled.div<{ isOpen: boolean }>`
   display: ${(props) => (props.isOpen ? "block" : "none")};
+  z-index: 11;
   position: fixed;
   top: 0;
   left: 0;

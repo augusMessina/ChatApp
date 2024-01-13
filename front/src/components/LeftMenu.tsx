@@ -13,6 +13,7 @@ type LeftMenuProps = {
   close: () => void;
   currentAnimation: { animationName: string };
   moreOptionsOpen: boolean;
+  subModalOpen: boolean;
   setJoinChatOpen: (b: boolean) => void;
   setMoreOptionsOpen: (b: boolean) => void;
   setCreateChatOpen: (b: boolean) => void;
@@ -39,6 +40,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
   currentChat,
   setCurrentChat,
   socket,
+  subModalOpen,
 }) => {
   const leftMenuRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +50,8 @@ const LeftMenu: FC<LeftMenuProps> = ({
         leftMenuRef.current &&
         !leftMenuRef.current.contains(e.target) &&
         currentAnimation.animationName &&
-        currentAnimation.animationName === "slide-in"
+        currentAnimation.animationName === "slide-in" &&
+        !subModalOpen
       ) {
         close();
       }
@@ -64,7 +67,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
       document.removeEventListener("click", checkIfClickedOutside);
       document.removeEventListener("keydown", checkIfEscPressed);
     };
-  }, [close, currentAnimation]);
+  }, [close, currentAnimation, subModalOpen]);
 
   return (
     <LeftMenuContainer ref={leftMenuRef} style={currentAnimation}>
@@ -140,6 +143,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
             onClick={() => {
               socket.emit("leave", currentChat);
               setCurrentChat(chat.id);
+              close();
             }}
             isSelected={currentChat === chat.id}
           >
@@ -170,6 +174,7 @@ const LeftMenuContainer = styled.div`
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     position: absolute;
+    z-index: 10;
     height: 100%;
     width: 90%;
     transform: translateX(-110%);

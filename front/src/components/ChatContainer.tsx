@@ -149,11 +149,18 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         <LeftMenu
           chats={chats}
           currentChat={currentChat}
+          subModalOpen={
+            joinChatOpen ||
+            createChatOpen ||
+            searchUserOpen ||
+            mailboxOpen ||
+            changeValuesOpen
+          }
           close={() => {
             setCurrentAnimation({
               animationName: "slide-out",
               animationEasingFunction: "ease",
-              animationDuration: ".5s",
+              animationDuration: ".3s",
               animationFillMode: "forwards",
             });
           }}
@@ -184,7 +191,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
             setCurrentAnimation({
               animationName: "slide-in",
               animationEasingFunction: "ease",
-              animationDuration: ".5s",
+              animationDuration: ".3s",
               animationFillMode: "forwards",
             });
           }}
