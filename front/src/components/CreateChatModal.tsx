@@ -22,6 +22,7 @@ const CreateChatModal: FC<ModalProps> = ({
 }) => {
   const [chatname, setChatname] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
+  const [showError, setShowError] = useState("");
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -58,11 +59,20 @@ const CreateChatModal: FC<ModalProps> = ({
     });
     if (res.ok) {
       const data = await res.json();
+      if (data.message && data.message === "chatname already taken") {
+        setShowError(
+          "Chat name already taken, choose another or make it private"
+        );
+        return;
+      }
       setChats([
         { id: data.id, chatname: data.chatname, unreads: 0 },
         ...chats,
       ]);
       close();
+      setChatname("");
+      setShowError("");
+      setIsPrivate(false);
     } else {
       close();
     }
@@ -77,6 +87,7 @@ const CreateChatModal: FC<ModalProps> = ({
               close();
               setChatname("");
               setIsPrivate(false);
+              setShowError("");
             }}
           >
             <IoMdClose color={colors.darkText}></IoMdClose>
@@ -89,6 +100,7 @@ const CreateChatModal: FC<ModalProps> = ({
               <ModalInput
                 onChange={(e) => {
                   setChatname(e.target.value);
+                  setShowError("");
                 }}
                 value={chatname}
                 placeholder="Chat name..."
@@ -112,12 +124,11 @@ const CreateChatModal: FC<ModalProps> = ({
               </div> */}
             </InputsDiv>
 
+            {showError !== "" && <Error>{showError}</Error>}
+
             <ModalButton
               onClick={() => {
                 createChat();
-                close();
-                setChatname("");
-                setIsPrivate(false);
               }}
             >
               Create
@@ -268,4 +279,9 @@ const ModalButton = styled.button`
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
   }
+`;
+
+const Error = styled.p`
+  color: ${colors.red};
+  margin: 8px;
 `;

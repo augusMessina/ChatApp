@@ -103,6 +103,9 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           }
           return prevChats;
         });
+        if (data.chatId === currentChat) {
+          socket.emit("read-chat", { userId, chatId: currentChat });
+        }
       }
     );
   });
@@ -314,10 +317,14 @@ const Chat = styled.div<{ isSelected: boolean }>`
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 32px;
+  justify-content: space-between;
+  transition: 0.3s;
   p {
     margin: 0;
+  }
+
+  :hover {
+    background: ${colors.darkHoverGray};
   }
 `;
 
@@ -367,4 +374,5 @@ const UnreadAlert = styled.div`
   height: 10px;
   border-radius: 50%;
   background: ${colors.blue};
+  margin-right: 32px;
 `;

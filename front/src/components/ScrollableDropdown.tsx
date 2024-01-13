@@ -126,6 +126,7 @@ const Scrollable = styled.div`
     font-style: italic;
     font-weight: normal;
     color: ${colors.darkText};
+    text-align: center;
   }
 `;
 

@@ -126,11 +126,27 @@ const MailboxModal: FC<ModalProps> = ({
         userId,
       });
       setChats((prev) => [{ chatname, id: id_chat, unreads: 0 }, ...prev]);
-      // socket.emit("accepted-fr", {
-      //   id_sender,
-      //   user_id: userId,
-      //   chat_id: data.chat_id,
-      // });
+    }
+  };
+
+  const declineRequest = async (id_sender: string, id_chat?: string) => {
+    const res = await fetch("http://localhost:8080/declineRequest", {
+      method: "POST",
+      body: JSON.stringify({
+        id_chat,
+        id_user: userId,
+        id_sender: id_sender,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (res.ok) {
+      setMailbox(
+        mailbox.filter(
+          (mail) => mail.id_sender !== id_sender && mail.id_chat !== id_chat
+        )
+      );
     }
   };
 
@@ -223,6 +239,9 @@ const MailboxModal: FC<ModalProps> = ({
                               width: "unset",
                               padding: "8px 20px",
                               boxSizing: "border-box",
+                            }}
+                            onClick={() => {
+                              declineRequest(mail.id_sender, mail.id_chat);
                             }}
                           >
                             Decline

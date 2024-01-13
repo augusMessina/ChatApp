@@ -131,6 +131,24 @@ io.on("connection", (socket) => {
     }
   );
 
+  socket.on("read-chat", async (data: { userId: string; chatId: string }) => {
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(data.userId),
+    });
+    if (user) {
+      await usersCollection.updateOne(
+        { _id: user._id },
+        {
+          $set: {
+            chats: user.chats.map((chat) =>
+              chat.id === data.chatId ? { ...chat, unreads: 0 } : chat
+            ),
+          },
+        }
+      );
+    }
+  });
+
   socket.on("new-notif", async (newNotif: NotifEvent) => {
     const sender = await usersCollection.findOne({
       _id: new ObjectId(newNotif.id_sender),

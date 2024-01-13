@@ -3,7 +3,7 @@ import { chatsCollection, usersCollection } from "../db/dbconnection";
 import { ObjectId } from "mongodb";
 
 export const createChat: RequestHandler = async (req, res) => {
-  const { user_id, chatname, password, allowedLanguages } = req.body;
+  const { user_id, chatname, password } = req.body;
   if (!user_id || !chatname) {
     res.status(400).send({});
     return;
@@ -20,7 +20,7 @@ export const createChat: RequestHandler = async (req, res) => {
   if (!password) {
     const chat = await chatsCollection.findOne({ chatname });
     if (chat) {
-      res.status(400).send("Chatname already taken");
+      res.status(200).send({ message: "chatname already taken" });
       return;
     }
   } else {

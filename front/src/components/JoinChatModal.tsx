@@ -37,6 +37,7 @@ const JoinChatModal: FC<ModalProps> = ({
   const [password, setPassword] = useState("");
   const [publicChats, setPublicChats] = useState<Chat[]>([]);
   const [chatType, setChatType] = useState<"public" | "private">("public");
+  const [showError, setShowError] = useState("");
   const modalRef = useRef<HTMLDivElement>(null);
 
   const closeModal = useCallback(() => {
@@ -101,16 +102,23 @@ const JoinChatModal: FC<ModalProps> = ({
       },
     });
     if (res.ok) {
+      const data = await res.json();
+      if (data.message && data.message === "user already in chat") {
+        setShowError("You are already in this chat");
+        return;
+      }
       socket.emit("joined-chat", {
         chatId,
         userId,
       });
-      const data = await res.json();
       setChats([
         { id: data.id, chatname: data.chatname, unreads: 0 },
         ...chats,
       ]);
+      setShowError("");
       closeModal();
+    } else {
+      setShowError("Chat not found");
     }
   };
 
@@ -200,6 +208,7 @@ const JoinChatModal: FC<ModalProps> = ({
                   }}
                   placeholder="Enter chat password..."
                 ></ModalInput>
+                {showError !== "" && <Error>{showError}</Error>}
                 <ModalButton
                   onClick={() => {
                     joinChat(undefined, chatname, password);
@@ -384,4 +393,9 @@ const ModalButton = styled.button`
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
   }
+`;
+
+const Error = styled.p`
+  color: ${colors.red};
+  margin: 8px;
 `;

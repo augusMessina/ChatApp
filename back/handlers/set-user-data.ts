@@ -12,6 +12,12 @@ export const setUserData: RequestHandler = async (req, res) => {
   const user = await usersCollection.findOne({ _id: new ObjectId(id) });
 
   if (username) {
+    const otherUser = await usersCollection.findOne({ username });
+    if (otherUser) {
+      res.status(200).send({ message: "username already taken" });
+      return;
+    }
+
     await usersCollection.updateOne({ _id: user?._id }, { $set: { username } });
 
     user?.chats.forEach(async (chat) => {

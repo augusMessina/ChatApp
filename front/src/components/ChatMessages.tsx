@@ -24,11 +24,16 @@ const ChatMessages: FC<MessagesProps> = ({
   unreads,
 }) => {
   const chatRef = useRef<HTMLDivElement>(null);
+  const unreadsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatRef.current)
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages]);
+
+  useEffect(() => {
+    if (unreadsRef.current && unreads > 0) unreadsRef.current.scrollIntoView();
+  }, [unreads]);
 
   return (
     <MessagesDisplay ref={chatRef}>
@@ -60,7 +65,11 @@ const ChatMessages: FC<MessagesProps> = ({
                     )}/${timestampDate.getFullYear()}`}</p>
                   )}
                   {index === messages.length - unreads && (
-                    <UnreadsSeparator></UnreadsSeparator>
+                    <UnreadsSeparatorContainer ref={unreadsRef}>
+                      <UnreadsSeparator></UnreadsSeparator>
+                      <p>New messages</p>
+                      <UnreadsSeparator></UnreadsSeparator>
+                    </UnreadsSeparatorContainer>
                   )}
                   <Message
                     position={
@@ -184,6 +193,23 @@ const MessageBubble = styled.div`
   border-radius: 7px;
   max-width: 500px;
   padding: 4px 8px;
+`;
+
+const UnreadsSeparatorContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+
+  p {
+    color: ${colors.blue};
+    font-style: italic;
+    flex: 1;
+    white-space: nowrap;
+    text-align: center;
+    margin: 0;
+  }
 `;
 
 const UnreadsSeparator = styled.div`

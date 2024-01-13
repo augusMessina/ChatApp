@@ -305,7 +305,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                   }))}
                 isOpen={membersDropdownOpen}
                 close={() => setMembersDropdownOpen(false)}
-                emptyText="No members"
+                emptyText="No members besides you"
                 title="Members"
                 onButtonClick={(memberId: string) =>
                   sendFriendRequest(
@@ -347,7 +347,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                 title="Invite"
                 isOpen={inviteDropdownOpen}
                 close={() => setInviteDropdownOpen(false)}
-                emptyText="No friends"
+                emptyText="No friends available for invitation"
                 onButtonClick={(friendId: string) =>
                   sendChatInvitation(
                     userId,
@@ -619,6 +619,7 @@ const ChatKey = styled.h2`
   cursor: pointer;
   padding: 8px 8px;
   border-radius: 5px;
+  margin: 0;
 
   :hover {
     background: ${colors.lightHoverGray};

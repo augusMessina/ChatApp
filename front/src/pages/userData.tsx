@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { languagesList } from "@/utils/languages";
 import CustomSelect from "@/components/CustomSelect";
 import { colors } from "@/utils/colors";
+import { checkUsernameValid } from "@/utils/checkUsernameValid";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -37,6 +38,7 @@ const UserDataPage: FC<{
 }> = ({ userId, userEmail }) => {
   const [username, setUsername] = useState("");
   const [language, setLanguage] = useState("");
+  const [showError, setShowError] = useState("");
 
   const { update, data: session } = useSession();
 
@@ -52,6 +54,11 @@ const UserDataPage: FC<{
     });
 
     if (res.ok) {
+      const data = await res.json();
+      if (data.message && data.message === "username already taken") {
+        setShowError("Username already in use");
+        return;
+      }
       await update({
         ...session,
         user: {
@@ -76,16 +83,34 @@ const UserDataPage: FC<{
         <FormContainer>
           <LoginInput
             placeholder="username"
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              setShowError("");
+            }}
           ></LoginInput>
+
           <CustomSelect
             defaultText="Language"
             items={languagesList}
-            onChange={(item) => setLanguage(item)}
+            onChange={(item) => {
+              setLanguage(item);
+              setShowError("");
+            }}
           ></CustomSelect>
+          {showError && <Error>{showError}</Error>}
+
           <LoginButton
             onClick={async () => {
-              await setUserdata();
+              if (language !== "") {
+                const isValid = checkUsernameValid(username);
+                if (isValid === "valid") {
+                  await setUserdata();
+                } else {
+                  setShowError(isValid);
+                }
+              } else {
+                setShowError("Choose a language");
+              }
             }}
             type="submit"
           >
@@ -207,4 +232,9 @@ const SecondaryLoginButton = styled.button`
   :hover {
     background: ${colors.darkHoverGray};
   }
+`;
+
+const Error = styled.p`
+  color: ${colors.red};
+  margin: 8px;
 `;

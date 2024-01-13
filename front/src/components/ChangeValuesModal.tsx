@@ -6,6 +6,7 @@ import CustomSelect from "./CustomSelect";
 import { languagesList } from "@/utils/languages";
 import { useRouter } from "next/router";
 import { Socket } from "socket.io-client";
+import { checkUsernameValid } from "@/utils/checkUsernameValid";
 
 type ModalProps = {
   isOpen: boolean;
@@ -26,6 +27,7 @@ const ChangeValuesModal: FC<ModalProps> = ({
 }) => {
   const [inputUsername, setInputUsername] = useState(username);
   const [selectedLanguage, setSelectedLanguage] = useState(language);
+  const [showError, setShowError] = useState("");
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +37,7 @@ const ChangeValuesModal: FC<ModalProps> = ({
     close();
     setInputUsername(username);
     setSelectedLanguage(language);
+    setShowError("");
   }, [close, language, username]);
 
   useEffect(() => {
@@ -70,6 +73,11 @@ const ChangeValuesModal: FC<ModalProps> = ({
     });
 
     if (res.ok) {
+      const data = await res.json();
+      if (data.message && data.message === "username already taken") {
+        setShowError("Username already in use");
+        return;
+      }
       socket.emit("user-data-updated", userId);
       router.reload();
     }
@@ -93,11 +101,12 @@ const ChangeValuesModal: FC<ModalProps> = ({
             <ModalInput
               onChange={(e) => {
                 setInputUsername(e.target.value);
+                setShowError("");
               }}
               value={inputUsername}
-              placeholder="user name..."
+              placeholder="Username..."
             ></ModalInput>
-
+            {showError && <Error>{showError}</Error>}
             <CustomSelect
               defaultText={
                 languagesList.find((lan) => lan.value === language)!.label
@@ -111,7 +120,12 @@ const ChangeValuesModal: FC<ModalProps> = ({
                 inputUsername === username && selectedLanguage === language
               }
               onClick={() => {
-                setUserdata();
+                const isValid = checkUsernameValid(inputUsername);
+                if (isValid === "valid") {
+                  setUserdata();
+                } else {
+                  setShowError(isValid);
+                }
               }}
             >
               Update
@@ -239,4 +253,9 @@ const ModalButton = styled.button`
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
   }
+`;
+
+const Error = styled.p`
+  color: ${colors.red};
+  margin: 8px;
 `;

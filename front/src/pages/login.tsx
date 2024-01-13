@@ -2,10 +2,12 @@ import styled from "@emotion/styled";
 import { FC, useState } from "react";
 import { signIn } from "next-auth/react";
 import { colors } from "@/utils/colors";
+import { validateEmail } from "@/utils/validateEmail";
 
 const LogInPage: FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showError, setShowError] = useState("");
 
   return (
     <MainContainer>
@@ -20,28 +22,42 @@ const LogInPage: FC = () => {
         <FormContainer
           onSubmit={async (e) => {
             e.preventDefault();
-            await signIn("credentials", {
-              email,
-              password,
-              redirect: true,
-              callbackUrl: "/",
-            });
+            if (password.length < 8) {
+              setShowError("Password must contain at least 8 characters");
+            } else if (!validateEmail(email)) {
+              setShowError("Not valid email");
+            } else {
+              await signIn("credentials", {
+                email,
+                password,
+                redirect: true,
+                callbackUrl: "/",
+              });
+            }
           }}
         >
           <LoginInput
             placeholder="email"
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setShowError("");
+            }}
           ></LoginInput>
           <LoginInput
             placeholder="password"
             type="password"
-            onChange={(e) => setPassword(e.target.value)}
+            wideOnContent={password.length > 0}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setShowError("");
+            }}
           ></LoginInput>
+          {showError && <Error>{showError}</Error>}
           <LoginButton type="submit">Access</LoginButton>
         </FormContainer>
         <SocialLogin>
-          <LoginButton>Sign in with Google</LoginButton>
-          <LoginButton
+          <SecondaryLoginButton>Sign in with Google</SecondaryLoginButton>
+          <SecondaryLoginButton
             onClick={() => {
               signIn("github", {
                 redirect: true,
@@ -50,7 +66,7 @@ const LogInPage: FC = () => {
             }}
           >
             Sign in with Github
-          </LoginButton>
+          </SecondaryLoginButton>
         </SocialLogin>
       </LoginSection>
     </MainContainer>
@@ -121,7 +137,7 @@ const SocialLogin = styled.div`
   width: 100%;
 `;
 
-const LoginInput = styled.input`
+const LoginInput = styled.input<{ wideOnContent?: boolean }>`
   padding: 12px 20px;
   width: 100%;
   box-sizing: border-box;
@@ -140,6 +156,7 @@ const LoginInput = styled.input`
   :focus {
     border: 1px solid ${colors.mainWhite};
     border-radius: 3px;
+    letter-spacing: ${(props) => (props.wideOnContent ? "2px" : "normal")};
   }
 `;
 
@@ -159,4 +176,26 @@ const LoginButton = styled.button`
   :hover {
     background: ${colors.lightHoverGray};
   }
+`;
+
+const SecondaryLoginButton = styled.button`
+  padding: 12px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background: ${colors.lightHoverGray};
+  border: none;
+  color: ${colors.mainWhite};
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: 0.3s;
+
+  :hover {
+    background: ${colors.darkHoverGray};
+  }
+`;
+
+const Error = styled.p`
+  color: ${colors.red};
+  margin: 8px;
 `;
