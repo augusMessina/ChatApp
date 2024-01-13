@@ -83,7 +83,8 @@ const CreateChatModal: FC<ModalProps> = ({
       <Wrap>
         <OuterContainer>
           <CloseButton
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               close();
               setChatname("");
               setIsPrivate(false);
@@ -216,14 +217,14 @@ const Toggle = styled.div<{ isActive: boolean }>`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 8px;
+  right: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border: none;
   padding: 0;
   cursor: pointer;

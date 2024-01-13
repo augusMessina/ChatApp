@@ -126,33 +126,35 @@ const JoinChatModal: FC<ModalProps> = ({
     <ModalBackground isOpen={isOpen}>
       <Wrap>
         <OuterContainer>
-          <CloseButton onClick={() => closeModal()}>
+          <CloseButton
+            onClick={(e) => {
+              e.stopPropagation();
+              closeModal();
+            }}
+          >
             <IoMdClose color={colors.darkText}></IoMdClose>
           </CloseButton>
 
           <ModalContainer ref={modalRef}>
             <Title>Join a chat</Title>
             <CheckboxContainer>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={chatType === "public"}
-                  onChange={() => {
-                    setChatType("public");
-                  }}
-                ></input>
+              <Toggle
+                isActive={chatType === "public"}
+                onClick={() => {
+                  setChatType("public");
+                }}
+              >
                 Public
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={chatType === "private"}
-                  onChange={() => {
-                    setChatType("private");
-                  }}
-                ></input>
+              </Toggle>
+
+              <Toggle
+                isActive={chatType === "private"}
+                onClick={() => {
+                  setChatType("private");
+                }}
+              >
                 Private
-              </label>
+              </Toggle>
             </CheckboxContainer>
 
             {chatType === "public" && (
@@ -330,14 +332,14 @@ const ChatJoin = styled.div`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 8px;
+  right: 8px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border: none;
   padding: 0;
   cursor: pointer;
@@ -398,4 +400,19 @@ const ModalButton = styled.button`
 const Error = styled.p`
   color: ${colors.red};
   margin: 8px;
+`;
+
+const Toggle = styled.div<{ isActive: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) =>
+    props.isActive ? colors.darkText : colors.background};
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  :hover {
+    background: ${(props) => (props.isActive ? "" : colors.darkHoverGray)};
+  }
 `;

@@ -17,6 +17,8 @@ import MoreOptionsDropdown from "./MoreOptionsDropdown";
 import { languagesList } from "@/utils/languages";
 import { SingletonRouter } from "next/router";
 import ChangeValuesModal from "./ChangeValuesModal";
+import { breakpoints } from "@/utils/breakpoints";
+import LeftMenu from "./LeftMenu";
 
 type ChatDisplayProps = {
   chats: { id: string; chatname: string; unreads: number }[];
@@ -65,6 +67,13 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   const [currentChat, setCurrentChat] = useState<string>(
     chats.length > 0 ? chats[0].id : ""
   );
+
+  const [currentAnimation, setCurrentAnimation] = useState({
+    animationName: "",
+    animationEasingFunction: "",
+    animationDuration: "",
+    animationFillMode: "",
+  });
 
   const [joinChatOpen, setJoinChatOpen] = useState(false);
   const [createChatOpen, setCreateChatOpen] = useState(false);
@@ -136,6 +145,51 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
 
   return (
     <ChatLayout>
+      <ChatRelative>
+        <LeftMenu
+          chats={chats}
+          currentChat={currentChat}
+          close={() => {
+            setCurrentAnimation({
+              animationName: "slide-out",
+              animationEasingFunction: "ease",
+              animationDuration: ".5s",
+              animationFillMode: "forwards",
+            });
+          }}
+          currentAnimation={currentAnimation}
+          moreOptionsOpen={moreOptionsOpen}
+          setChangeValuesOpen={setChangeValuesOpen}
+          setCreateChatOpen={setCreateChatOpen}
+          setCurrentChat={setCurrentChat}
+          setJoinChatOpen={setJoinChatOpen}
+          setMailboxOpen={setMailboxOpen}
+          setMoreOptionsOpen={setMoreOptionsOpen}
+          setSearchUserOpen={setSearchUserOpen}
+          socket={socket}
+        ></LeftMenu>
+
+        <ChatDisplay
+          chatId={currentChat}
+          setChatId={setCurrentChat}
+          setChats={setChats}
+          setFriendList={setFriendList}
+          userId={userId}
+          userLanguage={userLanguage}
+          socket={socket}
+          friendList={friendList}
+          outgoingRequests={outgoingRequests}
+          setOutgoingRequests={setOutgoingRequests}
+          openLeftMenu={() => {
+            setCurrentAnimation({
+              animationName: "slide-in",
+              animationEasingFunction: "ease",
+              animationDuration: ".5s",
+              animationFillMode: "forwards",
+            });
+          }}
+        ></ChatDisplay>
+      </ChatRelative>
       <JoinChatModal
         isOpen={joinChatOpen}
         close={closeJoinChat}
@@ -178,93 +232,6 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         username={username}
         socket={socket}
       ></ChangeValuesModal>
-      <LeftMenu>
-        <ToolBar>
-          <TopBarButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setJoinChatOpen(true);
-              setMoreOptionsOpen(false);
-            }}
-          >
-            <IoIosChatboxes color={colors.mainWhite}></IoIosChatboxes>
-          </TopBarButton>
-          <TopBarButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setCreateChatOpen(true);
-              setMoreOptionsOpen(false);
-            }}
-          >
-            <FaPlus color={colors.mainWhite}></FaPlus>
-          </TopBarButton>
-          <TopBarButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setSearchUserOpen(true);
-              setMoreOptionsOpen(false);
-            }}
-          >
-            <FaUserPlus color={colors.mainWhite}></FaUserPlus>
-          </TopBarButton>
-          <TopBarButton
-            onClick={(e) => {
-              e.stopPropagation();
-              setMailboxOpen(true);
-              setMoreOptionsOpen(false);
-            }}
-          >
-            <IoMdMail color={colors.mainWhite}></IoMdMail>
-          </TopBarButton>
-          <DropdownButtonContainer>
-            <TopBarButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setMoreOptionsOpen(true);
-              }}
-            >
-              <TbDotsVertical color={colors.mainWhite}></TbDotsVertical>
-            </TopBarButton>
-            <MoreOptionsDropdown
-              isOpen={moreOptionsOpen}
-              close={() => {
-                setMoreOptionsOpen(false);
-              }}
-              openValuesModal={() => {
-                setChangeValuesOpen(true);
-              }}
-            ></MoreOptionsDropdown>
-          </DropdownButtonContainer>
-        </ToolBar>
-        <Separator></Separator>
-        <Chats>
-          {chats.map((chat) => (
-            <Chat
-              key={chat.id}
-              onClick={() => {
-                socket.emit("leave", currentChat);
-                setCurrentChat(chat.id);
-              }}
-              isSelected={currentChat === chat.id}
-            >
-              <p>{chat.chatname}</p>
-              {chat.unreads > 0 && <UnreadAlert></UnreadAlert>}
-            </Chat>
-          ))}
-        </Chats>
-      </LeftMenu>
-      <ChatDisplay
-        chatId={currentChat}
-        setChatId={setCurrentChat}
-        setChats={setChats}
-        setFriendList={setFriendList}
-        userId={userId}
-        userLanguage={userLanguage}
-        socket={socket}
-        friendList={friendList}
-        outgoingRequests={outgoingRequests}
-        setOutgoingRequests={setOutgoingRequests}
-      ></ChatDisplay>
     </ChatLayout>
   );
 };
@@ -274,24 +241,17 @@ export default ChatConitainer;
 const ChatLayout = styled.div`
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
   padding: 16px;
   box-sizing: border-box;
 `;
 
-const LeftMenu = styled.div`
-  max-width: 400px;
-  flex: 1;
-  border: 1px solid ${colors.lightHoverGray};
-  border-radius: 3px;
+const ChatRelative = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 16px;
-  gap: 8px;
+  flex-direction: row;
+  gap: 16px;
 `;
 
 const Chats = styled.div`

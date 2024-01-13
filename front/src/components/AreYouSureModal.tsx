@@ -2,6 +2,7 @@ import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { IoMdClose } from "react-icons/io";
 import { Socket } from "socket.io-client";
 
 type ModalProps = {
@@ -44,6 +45,13 @@ const AreYouSureModal: FC<ModalProps> = ({
     <ModalBackground isOpen={isOpen}>
       <Wrap>
         <OuterContainer>
+          <CloseButton
+            onClick={() => {
+              close();
+            }}
+          >
+            <IoMdClose color={colors.darkText}></IoMdClose>
+          </CloseButton>
           <ModalContainer ref={modalRef}>
             <p>
               {question} <HighlightBubble>{highlight}</HighlightBubble> ?
@@ -94,6 +102,31 @@ const OuterContainer = styled.div`
   max-width: 600px;
   width: 100%;
   max-height: 600px;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: ${colors.lightHoverGray};
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  :hover {
+    background: ${colors.darkHoverGray};
+  }
 `;
 
 const ModalContainer = styled.div`

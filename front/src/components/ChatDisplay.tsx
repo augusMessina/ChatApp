@@ -23,7 +23,9 @@ import { IoSendSharp } from "react-icons/io5";
 import { MdGroupOff } from "react-icons/md";
 import { MdGroupAdd } from "react-icons/md";
 import { MdGroups } from "react-icons/md";
+import { GiHamburgerMenu } from "react-icons/gi";
 import { TailSpin } from "react-loader-spinner";
+import { breakpoints } from "@/utils/breakpoints";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -54,6 +56,7 @@ type ChatDisplayProps = {
     >
   >;
   setChatId: Dispatch<SetStateAction<string>>;
+  openLeftMenu: () => void;
 };
 
 type Message = {
@@ -77,6 +80,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   setChats,
   setFriendList,
   setChatId,
+  openLeftMenu,
 }) => {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [chatname, setChatname] = useState<string>("");
@@ -209,7 +213,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   };
 
   return (
-    <ChatDisplayContainer isHidden={chatId === ""}>
+    <ChatDisplayContainer>
       <AreYouSureModal
         question={`Are you sure you want to delete`}
         highlight={
@@ -240,6 +244,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
             setFriendList((prev) =>
               prev.filter((friend) => friend.friendId !== friendId)
             );
+            setChatname("");
             setChatId("");
           }
         }}
@@ -267,14 +272,25 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
             socket.emit("leave", chatId);
             socket.emit("left-chat", { userId, chatId });
             setChats((prev) => prev.filter((chat) => chat.id !== chatId));
+            setChatname("");
             setChatId("");
           }
         }}
       ></AreYouSureModal>
       <ChatHeader>
-        <Gap></Gap>
+        <div style={{ flex: 1 }}>
+          <MobileTopBarButton
+            onClick={(e) => {
+              e.stopPropagation();
+              openLeftMenu();
+            }}
+          >
+            <GiHamburgerMenu color={colors.mainWhite} />
+          </MobileTopBarButton>
+        </div>
+
         <h2>{chatname}</h2>
-        <HeaderButtons>
+        <HeaderButtons isHidden={!chatId}>
           {chatKey && (
             <ChatKey
               onClick={() => {
@@ -396,14 +412,20 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         </HeaderButtons>
       </ChatHeader>
 
-      <Separator></Separator>
-
-      <ChatMessages
-        messages={chatMessages}
-        userId={userId}
-        userLanguage={userLanguage}
-        unreads={chatUnreads}
-      ></ChatMessages>
+      {chatId && <Separator></Separator>}
+      {!chatId && (
+        <EmptyText>
+          <p>No chat selected</p>
+        </EmptyText>
+      )}
+      {chatId && (
+        <ChatMessages
+          messages={chatMessages}
+          userId={userId}
+          userLanguage={userLanguage}
+          unreads={chatUnreads}
+        ></ChatMessages>
+      )}
 
       {chatId && (
         <InputArea>
@@ -453,7 +475,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
 export default ChatDisplay;
 
-const ChatDisplayContainer = styled.div<{ isHidden: boolean }>`
+const ChatDisplayContainer = styled.div`
   flex: 1;
   border: 1px solid ${colors.lightHoverGray};
   border-radius: 3px;
@@ -463,7 +485,6 @@ const ChatDisplayContainer = styled.div<{ isHidden: boolean }>`
   justify-content: flex-end;
   padding: 8px 16px;
   gap: 8px;
-  ${(props) => (props.isHidden ? "visibility: hidden;" : "")}
 `;
 
 const ChatHeader = styled.div`
@@ -486,12 +507,13 @@ const Gap = styled.div`
   flex: 1;
 `;
 
-const HeaderButtons = styled.div`
+const HeaderButtons = styled.div<{ isHidden: boolean }>`
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 16px;
   flex: 1;
+  ${(props) => (props.isHidden ? "visibility: hidden;" : "")}
 `;
 
 const DropdownButtonContainer = styled.div`
@@ -605,6 +627,13 @@ const TopBarButton = styled.button`
   }
 `;
 
+const MobileTopBarButton = styled(TopBarButton)`
+  visibility: hidden;
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    visibility: visible;
+  }
+`;
+
 const Separator = styled.div`
   height: 1px;
   width: 100%;
@@ -623,5 +652,18 @@ const ChatKey = styled.h2`
 
   :hover {
     background: ${colors.lightHoverGray};
+  }
+`;
+
+const EmptyText = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  p {
+    font-style: italic;
+    font-weight: normal;
+    color: ${colors.darkText};
+    font-size: 24px;
   }
 `;
