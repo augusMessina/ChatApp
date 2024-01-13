@@ -1,4 +1,5 @@
 import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
+import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
@@ -66,7 +67,6 @@ const ScrollableDropdown: FC<DropdownProps> = ({
                 <ModalButton
                   style={{
                     width: "unset",
-                    padding: "8px 20px",
                     boxSizing: "border-box",
                   }}
                   onClick={() => onButtonClick(item.id)}
@@ -103,6 +103,13 @@ const DropdownContainer = styled.div<{
   border-radius: 3px;
   padding: 16px;
   box-sizing: border-box;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    bottom: ${(props) => `-${props.height * 0.75 + 4}px`};
+
+    height: ${(props) => `${props.height * 0.75}px`};
+    width: ${(props) => `${props.width * 0.75}px`};
+  }
 `;
 
 const Title = styled.h3`
@@ -110,6 +117,10 @@ const Title = styled.h3`
   color: ${colors.mainWhite};
   margin-top: 8px;
   margin-bottom: 16px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 14px;
+  }
 `;
 
 const Scrollable = styled.div`
@@ -127,6 +138,12 @@ const Scrollable = styled.div`
     font-weight: normal;
     color: ${colors.darkText};
     text-align: center;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    h3 {
+      font-size: 14px;
+    }
   }
 `;
 
@@ -148,10 +165,16 @@ const ChatJoin = styled.div`
   border-bottom: 1px solid ${colors.darkText};
   padding-bottom: 8px;
   color: ${colors.mainWhite};
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 12px;
+    }
+  }
 `;
 
 const ModalButton = styled.button`
-  padding: 12px 20px;
+  padding: 8px 20px;
   width: 100%;
   box-sizing: border-box;
   background: ${(props) => (props.disabled ? colors.darkText : "transparent")};
@@ -167,5 +190,11 @@ const ModalButton = styled.button`
 
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 8px 16px;
+    max-width: 100px;
   }
 `;

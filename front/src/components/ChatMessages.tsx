@@ -239,6 +239,11 @@ const UnreadsSeparatorContainer = styled.div`
     text-align: center;
     margin: 0;
   }
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 14px;
+    }
+  }
 `;
 
 const UnreadsSeparator = styled.div`
