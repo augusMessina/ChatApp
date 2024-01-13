@@ -7,8 +7,10 @@ type ModalProps = {
   isOpen: boolean;
   close: () => void;
   userId: string;
-  chats: { id: string; chatname: string }[];
-  setChats: (chats: { id: string; chatname: string }[]) => void;
+  chats: { id: string; chatname: string; unreads: number }[];
+  setChats: (
+    chats: { id: string; chatname: string; unreads: number }[]
+  ) => void;
 };
 
 const CreateChatModal: FC<ModalProps> = ({
@@ -56,7 +58,10 @@ const CreateChatModal: FC<ModalProps> = ({
     });
     if (res.ok) {
       const data = await res.json();
-      setChats([{ id: data.id, chatname: data.chatname }, ...chats]);
+      setChats([
+        { id: data.id, chatname: data.chatname, unreads: 0 },
+        ...chats,
+      ]);
       close();
     } else {
       close();
@@ -180,6 +185,7 @@ const InputsDiv = styled.div`
   align-items: center;
   justify-content: space-evenly;
   width: 100%;
+  gap: 8px;
 `;
 
 const Toggle = styled.div<{ isActive: boolean }>`
@@ -190,6 +196,7 @@ const Toggle = styled.div<{ isActive: boolean }>`
   padding: 12px 20px;
   border-radius: 10px;
   cursor: pointer;
+  flex: 1;
 
   :hover {
     background: ${(props) => (props.isActive ? "" : colors.darkHoverGray)};
@@ -235,6 +242,7 @@ const ModalInput = styled.input`
   font-weight: 500;
   font-size: 16px;
   transition: 0.4s;
+  flex: 3;
 
   :focus {
     border: 1px solid ${colors.mainWhite};

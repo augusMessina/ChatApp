@@ -34,7 +34,6 @@ export const createChat: RequestHandler = async (req, res) => {
     chatname,
     members: [{ id: user_id, username: user.username! }],
     password: key !== undefined ? `${key}` : key,
-    allowedLanguages,
     languages: [user.language!],
     messages: [],
     isFriendChat: false,
@@ -42,7 +41,11 @@ export const createChat: RequestHandler = async (req, res) => {
 
   await usersCollection.updateOne(
     { _id: user._id },
-    { $push: { chats: { $each: [{ id: newChatId.toString(), chatname }] } } }
+    {
+      $push: {
+        chats: { $each: [{ id: newChatId.toString(), chatname, unreads: 0 }] },
+      },
+    }
   );
 
   res.status(200).send({ chatname, id: newChatId });

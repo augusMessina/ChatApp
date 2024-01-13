@@ -34,6 +34,7 @@ type ModalProps = {
       {
         id: string;
         chatname: string;
+        unreads: number;
       }[]
     >
   >;
@@ -93,7 +94,7 @@ const MailboxModal: FC<ModalProps> = ({
     if (res.ok) {
       const data = await res.json();
       setChats((prev) => [
-        { chatname: username_sender, id: data.chat_id },
+        { chatname: username_sender, id: data.chat_id, unreads: 0 },
         ...prev,
       ]);
       setFriendList((prev) => [
@@ -124,7 +125,7 @@ const MailboxModal: FC<ModalProps> = ({
         chatId: id_chat,
         userId,
       });
-      setChats((prev) => [{ chatname, id: id_chat }, ...prev]);
+      setChats((prev) => [{ chatname, id: id_chat, unreads: 0 }, ...prev]);
       // socket.emit("accepted-fr", {
       //   id_sender,
       //   user_id: userId,

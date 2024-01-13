@@ -41,6 +41,7 @@ type ChatDisplayProps = {
       {
         id: string;
         chatname: string;
+        unreads: number;
       }[]
     >
   >;
@@ -86,6 +87,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   const [isFriendChat, setIsFriendChat] = useState(false);
   const [chatKey, setChatKey] = useState("");
   const [newMessage, setNewMessage] = useState<string>("");
+  const [chatUnreads, setChatUnreads] = useState(0);
 
   const [membersDropdownOpen, setMembersDropdownOpen] = useState(false);
   const [inviteDropdownOpen, setInviteDropdownOpen] = useState(false);
@@ -161,6 +163,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       setChatKey(data.password ?? "");
       setIsFriendChat(data.isFriendChat);
       setChatLang(data.languages);
+      setChatUnreads(data.chatUnreads);
     };
 
     if (chatId) {
@@ -201,6 +204,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       authorId: userId,
     });
     setNewMessage("");
+    setChatUnreads(0);
     setIsLoading(false);
   };
 
@@ -398,6 +402,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         messages={chatMessages}
         userId={userId}
         userLanguage={userLanguage}
+        unreads={chatUnreads}
       ></ChatMessages>
 
       {chatId && (

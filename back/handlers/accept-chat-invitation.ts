@@ -28,7 +28,9 @@ export const acceptChatRequest: RequestHandler = async (req, res) => {
     {
       $pull: { mailbox: { id_chat, type: NotifType.CHAT } },
       $push: {
-        chats: { $each: [{ id: id_chat, chatname: chat.chatname! }] },
+        chats: {
+          $each: [{ id: id_chat, chatname: chat.chatname!, unreads: 0 }],
+        },
       },
     }
   );

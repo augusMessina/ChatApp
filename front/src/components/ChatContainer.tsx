@@ -19,12 +19,13 @@ import { SingletonRouter } from "next/router";
 import ChangeValuesModal from "./ChangeValuesModal";
 
 type ChatDisplayProps = {
-  chats: { id: string; chatname: string }[];
+  chats: { id: string; chatname: string; unreads: number }[];
   setChats: Dispatch<
     SetStateAction<
       {
         id: string;
         chatname: string;
+        unreads: number;
       }[]
     >
   >;
@@ -81,7 +82,38 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
       socket.emit("leave", currentChat);
       setCurrentChat("");
     });
+    socket.on(
+      "chat-new-message",
+      (data: { chatId: string; chatname: string }) => {
+        setChats((prevChats) => {
+          if (prevChats.length > 1) {
+            const newChats = [...prevChats]; // Create a shallow copy
+            const index = newChats.findIndex((chat) => chat.id === data.chatId);
+            const chatUnreads = newChats[index].unreads;
+            if (index !== -1) {
+              newChats.splice(index, 1);
+            }
+
+            newChats.unshift({
+              id: data.chatId,
+              chatname: data.chatname,
+              unreads: data.chatId !== currentChat ? chatUnreads + 1 : 0,
+            });
+            return newChats;
+          }
+          return prevChats;
+        });
+      }
+    );
   });
+
+  useEffect(() => {
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === currentChat ? { ...chat, unreads: 0 } : chat
+      )
+    );
+  }, [currentChat, setChats]);
 
   const closeJoinChat = () => {
     setJoinChatOpen(false);
@@ -212,7 +244,8 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
               }}
               isSelected={currentChat === chat.id}
             >
-              {chat.chatname}
+              <p>{chat.chatname}</p>
+              {chat.unreads > 0 && <UnreadAlert></UnreadAlert>}
             </Chat>
           ))}
         </Chats>
@@ -268,7 +301,7 @@ const Chats = styled.div`
   flex: 1;
 `;
 
-const Chat = styled.p<{ isSelected: boolean }>`
+const Chat = styled.div<{ isSelected: boolean }>`
   ${(props) => (props.isSelected ? `background: ${colors.darkHoverGray};` : "")}
   color: ${colors.mainWhite};
   font-size: 17px;
@@ -279,6 +312,13 @@ const Chat = styled.p<{ isSelected: boolean }>`
   width: 100%;
   box-sizing: border-box;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 32px;
+  p {
+    margin: 0;
+  }
 `;
 
 const ToolBar = styled.div`
@@ -320,4 +360,11 @@ const Separator = styled.div`
 
 const DropdownButtonContainer = styled.div`
   position: relative;
+`;
+
+const UnreadAlert = styled.div`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${colors.blue};
 `;

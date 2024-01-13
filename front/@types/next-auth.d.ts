@@ -5,7 +5,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id?: string;
-      chats?: { id: string; chatname: string }[];
+      chats?: { id: string; chatname: string; unreads: number }[];
       friendList?: { friendId: string; friendName: string }[];
       mailbox?: Notif[];
       outgoingRequests?: OutgoingRequest[];

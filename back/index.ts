@@ -94,12 +94,20 @@ io.on("connection", (socket) => {
 
         members.forEach(async (member) => {
           let newChats = member.chats;
+          const chatUnreads =
+            newChats[
+              newChats.findIndex((memberChat) => memberChat.id === chatId)
+            ].unreads;
           newChats.splice(
             newChats.findIndex((memberChat) => memberChat.id === chatId),
             1
           );
 
-          newChats.unshift({ id: chatId, chatname: chat.chatname });
+          newChats.unshift({
+            id: chatId,
+            chatname: chat.chatname,
+            unreads: chatUnreads + 1,
+          });
           await usersCollection.updateOne(
             { _id: member._id },
             { $set: { chats: newChats } }

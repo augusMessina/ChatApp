@@ -7,6 +7,5 @@ export type Chat = {
   languages: string[];
   messages: Message[];
   password?: string;
-  allowedLanguages?: string[];
   isFriendChat: boolean;
 };

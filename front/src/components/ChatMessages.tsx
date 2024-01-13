@@ -14,12 +14,14 @@ type MessagesProps = {
   }[];
   userLanguage: string;
   userId: string;
+  unreads: number;
 };
 
 const ChatMessages: FC<MessagesProps> = ({
   messages,
   userLanguage,
   userId,
+  unreads,
 }) => {
   const chatRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +58,9 @@ const ChatMessages: FC<MessagesProps> = ({
                       2,
                       "0"
                     )}/${timestampDate.getFullYear()}`}</p>
+                  )}
+                  {index === messages.length - unreads && (
+                    <UnreadsSeparator></UnreadsSeparator>
                   )}
                   <Message
                     position={
@@ -179,4 +184,10 @@ const MessageBubble = styled.div`
   border-radius: 7px;
   max-width: 500px;
   padding: 4px 8px;
+`;
+
+const UnreadsSeparator = styled.div`
+  height: 1px;
+  width: 100%;
+  background: ${colors.blue};
 `;

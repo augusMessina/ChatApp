@@ -9,8 +9,10 @@ type ModalProps = {
   isOpen: boolean;
   close: () => void;
   userId: ISODateString;
-  chats: { id: string; chatname: string }[];
-  setChats: (chats: { id: string; chatname: string }[]) => void;
+  chats: { id: string; chatname: string; unreads: number }[];
+  setChats: (
+    chats: { id: string; chatname: string; unreads: number }[]
+  ) => void;
   socket: Socket;
 };
 
@@ -104,7 +106,10 @@ const JoinChatModal: FC<ModalProps> = ({
         userId,
       });
       const data = await res.json();
-      setChats([{ id: data.id, chatname: data.chatname }, ...chats]);
+      setChats([
+        { id: data.id, chatname: data.chatname, unreads: 0 },
+        ...chats,
+      ]);
       closeModal();
     }
   };

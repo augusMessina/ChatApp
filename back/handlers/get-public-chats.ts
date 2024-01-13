@@ -26,7 +26,6 @@ export const getPublicChats: RequestHandler = async (req, res) => {
         chatname: chat.chatname,
         id: chat._id,
         languages: chat.languages,
-        allowedLanguages: chat.allowedLanguages,
         members: chat.members.length,
       })),
   });

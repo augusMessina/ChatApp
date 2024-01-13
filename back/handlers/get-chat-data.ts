@@ -13,10 +13,28 @@ export const getChatData: RequestHandler = async (req, res) => {
     _id: new ObjectId(chat_id),
   });
 
-  if (!chat) {
+  const user = await usersCollection.findOne({
+    _id: new ObjectId(user_id),
+  });
+
+  if (!chat || !user) {
     res.status(400).send();
     return;
   }
+
+  const chatUnreads = user.chats.find((chat) => chat.id === chat_id)?.unreads;
+
+  await usersCollection.updateOne(
+    { _id: new ObjectId(user_id) },
+    {
+      $set: {
+        chats: user.chats.map((chat) =>
+          chat.id === chat_id ? { ...chat, unreads: 0 } : chat
+        ),
+      },
+    }
+  );
+
   res.send({
     messages: chat.messages,
     chatname:
@@ -26,9 +44,9 @@ export const getChatData: RequestHandler = async (req, res) => {
         .map((member) => member.username)
         .join(", "),
     members: chat.members,
-    allowedLanguages: chat.allowedLanguages,
     languages: chat.languages,
     password: chat.password,
     isFriendChat: chat.isFriendChat,
+    chatUnreads,
   });
 };

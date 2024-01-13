@@ -29,6 +29,11 @@ export const joinChat: RequestHandler = async (req, res) => {
     return;
   }
 
+  if (chat.members.some((member) => member.id === user._id.toString())) {
+    res.status(200).send({ message: "user already in chat" });
+    return;
+  }
+
   if (chat.languages.includes(user.language!)) {
     await chatsCollection.updateOne(
       { _id: chat._id },
@@ -55,7 +60,9 @@ export const joinChat: RequestHandler = async (req, res) => {
     {
       $push: {
         chats: {
-          $each: [{ chatname: chat.chatname, id: chat._id.toString() }],
+          $each: [
+            { chatname: chat.chatname, id: chat._id.toString(), unreads: 0 },
+          ],
           $position: 0,
         },
       },

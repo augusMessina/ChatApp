@@ -42,7 +42,7 @@ type HomeProps = {
     email: string;
     name: string;
     id: string;
-    chats: { id: string; chatname: string }[];
+    chats: { id: string; chatname: string; unreads: number }[];
     friendList: { friendId: string; friendName: string }[];
     mailbox: Notif[];
     outgoingRequests: OutgoingRequest[];
@@ -60,31 +60,17 @@ const Home: FC<HomeProps> = ({ user }) => {
 
   useEffect(() => {
     socket.emit("login", user.id);
-    socket.on(
-      "chat-new-message",
-      (data: { chatId: string; chatname: string }) => {
-        setChats((prevChats) => {
-          if (prevChats.length > 1) {
-            const newChats = [...prevChats]; // Create a shallow copy
-            const index = newChats.findIndex((chat) => chat.id === data.chatId);
 
-            if (index !== -1) {
-              newChats.splice(index, 1);
-            }
-            newChats.unshift({ id: data.chatId, chatname: data.chatname });
-            return newChats;
-          }
-          return prevChats;
-        });
-      }
-    );
     socket.on("new-notif", (newNotif: Notif) => {
       setMailbox([newNotif, ...mailbox]);
     });
     socket.on(
       "accepted-fr",
       (data: { chat_id: string; friend_id: string; friend_name: string }) => {
-        setChats([{ id: data.chat_id, chatname: data.friend_name }, ...chats]);
+        setChats([
+          { id: data.chat_id, chatname: data.friend_name, unreads: 0 },
+          ...chats,
+        ]);
         setFriendList([
           ...friendList,
           { friendId: data.friend_id, friendName: data.friend_name },

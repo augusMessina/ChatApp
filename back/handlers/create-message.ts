@@ -38,11 +38,18 @@ export const createMessage: RequestHandler = async (req, res) => {
 
   members.forEach(async (member) => {
     let newChats = member.chats;
+    const chatUnreads =
+      newChats[newChats.findIndex((memberChat) => memberChat.id === chat_id)]
+        .unreads;
     newChats.splice(
       newChats.findIndex((memberChat) => memberChat.id === chat_id),
       1
     );
-    newChats.unshift({ id: chat_id, chatname: chat.chatname });
+    newChats.unshift({
+      id: chat_id,
+      chatname: chat.chatname,
+      unreads: chatUnreads + 1,
+    });
     await usersCollection.updateOne(
       { _id: member._id },
       { $set: { chats: newChats } }

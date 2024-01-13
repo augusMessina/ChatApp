@@ -31,6 +31,7 @@ export const getUserData: RequestHandler = async (req, res) => {
           .filter((member) => member.id !== user._id.toString())
           .map((member) => member.username)
           .join(", "),
+        unreads: chat.unreads,
       };
     })
   );
