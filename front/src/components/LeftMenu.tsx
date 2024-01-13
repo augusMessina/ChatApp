@@ -209,6 +209,7 @@ const Chat = styled.div<{ isSelected: boolean }>`
   transition: 0.3s;
   p {
     margin: 0;
+    font-size: 13px;
   }
 
   :hover {

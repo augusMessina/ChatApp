@@ -1,3 +1,4 @@
+import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
@@ -78,6 +79,7 @@ export default AreYouSureModal;
 
 const ModalBackground = styled.div<{ isOpen: boolean }>`
   display: ${(props) => (props.isOpen ? "block" : "none")};
+  z-index: 11;
   position: fixed;
   top: 0;
   left: 0;
@@ -147,6 +149,13 @@ const ModalContainer = styled.div`
     text-align: center;
     line-height: 2;
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 14px;
+    }
+    gap: 12px;
+  }
 `;
 
 const ButtonsDiv = styled.div`
@@ -179,5 +188,10 @@ const ModalButton = styled.button`
 
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 8px 16px;
   }
 `;

@@ -250,6 +250,10 @@ const ChatLayout = styled.div`
   height: 100%;
   padding: 16px;
   box-sizing: border-box;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 0;
+  }
 `;
 
 const ChatRelative = styled.div`

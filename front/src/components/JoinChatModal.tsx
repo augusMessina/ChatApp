@@ -4,6 +4,7 @@ import { ISODateString } from "next-auth";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { IoMdClose } from "react-icons/io";
+import { breakpoints } from "@/utils/breakpoints";
 
 type ModalProps = {
   isOpen: boolean;
@@ -310,6 +311,12 @@ const Scrollable = styled.div`
     color: ${colors.darkText};
     text-align: center;
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    h3 {
+      font-size: 14px;
+    }
+  }
 `;
 
 const ChatsColumn = styled.div`
@@ -329,6 +336,12 @@ const ChatJoin = styled.div`
   width: 100%;
   border-bottom: 1px solid ${colors.darkText};
   padding-bottom: 8px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 12px;
+    }
+  }
 `;
 
 const CloseButton = styled.button`
@@ -376,6 +389,11 @@ const ModalInput = styled.input`
     border: 1px solid ${colors.mainWhite};
     border-radius: 3px;
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 8px 4px;
+    font-size: 14px;
+  }
 `;
 
 const ModalButton = styled.button`
@@ -396,11 +414,21 @@ const ModalButton = styled.button`
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
 `;
 
 const Error = styled.p`
   color: ${colors.red};
   margin: 8px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    margin: 4px;
+    font-size: 12px;
+  }
 `;
 
 const Toggle = styled.div<{ isActive: boolean }>`
@@ -415,5 +443,10 @@ const Toggle = styled.div<{ isActive: boolean }>`
 
   :hover {
     background: ${(props) => (props.isActive ? "" : colors.darkHoverGray)};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 8px 14px;
+    font-size: 14px;
   }
 `;

@@ -1,3 +1,4 @@
+import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { FC, useEffect, useRef, useState } from "react";
@@ -210,9 +211,15 @@ const Toggle = styled.div<{ isActive: boolean }>`
   border-radius: 10px;
   cursor: pointer;
   flex: 1;
+  width: 100%;
 
   :hover {
     background: ${(props) => (props.isActive ? "" : colors.darkHoverGray)};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 8px 14px;
+    font-size: 14px;
   }
 `;
 
@@ -256,10 +263,17 @@ const ModalInput = styled.input`
   font-size: 16px;
   transition: 0.4s;
   flex: 3;
+  width: 100%;
+  box-sizing: border-box;
 
   :focus {
     border: 1px solid ${colors.mainWhite};
     border-radius: 3px;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 8px 4px;
+    font-size: 14px;
   }
 `;
 
@@ -286,4 +300,9 @@ const ModalButton = styled.button`
 const Error = styled.p`
   color: ${colors.red};
   margin: 8px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    margin: 4px;
+    font-size: 12px;
+  }
 `;

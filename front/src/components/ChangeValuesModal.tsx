@@ -88,7 +88,8 @@ const ChangeValuesModal: FC<ModalProps> = ({
       <Wrap>
         <OuterContainer>
           <CloseButton
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               closeModal();
             }}
           >

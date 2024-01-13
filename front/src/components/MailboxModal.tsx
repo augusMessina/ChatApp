@@ -1,4 +1,5 @@
 import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
+import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
@@ -347,6 +348,12 @@ const Scrollable = styled.div`
     font-weight: normal;
     color: ${colors.darkText};
     text-align: center;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    h3 {
+      font-size: 14px;
+    }
   }
 `;
 

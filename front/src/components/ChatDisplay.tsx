@@ -26,6 +26,7 @@ import { MdGroups } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { TailSpin } from "react-loader-spinner";
 import { breakpoints } from "@/utils/breakpoints";
+import { NONAME } from "dns";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -520,6 +521,13 @@ const HeaderButtons = styled.div<{ isHidden: boolean }>`
   gap: 16px;
   flex: 1;
   ${(props) => (props.isHidden ? "visibility: hidden;" : "")}
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    h2 {
+      font-size: 12px;
+    }
+    gap: 8px;
+  }
 `;
 
 const DropdownButtonContainer = styled.div`
@@ -572,6 +580,7 @@ const InputArea = styled.form`
 
 const TextArea = styled.textarea`
   flex: 1;
+  width: 100%;
   background: ${colors.lightHoverGray};
   padding: 12px;
   color: ${colors.mainWhite};
@@ -586,6 +595,10 @@ const TextArea = styled.textarea`
   :focus {
     outline: none;
     border: 1px solid ${colors.darkText};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 4px;
   }
 `;
 
@@ -608,6 +621,14 @@ const SendButton = styled.button`
   :hover {
     ${(props) => !props.disabled && `background: ${colors.darkText};`}
     ${(props) => !props.disabled && `border: 1px solid ${colors.darkText};`}
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 0 16px;
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 `;
 
@@ -660,7 +681,6 @@ const ChatKey = styled.h2`
   font-style: italic;
   font-weight: normal;
   color: ${colors.darkText};
-  font-size: 16px;
   cursor: pointer;
   padding: 8px 8px;
   border-radius: 5px;
@@ -668,6 +688,10 @@ const ChatKey = styled.h2`
 
   :hover {
     background: ${colors.lightHoverGray};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    padding: 4px 4px;
   }
 `;
 

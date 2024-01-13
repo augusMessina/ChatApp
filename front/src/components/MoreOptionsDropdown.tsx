@@ -5,6 +5,7 @@ import { FC, MouseEventHandler, useEffect, useRef, useState } from "react";
 import { MdLogout } from "react-icons/md";
 import { IoSettingsSharp } from "react-icons/io5";
 import ChangeValuesModal from "./ChangeValuesModal";
+import { breakpoints } from "@/utils/breakpoints";
 
 type MoreOptionsDropdownProps = {
   isOpen: boolean;
@@ -79,6 +80,10 @@ const DropdownContainer = styled.div<{
   border-radius: 3px;
   padding: 16px;
   box-sizing: border-box;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    width: 150px;
+  }
 `;
 
 const Column = styled.div`
@@ -95,6 +100,16 @@ const Option = styled.div`
   align-items: center;
   width: 100%;
   color: ${colors.mainWhite};
+
+  p {
+    flex: 1;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 12px;
+    }
+  }
 `;
 
 const TopBarButton = styled.button`
@@ -116,5 +131,15 @@ const TopBarButton = styled.button`
 
   :hover {
     background: ${colors.lightHoverGray};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    width: 28px;
+    height: 28px;
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
   }
 `;
