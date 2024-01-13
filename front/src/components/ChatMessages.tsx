@@ -34,66 +34,66 @@ const ChatMessages: FC<MessagesProps> = ({
         <MessagesColumn>
           {messages.map((message, index) => {
             const timestampDate = new Date(message.timestamp);
-            return message.message.some(
-              (message) => message.language === userLanguage
-            ) ? (
-              <MessageContainer key={message.id}>
-                {(index === 0 ||
-                  (index > 0 &&
-                    (timestampDate.getDate() !==
-                      new Date(messages[index - 1].timestamp).getDate() ||
-                      timestampDate.getMonth() !==
-                        new Date(messages[index - 1].timestamp).getMonth() ||
-                      timestampDate.getFullYear() !==
-                        new Date(
-                          messages[index - 1].timestamp
-                        ).getFullYear()))) && (
-                  <p>{`${String(timestampDate.getMonth() + 1).padStart(
-                    2,
-                    "0"
-                  )}/${String(timestampDate.getDate()).padStart(
-                    2,
-                    "0"
-                  )}/${timestampDate.getFullYear()}`}</p>
-                )}
-                <Message
-                  position={
-                    message.author.authorId === userId
-                      ? "flex-end"
-                      : "flex-start"
-                  }
-                >
-                  <MessageHeader>
-                    {message.author.authorId === userId && (
-                      <p>{`${String(timestampDate.getHours()).padStart(
-                        2,
-                        "0"
-                      )}:${String(timestampDate.getMinutes()).padStart(
-                        2,
-                        "0"
-                      )}`}</p>
-                    )}
-                    <UserBubble>{message.author.authorName}</UserBubble>
-                    {message.author.authorId !== userId && (
-                      <p>{`${timestampDate.getHours()}:${timestampDate.getMinutes()}`}</p>
-                    )}
-                  </MessageHeader>
-                  <MessageBubble>
-                    {
-                      message.message.find(
-                        (message) => message.language === userLanguage
-                      )?.content
+            return (
+              message.message.some(
+                (message) => message.language === userLanguage
+              ) && (
+                <MessageContainer key={message.id}>
+                  {(index === 0 ||
+                    (index > 0 &&
+                      (timestampDate.getDate() !==
+                        new Date(messages[index - 1].timestamp).getDate() ||
+                        timestampDate.getMonth() !==
+                          new Date(messages[index - 1].timestamp).getMonth() ||
+                        timestampDate.getFullYear() !==
+                          new Date(
+                            messages[index - 1].timestamp
+                          ).getFullYear()))) && (
+                    <p>{`${String(timestampDate.getMonth() + 1).padStart(
+                      2,
+                      "0"
+                    )}/${String(timestampDate.getDate()).padStart(
+                      2,
+                      "0"
+                    )}/${timestampDate.getFullYear()}`}</p>
+                  )}
+                  <Message
+                    position={
+                      message.author.authorId === userId
+                        ? "flex-end"
+                        : "flex-start"
                     }
-                  </MessageBubble>
-                </Message>
-              </MessageContainer>
-            ) : (
-              <></>
+                  >
+                    <MessageHeader>
+                      {message.author.authorId === userId && (
+                        <p>{`${String(timestampDate.getHours()).padStart(
+                          2,
+                          "0"
+                        )}:${String(timestampDate.getMinutes()).padStart(
+                          2,
+                          "0"
+                        )}`}</p>
+                      )}
+                      <UserBubble>{message.author.authorName}</UserBubble>
+                      {message.author.authorId !== userId && (
+                        <p>{`${timestampDate.getHours()}:${timestampDate.getMinutes()}`}</p>
+                      )}
+                    </MessageHeader>
+                    <MessageBubble>
+                      {
+                        message.message.find(
+                          (message) => message.language === userLanguage
+                        )?.content
+                      }
+                    </MessageBubble>
+                  </Message>
+                </MessageContainer>
+              )
             );
           })}
         </MessagesColumn>
       ) : (
-        <h3>No messages to display</h3>
+        <></>
       )}
     </MessagesDisplay>
   );
@@ -156,23 +156,27 @@ const Message = styled.div<{ position: string }>`
 const MessageHeader = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 5px;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
 
   p {
     color: ${colors.darkText};
+    font-style: italic;
+    font-size: 12px;
     margin: 0;
   }
 `;
 
 const UserBubble = styled.div`
   color: ${colors.mainWhite};
-  padding: 4px 8px;
-  background: ${colors.lightHoverGray};
-  border-radius: 7px;
+  font-weight: bold;
 `;
 
 const MessageBubble = styled.div`
   color: ${colors.mainWhite};
+  background: ${colors.lightHoverGray};
+  border-radius: 7px;
   max-width: 500px;
+  padding: 4px 8px;
 `;

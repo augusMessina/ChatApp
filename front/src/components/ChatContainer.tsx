@@ -12,6 +12,11 @@ import { FaPlus, FaUserPlus } from "react-icons/fa";
 import { IoIosChatboxes, IoMdMail } from "react-icons/io";
 import { TbDotsVertical } from "react-icons/tb";
 import { colors } from "@/utils/colors";
+import ScrollableDropdown from "./ScrollableDropdown";
+import MoreOptionsDropdown from "./MoreOptionsDropdown";
+import { languagesList } from "@/utils/languages";
+import { SingletonRouter } from "next/router";
+import ChangeValuesModal from "./ChangeValuesModal";
 
 type ChatDisplayProps = {
   chats: { id: string; chatname: string }[];
@@ -38,6 +43,7 @@ type ChatDisplayProps = {
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void;
   userId: string;
   userLanguage: string;
+  username: string;
   socket: Socket;
 };
 
@@ -52,6 +58,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   setOutgoingRequests,
   userId,
   userLanguage,
+  username,
   socket,
 }) => {
   const [currentChat, setCurrentChat] = useState<string>(
@@ -62,6 +69,8 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   const [createChatOpen, setCreateChatOpen] = useState(false);
   const [searchUserOpen, setSearchUserOpen] = useState(false);
   const [mailboxOpen, setMailboxOpen] = useState(false);
+  const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
+  const [changeValuesOpen, setChangeValuesOpen] = useState(false);
 
   useEffect(() => {
     socket.on("unfriended", (data: { friendId: string; chatId: string }) => {
@@ -126,12 +135,21 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         setFriendList={setFriendList}
         socket={socket}
       ></MailboxModal>
+      <ChangeValuesModal
+        isOpen={changeValuesOpen}
+        close={() => setChangeValuesOpen(false)}
+        userId={userId}
+        language={userLanguage}
+        username={username}
+        socket={socket}
+      ></ChangeValuesModal>
       <LeftMenu>
         <ToolBar>
           <TopBarButton
             onClick={(e) => {
               e.stopPropagation();
               setJoinChatOpen(true);
+              setMoreOptionsOpen(false);
             }}
           >
             <IoIosChatboxes color={colors.mainWhite}></IoIosChatboxes>
@@ -140,6 +158,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               setCreateChatOpen(true);
+              setMoreOptionsOpen(false);
             }}
           >
             <FaPlus color={colors.mainWhite}></FaPlus>
@@ -148,6 +167,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               setSearchUserOpen(true);
+              setMoreOptionsOpen(false);
             }}
           >
             <FaUserPlus color={colors.mainWhite}></FaUserPlus>
@@ -156,13 +176,30 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
             onClick={(e) => {
               e.stopPropagation();
               setMailboxOpen(true);
+              setMoreOptionsOpen(false);
             }}
           >
             <IoMdMail color={colors.mainWhite}></IoMdMail>
           </TopBarButton>
-          <TopBarButton>
-            <TbDotsVertical color={colors.mainWhite}></TbDotsVertical>
-          </TopBarButton>
+          <DropdownButtonContainer>
+            <TopBarButton
+              onClick={(e) => {
+                e.stopPropagation();
+                setMoreOptionsOpen(true);
+              }}
+            >
+              <TbDotsVertical color={colors.mainWhite}></TbDotsVertical>
+            </TopBarButton>
+            <MoreOptionsDropdown
+              isOpen={moreOptionsOpen}
+              close={() => {
+                setMoreOptionsOpen(false);
+              }}
+              openValuesModal={() => {
+                setChangeValuesOpen(true);
+              }}
+            ></MoreOptionsDropdown>
+          </DropdownButtonContainer>
         </ToolBar>
         <Separator></Separator>
         <Chats>
@@ -241,6 +278,7 @@ const Chat = styled.p<{ isSelected: boolean }>`
   border-radius: 3px;
   width: 100%;
   box-sizing: border-box;
+  cursor: pointer;
 `;
 
 const ToolBar = styled.div`
@@ -278,4 +316,8 @@ const Separator = styled.div`
   height: 1px;
   width: 100%;
   background: ${colors.lightHoverGray};
+`;
+
+const DropdownButtonContainer = styled.div`
+  position: relative;
 `;

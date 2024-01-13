@@ -33,12 +33,26 @@ export const leaveChat: RequestHandler = async (req, res) => {
   if (chat.members.length <= 1) {
     await chatsCollection.deleteOne({ _id: chat._id });
   } else {
+    const newChatLangs: string[] = [];
+    chat.members.forEach(async (member) => {
+      const memberInDB = await usersCollection.findOne({
+        _id: new ObjectId(member.id),
+      });
+      if (
+        memberInDB?.language &&
+        !newChatLangs.includes(memberInDB?.language)
+      ) {
+        newChatLangs.push(memberInDB.language);
+      }
+    });
+
     await chatsCollection.updateOne(
       { _id: chat._id },
       {
         $pull: {
           members: { id: user_id },
         },
+        $set: { languages: newChatLangs },
       }
     );
   }

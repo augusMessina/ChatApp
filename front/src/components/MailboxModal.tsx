@@ -1,4 +1,5 @@
 import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
+import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import {
@@ -10,6 +11,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { IoMdClose } from "react-icons/io";
 import { Socket } from "socket.io-client";
 
 type ModalProps = {
@@ -133,74 +135,109 @@ const MailboxModal: FC<ModalProps> = ({
 
   return (
     <ModalBackground isOpen={isOpen}>
-      <ModalContainer ref={modalRef}>
-        <button onClick={() => close()}>Close</button>
+      <Wrap>
+        <OuterContainer>
+          <CloseButton onClick={() => close()}>
+            <IoMdClose color={colors.darkText}></IoMdClose>
+          </CloseButton>
 
-        <PublicChatContainer>
-          <h3>Here you can see your notifications</h3>
-          <Scrollable>
-            {mailbox.length > 0 ? (
-              <ChatsColumn>
-                {mailbox.map((mail) => (
-                  <ChatJoin
-                    key={`${mail.id_sender}-${mail.type}-${mail.id_chat ?? ""}`}
-                  >
-                    <p>From: {mail.username_sender}</p>
-                    {mail.type === "CHAT" && <p> | to {mail.chatname}</p>}
-                    {mail.type === "FRIEND" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          acceptFriendRequest(
-                            mail.id_sender,
-                            mail.username_sender
-                          );
-                          setMailbox((prev) => {
-                            return prev.filter(
-                              (notif) =>
-                                !(
-                                  notif.type === mail.type &&
-                                  notif.id_sender === mail.id_sender &&
-                                  notif.id_chat === mail.id_chat
-                                )
-                            );
-                          });
-                        }}
+          <ModalContainer ref={modalRef}>
+            <Title>Mailbox</Title>
+            <PublicChatContainer>
+              <Scrollable>
+                {mailbox.length > 0 ? (
+                  <ChatsColumn>
+                    {mailbox.map((mail) => (
+                      <ChatJoin
+                        key={`${mail.id_sender}-${mail.type}-${
+                          mail.id_chat ?? ""
+                        }`}
                       >
-                        Accept
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          acceptChatInvitation(
-                            mail.id_chat as string,
-                            mail.chatname as string
-                          );
-                          setMailbox((prev) => {
-                            return prev.filter(
-                              (notif) =>
-                                !(
-                                  notif.type === mail.type &&
-                                  notif.id_sender === mail.id_sender &&
-                                  notif.id_chat === mail.id_chat
-                                )
-                            );
-                          });
-                        }}
-                      >
-                        Join
-                      </button>
-                    )}
-                  </ChatJoin>
-                ))}
-              </ChatsColumn>
-            ) : (
-              <h4>No notifs found</h4>
-            )}
-          </Scrollable>
-        </PublicChatContainer>
-      </ModalContainer>
+                        <FromArea>
+                          <UserBubble>{mail.username_sender}</UserBubble>
+                          {mail.type === "FRIEND" ? (
+                            <span>Friend Request</span>
+                          ) : (
+                            <span>Chat invitation to: {mail.chatname}</span>
+                          )}
+                        </FromArea>
+                        <FromArea>
+                          {mail.type === "FRIEND" ? (
+                            <ModalButton
+                              style={{
+                                width: "unset",
+                                padding: "8px 20px",
+                                boxSizing: "border-box",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                acceptFriendRequest(
+                                  mail.id_sender,
+                                  mail.username_sender
+                                );
+                                setMailbox((prev) => {
+                                  return prev.filter(
+                                    (notif) =>
+                                      !(
+                                        notif.type === mail.type &&
+                                        notif.id_sender === mail.id_sender &&
+                                        notif.id_chat === mail.id_chat
+                                      )
+                                  );
+                                });
+                              }}
+                            >
+                              Accept
+                            </ModalButton>
+                          ) : (
+                            <ModalButton
+                              style={{
+                                width: "unset",
+                                padding: "8px 20px",
+                                boxSizing: "border-box",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                acceptChatInvitation(
+                                  mail.id_chat as string,
+                                  mail.chatname as string
+                                );
+                                setMailbox((prev) => {
+                                  return prev.filter(
+                                    (notif) =>
+                                      !(
+                                        notif.type === mail.type &&
+                                        notif.id_sender === mail.id_sender &&
+                                        notif.id_chat === mail.id_chat
+                                      )
+                                  );
+                                });
+                              }}
+                            >
+                              Join
+                            </ModalButton>
+                          )}
+                          <ModalButton
+                            style={{
+                              width: "unset",
+                              padding: "8px 20px",
+                              boxSizing: "border-box",
+                            }}
+                          >
+                            Decline
+                          </ModalButton>
+                        </FromArea>
+                      </ChatJoin>
+                    ))}
+                  </ChatsColumn>
+                ) : (
+                  <h3>No pending notifications</h3>
+                )}
+              </Scrollable>
+            </PublicChatContainer>
+          </ModalContainer>
+        </OuterContainer>
+      </Wrap>
     </ModalBackground>
   );
 };
@@ -214,22 +251,48 @@ const ModalBackground = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100%;
   height: 100%;
-  background: #000000b5;
+  background: #00000066;
+`;
+
+const Wrap = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+`;
+
+const OuterContainer = styled.div`
+  position: relative;
+  max-width: 600px;
+  width: 100%;
+  max-height: 600px;
+  min-height: 400px;
 `;
 
 const ModalContainer = styled.div`
   display: flex;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
+  background: ${colors.lightHoverGray};
+  color: ${colors.mainWhite};
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   gap: 24px;
-  padding: 32px;
-  border: 2px solid black;
+  padding: 32px 16px;
+  width: 100%;
+  min-height: 400px;
+  box-sizing: border-box;
+  border-radius: 10px;
+`;
+
+const Title = styled.h3`
+  text-align: center;
+  color: ${colors.mainWhite};
+  margin-top: 8px;
+  margin-bottom: 16px;
 `;
 
 const PublicChatContainer = styled.div`
@@ -238,6 +301,8 @@ const PublicChatContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 24px;
+  width: 100%;
+  height: 100%;
 `;
 
 const Scrollable = styled.div`
@@ -249,6 +314,14 @@ const Scrollable = styled.div`
   overflow-x: hidden;
   max-height: 300px;
   width: 100%;
+  height: 100%;
+
+  h3 {
+    font-style: italic;
+    font-weight: normal;
+    color: ${colors.darkText};
+    text-align: center;
+  }
 `;
 
 const ChatsColumn = styled.div`
@@ -258,6 +331,7 @@ const ChatsColumn = styled.div`
   align-items: center;
   gap: 8px;
   height: fit-content;
+  width: 100%;
 `;
 
 const ChatJoin = styled.div`
@@ -265,4 +339,70 @@ const ChatJoin = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  border-bottom: 1px solid ${colors.darkText};
+  padding-bottom: 8px;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: ${colors.lightHoverGray};
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  :hover {
+    background: ${colors.darkHoverGray};
+  }
+`;
+
+const ModalButton = styled.button`
+  padding: 12px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background: ${(props) => (props.disabled ? colors.darkText : "transparent")};
+  border: 1px solid
+    ${(props) => (!props.disabled ? colors.mainWhite : "transparent")};
+  color: ${(props) =>
+    !props.disabled ? colors.mainWhite : colors.darkHoverGray};
+  font-size: 16px;
+  font-weight: 500;
+  ${(props) => !props.disabled && "cursor: pointer;"}
+  border-radius: 3px;
+  transition: 0.3s;
+
+  :hover {
+    background: ${(props) => !props.disabled && colors.darkText};
+  }
+`;
+
+const FromArea = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    font-style: italic;
+    color: ${colors.darkText};
+  }
+`;
+
+const UserBubble = styled.p`
+  padding: 12px 20px;
+  background: ${colors.darkHoverGray};
+  color: ${colors.mainWhite};
+  border-radius: 5px;
 `;

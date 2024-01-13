@@ -24,6 +24,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     props: {
       session: session,
       userId: session.user.id,
+      userEmail: session.user.email,
     },
   };
 };
@@ -31,8 +32,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const UserDataPage: FC<{
   session: Session;
   userId: string;
+  userEmail: string;
   isFirstTime: boolean;
-}> = ({ userId }) => {
+}> = ({ userId, userEmail }) => {
   const [username, setUsername] = useState("");
   const [language, setLanguage] = useState("");
 
@@ -66,7 +68,7 @@ const UserDataPage: FC<{
     <MainContainer>
       <TitleContainer>
         <Title>
-          Looks like it's your <br></br> first time here
+          Looks like it's your <br></br> first time here, <br></br> {userEmail}
         </Title>
       </TitleContainer>
       <Separator></Separator>

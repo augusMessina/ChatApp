@@ -19,6 +19,10 @@ import AreYouSureModal from "./AreYouSureModal";
 import { colors } from "@/utils/colors";
 
 import { FaUserMinus } from "react-icons/fa";
+import { IoSendSharp } from "react-icons/io5";
+import { MdGroupOff } from "react-icons/md";
+import { MdGroupAdd } from "react-icons/md";
+import { MdGroups } from "react-icons/md";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -79,7 +83,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   );
   const [chatLang, setChatLang] = useState<string[]>([]);
   const [isFriendChat, setIsFriendChat] = useState(false);
-  const [chetKey, setChatKey] = useState("");
+  const [chatKey, setChatKey] = useState("");
   const [newMessage, setNewMessage] = useState<string>("");
 
   const [membersDropdownOpen, setMembersDropdownOpen] = useState(false);
@@ -116,7 +120,25 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
     socket.on("left-chat", (memberId: string) => {
       setMembers((prev) => prev.filter((member) => member.id !== memberId));
     });
-  }, [chatMessages, chatLang, members, socket]);
+
+    socket.on(
+      "member-data-updated",
+      (data: { memberName: string; memberId: string; chatLangs: string[] }) => {
+        setMembers(
+          members.map((member) => {
+            if (member.id === data.memberId) {
+              return { ...member, username: data.memberName };
+            }
+            return member;
+          })
+        );
+        setChatLang(data.chatLangs ?? chatLang);
+        if (isFriendChat) {
+          setChatname(data.memberName);
+        }
+      }
+    );
+  }, [chatMessages, chatLang, members, socket, isFriendChat]);
 
   useEffect(() => {
     const getChatData = async (chatId: string) => {
@@ -184,9 +206,10 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   return (
     <ChatDisplayContainer isHidden={chatId === ""}>
       <AreYouSureModal
-        question={`Are you sure you want to delete ${
+        question={`Are you sure you want to delete`}
+        highlight={
           members.filter((member) => member.id !== userId)[0]?.username
-        }?`}
+        }
         isOpen={sureFriendModalOpen}
         close={() => {
           setSureFriendModalOpen(false);
@@ -217,7 +240,8 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         }}
       ></AreYouSureModal>
       <AreYouSureModal
-        question={`Are you sure you want to leave ${chatname}?`}
+        question={`Are you sure you want to leave`}
+        highlight={chatname}
         isOpen={sureChatModalOpen}
         close={() => {
           setSureChatModalOpen(false);
@@ -246,18 +270,26 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         <Gap></Gap>
         <h2>{chatname}</h2>
         <HeaderButtons>
-          {chetKey && <h2>{chetKey}</h2>}
+          {chatKey && (
+            <ChatKey
+              onClick={() => {
+                navigator.clipboard.writeText(chatKey);
+              }}
+            >
+              {chatKey}
+            </ChatKey>
+          )}
           {!isFriendChat && (
             <DropdownButtonContainer>
-              <button
+              <TopBarButton
                 onClick={(e) => {
                   e.stopPropagation();
                   setInviteDropdownOpen(false);
                   setMembersDropdownOpen(true);
                 }}
               >
-                Members
-              </button>
+                <MdGroups color={colors.mainWhite}></MdGroups>
+              </TopBarButton>
               <ScrollableDropdown
                 items={members
                   .filter((member) => member.id !== userId)
@@ -269,6 +301,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                 isOpen={membersDropdownOpen}
                 close={() => setMembersDropdownOpen(false)}
                 emptyText="No members"
+                title="Members"
                 onButtonClick={(memberId: string) =>
                   sendFriendRequest(
                     userId,
@@ -291,21 +324,22 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
           )}
           {!isFriendChat && (
             <DropdownButtonContainer>
-              <button
+              <TopBarButton
                 onClick={(e) => {
                   e.stopPropagation();
                   setMembersDropdownOpen(false);
                   setInviteDropdownOpen(true);
                 }}
               >
-                Invite
-              </button>
+                <MdGroupAdd color={colors.mainWhite}></MdGroupAdd>
+              </TopBarButton>
               <ScrollableDropdown
                 items={friendList.map((friend) => ({
                   label: friend.friendName,
                   id: friend.friendId,
                   buttonLabel: "Invite to chat",
                 }))}
+                title="Invite"
                 isOpen={inviteDropdownOpen}
                 close={() => setInviteDropdownOpen(false)}
                 emptyText="No friends"
@@ -342,17 +376,17 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                 setSureFriendModalOpen(true);
               }}
             >
-              <FaUserMinus color={colors.mainWhite}></FaUserMinus>
+              <FaUserMinus color={colors.red}></FaUserMinus>
             </TopBarButton>
           ) : (
-            <button
+            <TopBarButton
               onClick={(e) => {
                 e.stopPropagation();
                 setSureChatModalOpen(true);
               }}
             >
-              Leave chat
-            </button>
+              <MdGroupOff color={colors.red}></MdGroupOff>
+            </TopBarButton>
           )}
         </HeaderButtons>
       </ChatHeader>
@@ -366,17 +400,11 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       ></ChatMessages>
 
       {chatId && (
-        <InputArea
-          onSubmit={async (e) => {
-            e.preventDefault();
-
-            await handleMesageSubmit();
-          }}
-        >
+        <InputArea>
           <TextArea
             onChange={(e) => {
-              if (!e.target.value.endsWith("\n") || shiftPressed)
-                setNewMessage(e.target.value);
+              // if (!e.target.value.endsWith("\n") || shiftPressed)
+              setNewMessage(e.target.value);
             }}
             onKeyDown={(e) => {
               if (e.key === "Shift") {
@@ -396,11 +424,16 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
               }
             }}
             value={newMessage}
-            maxLength={100}
+            maxLength={300}
             disabled={isLoading}
           ></TextArea>
-          <SendButton type="submit" disabled={newMessage === "" || isLoading}>
-            Send
+          <SendButton
+            disabled={newMessage === "" || isLoading}
+            onClick={async (e) => {
+              await handleMesageSubmit();
+            }}
+          >
+            <IoSendSharp color={colors.mainWhite}></IoSendSharp>
           </SendButton>
         </InputArea>
       )}
@@ -529,6 +562,11 @@ const SendButton = styled.button`
   border-bottom-right-radius: 16px;
   cursor: pointer;
 
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
   :hover {
     background: ${colors.darkText};
   }
@@ -560,4 +598,18 @@ const Separator = styled.div`
   height: 1px;
   width: 100%;
   background: ${colors.lightHoverGray};
+`;
+
+const ChatKey = styled.h2`
+  font-style: italic;
+  font-weight: normal;
+  color: ${colors.darkText};
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px 8px;
+  border-radius: 5px;
+
+  :hover {
+    background: ${colors.lightHoverGray};
+  }
 `;

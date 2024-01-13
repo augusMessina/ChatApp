@@ -1,7 +1,9 @@
+import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
+import { IoMdClose } from "react-icons/io";
 
 type ModalProps = {
   isOpen: boolean;
@@ -109,87 +111,102 @@ const JoinChatModal: FC<ModalProps> = ({
 
   return (
     <ModalBackground isOpen={isOpen}>
-      <ModalContainer ref={modalRef}>
-        <button onClick={() => closeModal()}>Close</button>
-        <div>
-          <label>
-            <input
-              type="checkbox"
-              checked={chatType === "public"}
-              onChange={() => {
-                setChatType("public");
-              }}
-            ></input>
-            Public
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={chatType === "private"}
-              onChange={() => {
-                setChatType("private");
-              }}
-            ></input>
-            Private
-          </label>
-        </div>
+      <Wrap>
+        <OuterContainer>
+          <CloseButton onClick={() => closeModal()}>
+            <IoMdClose color={colors.darkText}></IoMdClose>
+          </CloseButton>
 
-        {chatType === "public" && (
-          <PublicChatContainer>
-            <input
-              onChange={(e) => {
-                setSearchName(e.target.value);
-              }}
-              placeholder="Enter chat name..."
-            ></input>
-            <Scrollable>
-              {publicChats.length > 0 && (
-                <ChatsColumn>
-                  {publicChats.map((chat) => (
-                    <ChatJoin key={chat.id}>
-                      <p>{chat.chatname}</p>
-                      <button
-                        onClick={() => {
-                          joinChat(chat.id, chat.chatname);
-                        }}
-                        disabled={chats.some((chat2) => chat2.id === chat.id)}
-                      >
-                        Join
-                      </button>
-                    </ChatJoin>
-                  ))}
-                </ChatsColumn>
-              )}
+          <ModalContainer ref={modalRef}>
+            <Title>Join a chat</Title>
+            <CheckboxContainer>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={chatType === "public"}
+                  onChange={() => {
+                    setChatType("public");
+                  }}
+                ></input>
+                Public
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={chatType === "private"}
+                  onChange={() => {
+                    setChatType("private");
+                  }}
+                ></input>
+                Private
+              </label>
+            </CheckboxContainer>
 
-              {publicChats.length === 0 && <h3>No chats available</h3>}
-            </Scrollable>
-          </PublicChatContainer>
-        )}
+            {chatType === "public" && (
+              <PublicChatContainer>
+                <ModalInput
+                  onChange={(e) => {
+                    setSearchName(e.target.value);
+                  }}
+                  placeholder="Enter chat name..."
+                ></ModalInput>
+                <Scrollable>
+                  {publicChats.length > 0 && (
+                    <ChatsColumn>
+                      {publicChats.map((chat) => (
+                        <ChatJoin key={chat.id}>
+                          <p>{chat.chatname}</p>
+                          <ModalButton
+                            style={{
+                              width: "unset",
+                              padding: "8px 20px",
+                              boxSizing: "border-box",
+                            }}
+                            onClick={() => {
+                              joinChat(chat.id, chat.chatname);
+                            }}
+                            disabled={chats.some(
+                              (chat2) => chat2.id === chat.id
+                            )}
+                          >
+                            Join
+                          </ModalButton>
+                        </ChatJoin>
+                      ))}
+                    </ChatsColumn>
+                  )}
 
-        {chatType === "private" && (
-          <PublicChatContainer>
-            <input
-              onChange={(e) => {
-                setChatname(e.target.value);
-              }}
-              placeholder="Enter chat name..."
-            ></input>
-            <input
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-              placeholder="Enter chat password..."
-            ></input>
-            <button
-              onClick={() => {
-                joinChat(undefined, chatname, password);
-              }}
-            >
-              Join
-            </button>
-          </PublicChatContainer>
-        )}
-      </ModalContainer>
+                  {publicChats.length === 0 && <h3>No chats available</h3>}
+                </Scrollable>
+              </PublicChatContainer>
+            )}
+
+            {chatType === "private" && (
+              <PublicChatContainer>
+                <ModalInput
+                  onChange={(e) => {
+                    setChatname(e.target.value);
+                  }}
+                  placeholder="Enter chat name..."
+                ></ModalInput>
+                <ModalInput
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                  placeholder="Enter chat password..."
+                ></ModalInput>
+                <ModalButton
+                  onClick={() => {
+                    joinChat(undefined, chatname, password);
+                  }}
+                >
+                  Join
+                </ModalButton>
+              </PublicChatContainer>
+            )}
+          </ModalContainer>
+        </OuterContainer>
+      </Wrap>
     </ModalBackground>
   );
 };
@@ -203,22 +220,46 @@ const ModalBackground = styled.div<{ isOpen: boolean }>`
   left: 0;
   width: 100%;
   height: 100%;
-  background: #000000b5;
+  background: #00000066;
+`;
+
+const Wrap = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  box-sizing: border-box;
+`;
+
+const OuterContainer = styled.div`
+  position: relative;
+  max-width: 600px;
+  width: 100%;
+  max-height: 600px;
 `;
 
 const ModalContainer = styled.div`
   display: flex;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
+  background: ${colors.lightHoverGray};
+  color: ${colors.mainWhite};
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   gap: 24px;
-  padding: 32px;
-  border: 2px solid black;
+  padding: 32px 16px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+`;
+
+const Title = styled.h3`
+  text-align: center;
+  color: ${colors.mainWhite};
+  margin-top: 8px;
+  margin-bottom: 16px;
 `;
 
 const PublicChatContainer = styled.div`
@@ -227,6 +268,13 @@ const PublicChatContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 24px;
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 100%;
 `;
 
 const Scrollable = styled.div`
@@ -238,6 +286,13 @@ const Scrollable = styled.div`
   overflow-x: hidden;
   max-height: 300px;
   width: 100%;
+
+  h3 {
+    font-style: italic;
+    font-weight: normal;
+    color: ${colors.darkText};
+    text-align: center;
+  }
 `;
 
 const ChatsColumn = styled.div`
@@ -247,6 +302,7 @@ const ChatsColumn = styled.div`
   align-items: center;
   gap: 8px;
   height: fit-content;
+  width: 100%;
 `;
 
 const ChatJoin = styled.div`
@@ -254,4 +310,73 @@ const ChatJoin = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  border-bottom: 1px solid ${colors.darkText};
+  padding-bottom: 8px;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: ${colors.lightHoverGray};
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  :hover {
+    background: ${colors.darkHoverGray};
+  }
+`;
+
+const ModalInput = styled.input`
+  padding: 12px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  color: ${colors.mainWhite};
+  border-color: ${colors.mainWhite};
+  border-style: solid;
+  border-image: none;
+  border-width: 1px;
+  border-color: transparent;
+  border-bottom: 1px solid ${colors.mainWhite};
+  font-weight: 500;
+  font-size: 16px;
+  transition: 0.4s;
+
+  :focus {
+    border: 1px solid ${colors.mainWhite};
+    border-radius: 3px;
+  }
+`;
+
+const ModalButton = styled.button`
+  padding: 12px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background: ${(props) => (props.disabled ? colors.darkText : "transparent")};
+  border: 1px solid
+    ${(props) => (!props.disabled ? colors.mainWhite : "transparent")};
+  color: ${(props) =>
+    !props.disabled ? colors.mainWhite : colors.darkHoverGray};
+  font-size: 16px;
+  font-weight: 500;
+  ${(props) => !props.disabled && "cursor: pointer;"}
+  border-radius: 3px;
+  transition: 0.3s;
+
+  :hover {
+    background: ${(props) => !props.disabled && colors.darkText};
+  }
 `;

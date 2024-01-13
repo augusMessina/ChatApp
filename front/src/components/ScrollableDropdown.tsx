@@ -1,4 +1,5 @@
 import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
+import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -11,6 +12,7 @@ type DropdownProps = {
   onButtonClick: (itemId: string) => any;
   disabledCondition: (itemId: string) => boolean;
   emptyText: string;
+  title: string;
   width: number;
   height: number;
 };
@@ -22,6 +24,7 @@ const ScrollableDropdown: FC<DropdownProps> = ({
   onButtonClick,
   disabledCondition,
   emptyText,
+  title,
   width,
   height,
 }) => {
@@ -53,18 +56,24 @@ const ScrollableDropdown: FC<DropdownProps> = ({
       width={width}
       height={height}
     >
+      <Title>{title}</Title>
       <Scrollable>
         {items.length > 0 && (
           <ChatsColumn>
             {items.map((item) => (
               <ChatJoin key={item.id ?? item.label}>
                 <p>{item.label}</p>
-                <button
+                <ModalButton
+                  style={{
+                    width: "unset",
+                    padding: "8px 20px",
+                    boxSizing: "border-box",
+                  }}
                   onClick={() => onButtonClick(item.id)}
                   disabled={disabledCondition(item.id)}
                 >
                   {item.buttonLabel}
-                </button>
+                </ModalButton>
               </ChatJoin>
             ))}
           </ChatsColumn>
@@ -89,9 +98,18 @@ const DropdownContainer = styled.div<{
   bottom: ${(props) => `-${props.height + 4}px`};
   height: ${(props) => `${props.height}px`};
   width: ${(props) => `${props.width}px`};
-  background: white;
-  border: 2px solid black;
+  background: ${colors.darkHoverGray};
+  box-shadow: 0px 0px 10px ${colors.lightHoverGray};
+  border-radius: 3px;
+  padding: 16px;
   box-sizing: border-box;
+`;
+
+const Title = styled.h3`
+  text-align: center;
+  color: ${colors.mainWhite};
+  margin-top: 8px;
+  margin-bottom: 16px;
 `;
 
 const Scrollable = styled.div`
@@ -103,6 +121,12 @@ const Scrollable = styled.div`
   overflow-x: hidden;
   max-height: 300px;
   width: 100%;
+
+  h3 {
+    font-style: italic;
+    font-weight: normal;
+    color: ${colors.darkText};
+  }
 `;
 
 const ChatsColumn = styled.div`
@@ -112,6 +136,7 @@ const ChatsColumn = styled.div`
   align-items: center;
   gap: 8px;
   height: fit-content;
+  width: 100%;
 `;
 
 const ChatJoin = styled.div`
@@ -119,4 +144,27 @@ const ChatJoin = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  border-bottom: 1px solid ${colors.darkText};
+  padding-bottom: 8px;
+  color: ${colors.mainWhite};
+`;
+
+const ModalButton = styled.button`
+  padding: 12px 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background: ${(props) => (props.disabled ? colors.darkText : "transparent")};
+  border: 1px solid
+    ${(props) => (!props.disabled ? colors.mainWhite : "transparent")};
+  color: ${(props) =>
+    !props.disabled ? colors.mainWhite : colors.darkHoverGray};
+  font-size: 16px;
+  font-weight: 500;
+  ${(props) => !props.disabled && "cursor: pointer;"}
+  border-radius: 3px;
+  transition: 0.3s;
+
+  :hover {
+    background: ${(props) => !props.disabled && colors.darkText};
+  }
 `;

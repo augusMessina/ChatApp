@@ -40,7 +40,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 type HomeProps = {
   user: {
     email: string;
-    username: string;
+    name: string;
     id: string;
     chats: { id: string; chatname: string }[];
     friendList: { friendId: string; friendName: string }[];
@@ -91,17 +91,32 @@ const Home: FC<HomeProps> = ({ user }) => {
         ]);
       }
     );
+    socket.on(
+      "friend-data-updated",
+      (data: { friendId: string; friendName: string; chatId: string }) => {
+        setFriendList(
+          friendList.map((friend) => {
+            if (friend.friendId === data.friendId) {
+              return { ...friend, friendName: data.friendName };
+            }
+            return friend;
+          })
+        );
+
+        setChats(
+          chats.map((chat) => {
+            if (chat.id === data.chatId) {
+              return { ...chat, chatname: data.friendName };
+            }
+            return chat;
+          })
+        );
+      }
+    );
   }, [user, chats, friendList, mailbox]);
 
   return (
     <MainContainer>
-      <button
-        onClick={() => {
-          signOut();
-        }}
-      >
-        logout
-      </button>
       <ChatContainer
         chats={chats}
         setChats={setChats}
@@ -113,6 +128,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         setOutgoingRequests={setOutgoingRequests}
         userId={user.id}
         userLanguage={user.language}
+        username={user.name}
         socket={socket}
       ></ChatContainer>
     </MainContainer>

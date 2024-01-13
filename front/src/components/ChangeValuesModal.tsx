@@ -1,37 +1,51 @@
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { IoMdClose } from "react-icons/io";
+import CustomSelect from "./CustomSelect";
+import { languagesList } from "@/utils/languages";
+import { useRouter } from "next/router";
+import { Socket } from "socket.io-client";
 
 type ModalProps = {
   isOpen: boolean;
   close: () => void;
   userId: string;
-  chats: { id: string; chatname: string }[];
-  setChats: (chats: { id: string; chatname: string }[]) => void;
+  username: string;
+  language: string;
+  socket: Socket;
 };
 
-const CreateChatModal: FC<ModalProps> = ({
+const ChangeValuesModal: FC<ModalProps> = ({
   isOpen,
   close,
   userId,
-  chats,
-  setChats,
+  username,
+  language,
+  socket,
 }) => {
-  const [chatname, setChatname] = useState("");
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [inputUsername, setInputUsername] = useState(username);
+  const [selectedLanguage, setSelectedLanguage] = useState(language);
 
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const router = useRouter();
+
+  const closeModal = useCallback(() => {
+    close();
+    setInputUsername(username);
+    setSelectedLanguage(language);
+  }, [close, language, username]);
 
   useEffect(() => {
     const checkIfClickedOutside = (e: any) => {
       if (modalRef.current && !modalRef.current.contains(e.target) && isOpen) {
-        close();
+        closeModal();
       }
     };
     const checkIfEscPressed = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        close();
+        closeModal();
       }
     };
     document.addEventListener("click", checkIfClickedOutside);
@@ -40,26 +54,24 @@ const CreateChatModal: FC<ModalProps> = ({
       document.removeEventListener("click", checkIfClickedOutside);
       document.removeEventListener("keydown", checkIfEscPressed);
     };
-  }, [close, isOpen]);
+  }, [close, isOpen, closeModal]);
 
-  const createChat = async () => {
-    const res = await fetch("http://localhost:8080/createChat", {
+  const setUserdata = async () => {
+    const res = await fetch("http://localhost:8080/setUserData", {
       method: "POST",
       body: JSON.stringify({
-        chatname: chatname,
-        password: isPrivate,
-        user_id: userId,
+        username: inputUsername,
+        language: selectedLanguage,
+        id: userId,
       }),
       headers: {
         "Content-Type": "application/json",
       },
     });
+
     if (res.ok) {
-      const data = await res.json();
-      setChats([...chats, { id: data.id, chatname: data.chatname }]);
-      close();
-    } else {
-      close();
+      socket.emit("user-data-updated", userId);
+      router.reload();
     }
   };
 
@@ -69,53 +81,40 @@ const CreateChatModal: FC<ModalProps> = ({
         <OuterContainer>
           <CloseButton
             onClick={() => {
-              close();
-              setChatname("");
-              setIsPrivate(false);
+              closeModal();
             }}
           >
             <IoMdClose color={colors.darkText}></IoMdClose>
           </CloseButton>
 
           <ModalContainer ref={modalRef}>
-            <Title>Create a chat</Title>
+            <Title>User values</Title>
 
-            <InputsDiv>
-              <ModalInput
-                onChange={(e) => {
-                  setChatname(e.target.value);
-                }}
-                value={chatname}
-                placeholder="Chat name..."
-              ></ModalInput>
-              <Toggle
-                isActive={isPrivate}
-                onClick={() => {
-                  setIsPrivate(!isPrivate);
-                }}
-              >
-                Private
-              </Toggle>
-              {/* <div>
-                <label>Private</label>
-                <input
-                  type="checkbox"
-                  onChange={(e) => {
-                    setIsPrivate(e.target.checked);
-                  }}
-                ></input>
-              </div> */}
-            </InputsDiv>
+            <ModalInput
+              onChange={(e) => {
+                setInputUsername(e.target.value);
+              }}
+              value={inputUsername}
+              placeholder="user name..."
+            ></ModalInput>
+
+            <CustomSelect
+              defaultText={
+                languagesList.find((lan) => lan.value === language)!.label
+              }
+              items={languagesList}
+              onChange={(item) => setSelectedLanguage(item)}
+            ></CustomSelect>
 
             <ModalButton
+              disabled={
+                inputUsername === username && selectedLanguage === language
+              }
               onClick={() => {
-                createChat();
-                close();
-                setChatname("");
-                setIsPrivate(false);
+                setUserdata();
               }}
             >
-              Create
+              Update
             </ModalButton>
           </ModalContainer>
         </OuterContainer>
@@ -124,7 +123,7 @@ const CreateChatModal: FC<ModalProps> = ({
   );
 };
 
-export default CreateChatModal;
+export default ChangeValuesModal;
 
 const ModalBackground = styled.div<{ isOpen: boolean }>`
   display: ${(props) => (props.isOpen ? "block" : "none")};
@@ -175,27 +174,6 @@ const Title = styled.h3`
   margin-bottom: 16px;
 `;
 
-const InputsDiv = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  width: 100%;
-`;
-
-const Toggle = styled.div<{ isActive: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: ${(props) => (props.isActive ? colors.darkText : "transparent")};
-  padding: 12px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-
-  :hover {
-    background: ${(props) => (props.isActive ? "" : colors.darkHoverGray)};
-  }
-`;
-
 const CloseButton = styled.button`
   position: absolute;
   top: 5px;
@@ -225,6 +203,7 @@ const ModalInput = styled.input`
   padding: 12px 20px;
   box-sizing: border-box;
   background: transparent;
+  width: 100%;
   color: ${colors.mainWhite};
   border-color: ${colors.mainWhite};
   border-style: solid;

@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         session.user.mailbox = data.mailbox;
         session.user.language = data.language;
         session.user.outgoingRequests = data.outgoingRequests;
+        session.user.name = data.username;
       }
 
       return session;

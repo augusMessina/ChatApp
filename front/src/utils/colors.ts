@@ -4,4 +4,5 @@ export const colors = {
   lightHoverGray: "#2a2a2a",
   darkHoverGray: "#1f1f1f",
   darkText: "#716e6a",
+  red: "#c34137",
 };

@@ -183,6 +183,37 @@ io.on("connection", (socket) => {
   socket.on("left-chat", (data: { userId: string; chatId: string }) => {
     socket.to(data.chatId).emit("left-chat", data.userId);
   });
+
+  socket.on("user-data-updated", async (userId) => {
+    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    user?.friendList.forEach(async (friend) => {
+      const friendChat = await chatsCollection.findOne({
+        isFriendChat: true,
+        members: {
+          $in: [
+            { id: userId, username: user.username },
+            { id: friend.friendId, username: friend.friendName },
+          ],
+        },
+      });
+
+      socket.to(friend.friendId).emit("friend-data-updated", {
+        friendId: userId,
+        friendName: user.username,
+        chatId: friendChat?._id.toString(),
+      });
+    });
+    user?.chats.forEach(async (chat) => {
+      const chatObj = await chatsCollection.findOne({
+        _id: new ObjectId(chat.id),
+      });
+      socket.to(chat.id).emit("member-data-updated", {
+        memberId: userId,
+        memberName: user.username,
+        chatLangs: chatObj?.languages,
+      });
+    });
+  });
 });
 
 server.listen(PORT, () =>

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { usersCollection } from "../db/dbconnection";
+import { chatsCollection, usersCollection } from "../db/dbconnection";
 import { ObjectId } from "mongodb";
 
 export const setUserData: RequestHandler = async (req, res) => {
@@ -9,17 +9,76 @@ export const setUserData: RequestHandler = async (req, res) => {
     return;
   }
 
+  const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+
   if (username) {
-    await usersCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { username } }
-    );
+    await usersCollection.updateOne({ _id: user?._id }, { $set: { username } });
+
+    user?.chats.forEach(async (chat) => {
+      const chatInDB = await chatsCollection.findOne({
+        _id: new ObjectId(chat.id),
+      });
+      const newMembers = chatInDB?.members.map((member) => {
+        if (member.id === user._id.toString()) {
+          return { ...member, username };
+        }
+        return member;
+      });
+      await chatsCollection.updateOne(
+        { _id: new ObjectId(chat.id) },
+        { $set: { members: newMembers } }
+      );
+    });
+
+    user?.friendList.forEach(async (friend) => {
+      const friendInDB = await usersCollection.findOne({
+        _id: new ObjectId(friend.friendId),
+      });
+      const newFriendList = friendInDB?.friendList.map((friend) => {
+        if (friend.friendId === user._id.toString()) {
+          return { ...friend, friendName: username };
+        }
+        return friend;
+      });
+      await usersCollection.updateOne(
+        { _id: new ObjectId(friend.friendId) },
+        { $set: { friendList: newFriendList } }
+      );
+    });
   }
 
   if (language) {
     await usersCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { language } }
+    );
+
+    await Promise.all(
+      (user?.chats || []).map(async (chat) => {
+        const chatInDB = await chatsCollection.findOne({
+          _id: new ObjectId(chat.id),
+        });
+        const newChatLangs: string[] = [];
+
+        await Promise.all(
+          (chatInDB?.members || []).map(async (member) => {
+            const memberInDB = await usersCollection.findOne({
+              _id: new ObjectId(member.id),
+            });
+            if (
+              memberInDB?.language &&
+              !newChatLangs.includes(memberInDB.language)
+            ) {
+              newChatLangs.push(memberInDB.language);
+            }
+          })
+        );
+
+        await chatsCollection.updateOne(
+          { _id: new ObjectId(chat.id) },
+          { $set: { languages: newChatLangs } }
+        );
+      })
     );
   }
 

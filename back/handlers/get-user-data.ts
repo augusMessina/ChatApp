@@ -41,5 +41,6 @@ export const getUserData: RequestHandler = async (req, res) => {
     mailbox: user.mailbox,
     language: user.language,
     outgoingRequests: user.outgoingRequests,
+    username: user.username,
   });
 };
