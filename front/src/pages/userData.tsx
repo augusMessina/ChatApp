@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { FC, useEffect, useState } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { signOut, useSession } from "next-auth/react";
+import { GetServerSideProps } from "next";
 import { Session, getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { useRouter } from "next/router";

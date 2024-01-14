@@ -1,11 +1,10 @@
-import type { NextRequest } from "next/server";
 import order from "@/utils/ai-order";
 import {
   ChatCompletionRequestMessage,
   Configuration,
   OpenAIApi,
 } from "openai-edge";
-import { OpenAIStream, StreamingTextResponse } from "ai";
+import { OpenAIStream } from "ai";
 
 export const config = {
   runtime: "edge",

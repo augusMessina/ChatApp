@@ -1,10 +1,7 @@
-import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
 import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
-import { ISODateString } from "next-auth";
-import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { Socket } from "socket.io-client";
+import { FC, useEffect, useRef } from "react";
 
 type DropdownProps = {
   isOpen: boolean;

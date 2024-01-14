@@ -1,10 +1,9 @@
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { signOut } from "next-auth/react";
-import { FC, MouseEventHandler, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef } from "react";
 import { MdLogout } from "react-icons/md";
 import { IoSettingsSharp } from "react-icons/io5";
-import ChangeValuesModal from "./ChangeValuesModal";
 import { breakpoints } from "@/utils/breakpoints";
 
 type MoreOptionsDropdownProps = {

@@ -1,17 +1,9 @@
-import { Notif, NotifType, OutgoingRequest } from "@/types/notif";
+import { Notif } from "@/types/notif";
 import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useRef } from "react";
 import { IoMdClose } from "react-icons/io";
 import { Socket } from "socket.io-client";
 

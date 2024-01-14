@@ -1,20 +1,11 @@
 import styled from "@emotion/styled";
-import {
-  Dispatch,
-  FC,
-  FormEvent,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import ChatMessages from "./ChatMessages";
 import { Socket } from "socket.io-client";
 import ScrollableDropdown from "./ScrollableDropdown";
 import { sendFriendRequest } from "@/utils/send-friend-request";
 import { OutgoingRequest } from "@/types/notif";
 import { sendChatInvitation } from "@/utils/send-chat-invitation";
-import { useChat } from "ai/react";
 import AreYouSureModal from "./AreYouSureModal";
 import { colors } from "@/utils/colors";
 
@@ -517,11 +508,6 @@ const ChatHeader = styled.div`
   }
 `;
 
-const Gap = styled.div`
-  visibility: hidden;
-  flex: 1;
-`;
-
 const HeaderButtons = styled.div<{ isHidden: boolean }>`
   display: flex;
   justify-content: flex-end;
@@ -540,44 +526,6 @@ const HeaderButtons = styled.div<{ isHidden: boolean }>`
 
 const DropdownButtonContainer = styled.div`
   position: relative;
-`;
-
-const DropdownContainer = styled.div`
-  position: absolute;
-  right: 0;
-  bottom: -404px;
-  height: 400px;
-  width: 300px;
-  background: white;
-  border: 2px solid black;
-  box-sizing: border-box;
-`;
-
-const Scrollable = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 300px;
-  width: 100%;
-`;
-
-const ChatsColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 8px;
-  height: fit-content;
-`;
-
-const ChatJoin = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
 `;
 
 const InputArea = styled.form`

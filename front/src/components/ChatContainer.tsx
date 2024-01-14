@@ -8,14 +8,7 @@ import SearchUserModal from "./SearchUserModal";
 import { Notif, OutgoingRequest } from "@/types/notif";
 import MailboxModal from "./MailboxModal";
 
-import { FaPlus, FaUserPlus } from "react-icons/fa";
-import { IoIosChatboxes, IoMdMail } from "react-icons/io";
-import { TbDotsVertical } from "react-icons/tb";
 import { colors } from "@/utils/colors";
-import ScrollableDropdown from "./ScrollableDropdown";
-import MoreOptionsDropdown from "./MoreOptionsDropdown";
-import { languagesList } from "@/utils/languages";
-import { SingletonRouter } from "next/router";
 import ChangeValuesModal from "./ChangeValuesModal";
 import { breakpoints } from "@/utils/breakpoints";
 import LeftMenu from "./LeftMenu";
@@ -263,87 +256,4 @@ const ChatRelative = styled.div`
   display: flex;
   flex-direction: row;
   gap: 16px;
-`;
-
-const Chats = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  width: 100%;
-  gap: 8px;
-  flex: 1;
-`;
-
-const Chat = styled.div<{ isSelected: boolean }>`
-  ${(props) => (props.isSelected ? `background: ${colors.darkHoverGray};` : "")}
-  color: ${colors.mainWhite};
-  font-size: 17px;
-  margin: 0;
-  padding: 17px 10px;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  width: 100%;
-  box-sizing: border-box;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: 0.3s;
-  p {
-    margin: 0;
-  }
-
-  :hover {
-    background: ${colors.darkHoverGray};
-  }
-`;
-
-const ToolBar = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 8px 0;
-`;
-
-const TopBarButton = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  border: none;
-  padding: 0;
-  background: ${colors.darkHoverGray};
-  cursor: pointer;
-
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  :hover {
-    background: ${colors.lightHoverGray};
-  }
-`;
-
-const Separator = styled.div`
-  height: 1px;
-  width: 100%;
-  background: ${colors.lightHoverGray};
-`;
-
-const DropdownButtonContainer = styled.div`
-  position: relative;
-`;
-
-const UnreadAlert = styled.div`
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: ${colors.blue};
-  margin-right: 32px;
 `;

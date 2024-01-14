@@ -6,7 +6,6 @@ import { FC, useEffect, useState } from "react";
 import ChatContainer from "@/components/ChatContainer";
 import { Notif, OutgoingRequest } from "../types/notif";
 import { io } from "socket.io-client";
-import { signOut } from "next-auth/react";
 
 const socket = io(`ws://${process.env.NEXT_PUBLIC_BACK_IP}:8080`);
 
