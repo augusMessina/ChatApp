@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
-import { ObjectId } from "mongodb";
-import { ChatSchema } from "../db/schema";
+import { chatsCollection } from "../../db/dbconnection";
+import { ChatSchema } from "../../db/schema";
 
 export const getPublicChats: RequestHandler = async (req, res) => {
   const { chatname } = req.body;

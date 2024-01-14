@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
+import { usersCollection } from "../../db/dbconnection";
 import { ObjectId } from "mongodb";
-import { UserSchema } from "../db/schema";
+import { UserSchema } from "../../db/schema";
 
 export const getPublicUsers: RequestHandler = async (req, res) => {
   const { userId, username } = req.body;

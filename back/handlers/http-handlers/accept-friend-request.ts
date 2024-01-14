@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
+import { chatsCollection, usersCollection } from "../../db/dbconnection";
 import { ObjectId } from "mongodb";
-import { NotifType } from "../types/notif";
+import { NotifType } from "../../types/notif";
 
 export const acceptFriendRequest: RequestHandler = async (req, res) => {
   const { id_sender, user_id } = req.body;

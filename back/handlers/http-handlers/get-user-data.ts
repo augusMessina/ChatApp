@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
+import { chatsCollection, usersCollection } from "../../db/dbconnection";
 import { ObjectId } from "mongodb";
 
 export const getUserData: RequestHandler = async (req, res) => {

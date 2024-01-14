@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { usersCollection } from "../db/dbconnection";
+import { usersCollection } from "../../db/dbconnection";
 import { ObjectId } from "mongodb";
 
 export const createUser: RequestHandler = async (req, res) => {

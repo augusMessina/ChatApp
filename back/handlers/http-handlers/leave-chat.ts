@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
+import { chatsCollection, usersCollection } from "../../db/dbconnection";
 import { ObjectId } from "mongodb";
-import { NotifType } from "../types/notif";
 
 export const leaveChat: RequestHandler = async (req, res) => {
   const { user_id, chat_id } = req.body;

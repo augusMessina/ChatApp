@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
-import { ObjectId } from "mongodb";
+import { usersCollection } from "../../db/dbconnection";
 
 export const getUsers: RequestHandler = async (req, res) => {
   const users = await usersCollection.find({}).toArray();

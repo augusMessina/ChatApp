@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
-import { chatsCollection, usersCollection } from "../db/dbconnection";
+import { usersCollection } from "../../db/dbconnection";
 import { ObjectId } from "mongodb";
-import { NotifType } from "../types/notif";
 
 export const declineRequest: RequestHandler = async (req, res) => {
   const { id_sender, id_user, id_chat } = req.body;
