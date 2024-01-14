@@ -4,11 +4,14 @@ import { signIn } from "next-auth/react";
 import { colors } from "@/utils/colors";
 import { validateEmail } from "@/utils/validateEmail";
 import { breakpoints } from "@/utils/breakpoints";
+import { useRouter } from "next/router";
 
 const LogInPage: FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState("");
+
+  const router = useRouter();
 
   return (
     <MainContainer>
@@ -28,12 +31,19 @@ const LogInPage: FC = () => {
             } else if (!validateEmail(email)) {
               setShowError("Not valid email");
             } else {
-              await signIn("credentials", {
+              const data = await signIn("credentials", {
                 email,
                 password,
-                redirect: true,
-                callbackUrl: "/",
+                redirect: false,
               });
+
+              if (data?.ok) {
+                router.push("/");
+              } else {
+                setShowError(
+                  "Something went wrong, check if the credentials are correct"
+                );
+              }
             }
           }}
         >

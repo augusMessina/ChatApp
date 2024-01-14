@@ -47,6 +47,13 @@ const ChatMessages: FC<MessagesProps> = ({
                 (message) => message.language === userLanguage
               ) && (
                 <MessageContainer key={message.id}>
+                  {index === messages.length - unreads && (
+                    <UnreadsSeparatorContainer ref={unreadsRef}>
+                      <UnreadsSeparator></UnreadsSeparator>
+                      <p>New messages</p>
+                      <UnreadsSeparator></UnreadsSeparator>
+                    </UnreadsSeparatorContainer>
+                  )}
                   {(index === 0 ||
                     (index > 0 &&
                       (timestampDate.getDate() !==
@@ -65,13 +72,7 @@ const ChatMessages: FC<MessagesProps> = ({
                       "0"
                     )}/${timestampDate.getFullYear()}`}</p>
                   )}
-                  {index === messages.length - unreads && (
-                    <UnreadsSeparatorContainer ref={unreadsRef}>
-                      <UnreadsSeparator></UnreadsSeparator>
-                      <p>New messages</p>
-                      <UnreadsSeparator></UnreadsSeparator>
-                    </UnreadsSeparatorContainer>
-                  )}
+
                   <Message
                     position={
                       message.author.authorId === userId

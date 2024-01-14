@@ -598,7 +598,8 @@ const TextArea = styled.textarea`
   }
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
-    padding: 4px;
+    padding: 8px;
+    font-size: 14px;
   }
 `;
 

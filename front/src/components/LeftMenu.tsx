@@ -1,7 +1,7 @@
 import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { FaPlus, FaUserPlus } from "react-icons/fa";
 import { IoIosChatboxes, IoMdMail } from "react-icons/io";
 import { TbDotsVertical } from "react-icons/tb";
@@ -43,6 +43,11 @@ const LeftMenu: FC<LeftMenuProps> = ({
   subModalOpen,
 }) => {
   const leftMenuRef = useRef<HTMLDivElement>(null);
+  const [windowWith, setWindowWith] = useState<number>();
+
+  useEffect(() => {
+    setWindowWith(window.innerWidth);
+  }, []);
 
   useEffect(() => {
     const checkIfClickedOutside = (e: any) => {
@@ -70,7 +75,10 @@ const LeftMenu: FC<LeftMenuProps> = ({
   }, [close, currentAnimation, subModalOpen]);
 
   return (
-    <LeftMenuContainer ref={leftMenuRef} style={currentAnimation}>
+    <LeftMenuContainer
+      ref={leftMenuRef}
+      style={windowWith && windowWith <= 1000 ? currentAnimation : {}}
+    >
       <ToolBar>
         <TopBarButton
           onClick={(e) => {
@@ -136,22 +144,24 @@ const LeftMenu: FC<LeftMenuProps> = ({
         </MobileTopBarButton>
       </ToolBar>
       <Separator></Separator>
-      <Chats>
-        {chats.map((chat) => (
-          <Chat
-            key={chat.id}
-            onClick={() => {
-              socket.emit("leave", currentChat);
-              setCurrentChat(chat.id);
-              close();
-            }}
-            isSelected={currentChat === chat.id}
-          >
-            <p>{chat.chatname}</p>
-            {chat.unreads > 0 && <UnreadAlert></UnreadAlert>}
-          </Chat>
-        ))}
-      </Chats>
+      <Scrollable>
+        <Chats>
+          {chats.map((chat) => (
+            <Chat
+              key={chat.id}
+              onClick={() => {
+                socket.emit("leave", currentChat);
+                setCurrentChat(chat.id);
+                close();
+              }}
+              isSelected={currentChat === chat.id}
+            >
+              <p>{chat.chatname}</p>
+              {chat.unreads > 0 && <UnreadAlert></UnreadAlert>}
+            </Chat>
+          ))}
+        </Chats>
+      </Scrollable>
     </LeftMenuContainer>
   );
 };
@@ -182,6 +192,27 @@ const LeftMenuContainer = styled.div`
   }
 `;
 
+const Scrollable = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  flex: 1;
+
+  ::-webkit-scrollbar {
+    background: ${colors.background};
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${colors.lightHoverGray};
+    border-radius: 9999px;
+  }
+`;
+
 const Chats = styled.div`
   display: flex;
   flex-direction: column;
@@ -189,13 +220,13 @@ const Chats = styled.div`
   justify-content: flex-start;
   width: 100%;
   gap: 8px;
-  flex: 1;
+  padding-right: 8px;
+  box-sizing: border-box;
 `;
 
 const Chat = styled.div<{ isSelected: boolean }>`
   ${(props) => (props.isSelected ? `background: ${colors.darkHoverGray};` : "")}
   color: ${colors.mainWhite};
-  font-size: 17px;
   margin: 0;
   padding: 17px 10px;
   border: 1px solid transparent;
@@ -209,11 +240,18 @@ const Chat = styled.div<{ isSelected: boolean }>`
   transition: 0.3s;
   p {
     margin: 0;
-    font-size: 13px;
+    font-size: 17px;
   }
 
   :hover {
     background: ${colors.darkHoverGray};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      margin: 0;
+      font-size: 13px;
+    }
   }
 `;
 

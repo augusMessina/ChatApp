@@ -221,6 +221,16 @@ const Scrollable = styled.div`
     text-align: center;
   }
 
+  ::-webkit-scrollbar {
+    background: ${colors.lightHoverGray};
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${colors.darkText};
+    border-radius: 9999px;
+  }
+
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     h3 {
       font-size: 14px;
@@ -236,6 +246,8 @@ const ChatsColumn = styled.div`
   gap: 8px;
   height: fit-content;
   width: 100%;
+  padding-right: 8px;
+  box-sizing: border-box;
 `;
 
 const ChatJoin = styled.div`

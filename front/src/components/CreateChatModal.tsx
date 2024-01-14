@@ -104,8 +104,12 @@ const CreateChatModal: FC<ModalProps> = ({
                   setChatname(e.target.value);
                   setShowError("");
                 }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") createChat();
+                }}
                 value={chatname}
                 placeholder="Chat name..."
+                maxLength={16}
               ></ModalInput>
               <Toggle
                 isActive={isPrivate}
@@ -115,15 +119,6 @@ const CreateChatModal: FC<ModalProps> = ({
               >
                 Private
               </Toggle>
-              {/* <div>
-                <label>Private</label>
-                <input
-                  type="checkbox"
-                  onChange={(e) => {
-                    setIsPrivate(e.target.checked);
-                  }}
-                ></input>
-              </div> */}
             </InputsDiv>
 
             {showError !== "" && <Error>{showError}</Error>}

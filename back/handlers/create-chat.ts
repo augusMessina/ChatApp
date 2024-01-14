@@ -43,7 +43,10 @@ export const createChat: RequestHandler = async (req, res) => {
     { _id: user._id },
     {
       $push: {
-        chats: { $each: [{ id: newChatId.toString(), chatname, unreads: 0 }] },
+        chats: {
+          $each: [{ id: newChatId.toString(), chatname, unreads: 0 }],
+          $position: 0,
+        },
       },
     }
   );

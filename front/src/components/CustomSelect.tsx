@@ -113,6 +113,16 @@ const SelectOptionsContainer = styled.div<{ isOpen: boolean }>`
   height: 300px;
   overflow: auto;
   background: ${colors.background};
+
+  ::-webkit-scrollbar {
+    background: ${colors.background};
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${colors.darkText};
+    border-radius: 9999px;
+  }
 `;
 
 const OptionsColumn = styled.div`
@@ -121,6 +131,8 @@ const OptionsColumn = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
+  padding-right: 8px;
+  box-sizing: border-box;
 `;
 
 const Option = styled.div`

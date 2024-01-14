@@ -39,6 +39,10 @@ export const createUser: RequestHandler = async (req, res) => {
   } else if (!user.password) {
     res.status(200).send({ id: user._id.toString(), username: user.username });
     return;
+  } else if (user.username === "default_username" && password) {
+    await usersCollection.updateOne({ _id: user._id }, { $set: { password } });
+    res.status(200).send({ id: user._id.toString(), username: user.username });
+    return;
   }
 
   res.status(400).send({});

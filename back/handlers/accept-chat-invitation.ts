@@ -30,6 +30,7 @@ export const acceptChatRequest: RequestHandler = async (req, res) => {
       $push: {
         chats: {
           $each: [{ id: id_chat, chatname: chat.chatname!, unreads: 0 }],
+          $position: 0,
         },
       },
     }

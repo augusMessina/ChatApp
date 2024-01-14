@@ -176,7 +176,7 @@ const MailboxModal: FC<ModalProps> = ({
                           mail.id_chat ?? ""
                         }`}
                       >
-                        <FromArea>
+                        <FromArea columnOnMobile={false}>
                           <UserBubble>{mail.username_sender}</UserBubble>
                           {mail.type === "FRIEND" ? (
                             <span>Friend Request</span>
@@ -184,14 +184,9 @@ const MailboxModal: FC<ModalProps> = ({
                             <span>Chat invitation to: {mail.chatname}</span>
                           )}
                         </FromArea>
-                        <FromArea>
+                        <FromArea columnOnMobile>
                           {mail.type === "FRIEND" ? (
                             <ModalButton
-                              style={{
-                                width: "unset",
-                                padding: "8px 20px",
-                                boxSizing: "border-box",
-                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 acceptFriendRequest(
@@ -214,11 +209,6 @@ const MailboxModal: FC<ModalProps> = ({
                             </ModalButton>
                           ) : (
                             <ModalButton
-                              style={{
-                                width: "unset",
-                                padding: "8px 20px",
-                                boxSizing: "border-box",
-                              }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 acceptChatInvitation(
@@ -241,11 +231,6 @@ const MailboxModal: FC<ModalProps> = ({
                             </ModalButton>
                           )}
                           <ModalButton
-                            style={{
-                              width: "unset",
-                              padding: "8px 20px",
-                              boxSizing: "border-box",
-                            }}
                             onClick={() => {
                               declineRequest(mail.id_sender, mail.id_chat);
                             }}
@@ -350,6 +335,16 @@ const Scrollable = styled.div`
     text-align: center;
   }
 
+  ::-webkit-scrollbar {
+    background: ${colors.lightHoverGray};
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: ${colors.darkText};
+    border-radius: 9999px;
+  }
+
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     h3 {
       font-size: 14px;
@@ -365,6 +360,8 @@ const ChatsColumn = styled.div`
   gap: 8px;
   height: fit-content;
   width: 100%;
+  padding-right: 8px;
+  box-sizing: border-box;
 `;
 
 const ChatJoin = styled.div`
@@ -419,9 +416,14 @@ const ModalButton = styled.button`
   :hover {
     background: ${(props) => !props.disabled && colors.darkText};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
 `;
 
-const FromArea = styled.div`
+const FromArea = styled.div<{ columnOnMobile: boolean }>`
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -431,6 +433,14 @@ const FromArea = styled.div`
     font-style: italic;
     color: ${colors.darkText};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    ${(props) => props.columnOnMobile && "flex-direction: column;"}
+
+    span {
+      font-size: 12px;
+    }
+  }
 `;
 
 const UserBubble = styled.p`
@@ -438,4 +448,10 @@ const UserBubble = styled.p`
   background: ${colors.darkHoverGray};
   color: ${colors.mainWhite};
   border-radius: 5px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+
+    padding: 4px 8px;
+  }
 `;
