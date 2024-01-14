@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { Session, getServerSession } from "next-auth";
@@ -46,6 +46,23 @@ const UserDataPage: FC<{
   const { update, data: session } = useSession();
 
   const router = useRouter();
+
+  useEffect(() => {
+    router.events.on("routeChangeStart", () => {
+      setIsLoading(true);
+    });
+    router.events.on("routeChangeComplete", () => {
+      setIsLoading(false);
+    });
+    return () => {
+      router.events.off("routeChangeStart", () => {
+        setIsLoading(true);
+      });
+      router.events.off("routeChangeComplete", () => {
+        setIsLoading(false);
+      });
+    };
+  }, [router]);
 
   const setUserdata = async () => {
     const res = await fetch(
@@ -121,9 +138,7 @@ const UserDataPage: FC<{
                   if (language !== "") {
                     const isValid = checkUsernameValid(username);
                     if (isValid === "valid") {
-                      setIsLoading(true);
                       await setUserdata();
-                      setIsLoading(false);
                     } else {
                       setShowError(isValid);
                     }

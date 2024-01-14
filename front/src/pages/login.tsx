@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
 import { colors } from "@/utils/colors";
 import { validateEmail } from "@/utils/validateEmail";
@@ -14,6 +14,23 @@ const LogInPage: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+
+  useEffect(() => {
+    router.events.on("routeChangeStart", () => {
+      setIsLoading(true);
+    });
+    router.events.on("routeChangeComplete", () => {
+      setIsLoading(false);
+    });
+    return () => {
+      router.events.off("routeChangeStart", () => {
+        setIsLoading(true);
+      });
+      router.events.off("routeChangeComplete", () => {
+        setIsLoading(false);
+      });
+    };
+  }, [router]);
 
   return (
     <PageContainer>
@@ -80,11 +97,17 @@ const LogInPage: FC = () => {
             </FormContainer>
             <SocialLogin>
               <SecondaryLoginButton
-                onClick={() => {
-                  signIn("github", {
-                    redirect: true,
-                    callbackUrl: "/",
-                  });
+                onClick={async () => {
+                  try {
+                    await signIn("github", {
+                      redirect: true,
+                      callbackUrl: "/",
+                    });
+                  } catch (error) {
+                    // Handle authentication error if needed
+                    console.error("Authentication error:", error);
+                    setShowError("Something went wrong with Github signin");
+                  }
                 }}
               >
                 Sign in with Github

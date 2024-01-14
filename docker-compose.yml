@@ -10,7 +10,12 @@ services:
     depends_on:
       - back
     command: bash -c "cd /usr/src && npm run dev"
-
+    environment:
+      - JWT_SECRET
+      - OPENAI_API_KEI
+      - GITHUB_CLIENT_ID
+      - GITHUB_CLIENT_SECRET
+      - NEXT_PUBLIC_BACK_IP
   back:
     image: node:20
     ports:
