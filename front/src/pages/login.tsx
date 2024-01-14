@@ -3,6 +3,7 @@ import { FC, useState } from "react";
 import { signIn } from "next-auth/react";
 import { colors } from "@/utils/colors";
 import { validateEmail } from "@/utils/validateEmail";
+import { breakpoints } from "@/utils/breakpoints";
 
 const LogInPage: FC = () => {
   const [email, setEmail] = useState("");
@@ -56,7 +57,6 @@ const LogInPage: FC = () => {
           <LoginButton type="submit">Access</LoginButton>
         </FormContainer>
         <SocialLogin>
-          <SecondaryLoginButton>Sign in with Google</SecondaryLoginButton>
           <SecondaryLoginButton
             onClick={() => {
               signIn("github", {
@@ -81,6 +81,16 @@ const MainContainer = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 64px;
+    padding-right: 16px;
+    padding-left: 16px;
+    gap: 48px;
+    box-sizing: border-box;
+  }
 `;
 
 const TitleContainer = styled.div`
@@ -89,24 +99,42 @@ const TitleContainer = styled.div`
   align-items: flex-start;
   justify-content: center;
   gap: 20px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    align-items: center;
+  }
 `;
 
 const Title = styled.h1`
   color: ${colors.mainWhite};
   font-size: 60px;
   margin: 0;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 32px;
+  }
 `;
 
 const Subtitle = styled.p`
   color: ${colors.mainWhite};
   margin: 0;
   font-style: italic;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    text-align: center;
+  }
 `;
 
 const Separator = styled.div`
   width: 1px;
   height: 400px;
   background: ${colors.darkText};
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    width: 90%;
+    height: 1px;
+  }
 `;
 
 const LoginSection = styled.div`
@@ -158,6 +186,11 @@ const LoginInput = styled.input<{ wideOnContent?: boolean }>`
     border-radius: 3px;
     letter-spacing: ${(props) => (props.wideOnContent ? "2px" : "normal")};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 8px 4px;
+  }
 `;
 
 const LoginButton = styled.button`
@@ -176,6 +209,10 @@ const LoginButton = styled.button`
   :hover {
     background: ${colors.lightHoverGray};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+  }
 `;
 
 const SecondaryLoginButton = styled.button`
@@ -193,9 +230,18 @@ const SecondaryLoginButton = styled.button`
   :hover {
     background: ${colors.darkHoverGray};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+  }
 `;
 
 const Error = styled.p`
   color: ${colors.red};
   margin: 8px;
+  text-align: center;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+  }
 `;

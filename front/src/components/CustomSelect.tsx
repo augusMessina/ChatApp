@@ -1,3 +1,4 @@
+import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
 import styled from "@emotion/styled";
 import { FC, useEffect, useRef, useState } from "react";
@@ -96,6 +97,13 @@ const SelectDislpay = styled.div<{ isOpen: boolean; isDefault: boolean }>`
     color: ${(props) => (props.isDefault ? colors.darkText : colors.mainWhite)};
     margin: 0;
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    p {
+      font-size: 12px;
+    }
+    padding: 8px 4px;
+  }
 `;
 
 const SelectOptionsContainer = styled.div<{ isOpen: boolean }>`
@@ -126,5 +134,11 @@ const Option = styled.div`
 
   :hover {
     background: ${colors.lightHoverGray};
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+
+    padding: 12px 12px;
   }
 `;

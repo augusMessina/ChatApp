@@ -9,6 +9,7 @@ import { languagesList } from "@/utils/languages";
 import CustomSelect from "@/components/CustomSelect";
 import { colors } from "@/utils/colors";
 import { checkUsernameValid } from "@/utils/checkUsernameValid";
+import { breakpoints } from "@/utils/breakpoints";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -77,6 +78,10 @@ const UserDataPage: FC<{
         <Title>
           Looks like it's your <br></br> first time here, <br></br> {userEmail}
         </Title>
+        <TitleMobile>
+          Looks like it's your first time here, <br />
+          {userEmail}
+        </TitleMobile>
       </TitleContainer>
       <Separator></Separator>
       <LoginSection>
@@ -138,6 +143,16 @@ const MainContainer = styled.div`
   width: 100%;
   height: 100%;
   gap: 20px;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 64px;
+    padding-right: 16px;
+    padding-left: 16px;
+    gap: 32px;
+    box-sizing: border-box;
+  }
 `;
 
 const TitleContainer = styled.div`
@@ -152,12 +167,33 @@ const Title = styled.h1`
   color: ${colors.mainWhite};
   font-size: 40px;
   margin: 0;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    display: none;
+  }
+`;
+
+const TitleMobile = styled.h1`
+  color: ${colors.mainWhite};
+  margin: 0;
+  font-size: 20px;
+  text-align: center;
+  display: none;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    display: inline;
+  }
 `;
 
 const Separator = styled.div`
   width: 1px;
   height: 400px;
   background: ${colors.darkText};
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    width: 90%;
+    height: 1px;
+  }
 `;
 
 const FormContainer = styled.div`
@@ -195,8 +231,14 @@ const LoginInput = styled.input`
   transition: 0.4s;
 
   :focus {
+    outline: none;
     border: 1px solid ${colors.mainWhite};
     border-radius: 3px;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 8px 4px;
   }
 `;
 
@@ -215,6 +257,10 @@ const LoginButton = styled.button`
   :hover {
     background: ${colors.lightHoverGray};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+  }
 `;
 
 const SecondaryLoginButton = styled.button`
@@ -232,9 +278,18 @@ const SecondaryLoginButton = styled.button`
   :hover {
     background: ${colors.darkHoverGray};
   }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+  }
 `;
 
 const Error = styled.p`
   color: ${colors.red};
   margin: 8px;
+  text-align: center;
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+  }
 `;

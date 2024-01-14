@@ -146,6 +146,7 @@ const MessagesColumn = styled.div`
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     gap: 16px;
+    padding: 8px;
   }
 `;
 
