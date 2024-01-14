@@ -8,16 +8,19 @@ export const sendFriendRequest = async (
   outgoingRequests: OutgoingRequest[],
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void
 ) => {
-  const res = await fetch("http://localhost:8080/sendFriendRequest", {
-    method: "POST",
-    body: JSON.stringify({
-      id_sender: userId,
-      id_receiver: otherUserId,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const res = await fetch(
+    `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/sendFriendRequest`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        id_sender: userId,
+        id_receiver: otherUserId,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   if (res.ok) {
     setOutgoingRequests([
       ...outgoingRequests,

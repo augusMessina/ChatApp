@@ -60,17 +60,20 @@ const ChangeValuesModal: FC<ModalProps> = ({
   }, [close, isOpen, closeModal]);
 
   const setUserdata = async () => {
-    const res = await fetch("http://localhost:8080/setUserData", {
-      method: "POST",
-      body: JSON.stringify({
-        username: inputUsername,
-        language: selectedLanguage,
-        id: userId,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/setUserData`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          username: inputUsername,
+          language: selectedLanguage,
+          id: userId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (res.ok) {
       const data = await res.json();

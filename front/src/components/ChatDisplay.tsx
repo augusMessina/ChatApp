@@ -26,7 +26,6 @@ import { MdGroups } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { TailSpin } from "react-loader-spinner";
 import { breakpoints } from "@/utils/breakpoints";
-import { NONAME } from "dns";
 
 type ChatDisplayProps = {
   chatId: string;
@@ -150,16 +149,19 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
   useEffect(() => {
     const getChatData = async (chatId: string) => {
-      const res = await fetch("http://localhost:8080/getChatData", {
-        method: "POST",
-        body: JSON.stringify({
-          chat_id: chatId,
-          user_id: userId,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/getChatData`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            chat_id: chatId,
+            user_id: userId,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const data = await res.json();
       setChatname(data.chatname);
@@ -227,17 +229,20 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         onYes={async () => {
           const friendId = members.filter((member) => member.id !== userId)[0]
             .id;
-          const res = await fetch("http://localhost:8080/deleteFriend", {
-            method: "POST",
-            body: JSON.stringify({
-              friend_id: friendId,
-              user_id: userId,
-              chat_id: chatId,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          const res = await fetch(
+            `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/deleteFriend`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                friend_id: friendId,
+                user_id: userId,
+                chat_id: chatId,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
           if (res.ok) {
             socket.emit("unfriended", { userId, friendId, chatId });
@@ -258,16 +263,19 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
           setSureChatModalOpen(false);
         }}
         onYes={async () => {
-          const res = await fetch("http://localhost:8080/leaveChat", {
-            method: "POST",
-            body: JSON.stringify({
-              user_id: userId,
-              chat_id: chatId,
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          const res = await fetch(
+            `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/leaveChat`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                user_id: userId,
+                chat_id: chatId,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
           if (res.ok) {
             socket.emit("leave", chatId);

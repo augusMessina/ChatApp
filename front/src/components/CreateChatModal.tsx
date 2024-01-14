@@ -47,17 +47,20 @@ const CreateChatModal: FC<ModalProps> = ({
   }, [close, isOpen]);
 
   const createChat = async () => {
-    const res = await fetch("http://localhost:8080/createChat", {
-      method: "POST",
-      body: JSON.stringify({
-        chatname: chatname,
-        password: isPrivate,
-        user_id: userId,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/createChat`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          chatname: chatname,
+          password: isPrivate,
+          user_id: userId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
       if (data.message && data.message === "chatname already taken") {

@@ -5,85 +5,112 @@ import { colors } from "@/utils/colors";
 import { validateEmail } from "@/utils/validateEmail";
 import { breakpoints } from "@/utils/breakpoints";
 import { useRouter } from "next/router";
+import { TailSpin } from "react-loader-spinner";
 
 const LogInPage: FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showError, setShowError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
   return (
-    <MainContainer>
-      <TitleContainer>
-        <Title>TranslateGPT</Title>
-        <Subtitle>
-          The chat app that uses ChatGPT for translating messages
-        </Subtitle>
-      </TitleContainer>
-      <Separator></Separator>
-      <LoginSection>
-        <FormContainer
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (password.length < 8) {
-              setShowError("Password must contain at least 8 characters");
-            } else if (!validateEmail(email)) {
-              setShowError("Not valid email");
-            } else {
-              const data = await signIn("credentials", {
-                email,
-                password,
-                redirect: false,
-              });
+    <PageContainer>
+      {isLoading ? (
+        <LoaderContainer>
+          <TailSpin color={colors.mainWhite}></TailSpin>
+        </LoaderContainer>
+      ) : (
+        <MainContainer>
+          <TitleContainer>
+            <Title>TranslateGPT</Title>
+            <Subtitle>
+              The chat app that uses ChatGPT for translating messages
+            </Subtitle>
+          </TitleContainer>
+          <Separator></Separator>
+          <LoginSection>
+            <FormContainer
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (password.length < 8) {
+                  setShowError("Password must contain at least 8 characters");
+                } else if (!validateEmail(email)) {
+                  setShowError("Not valid email");
+                } else {
+                  setIsLoading(true);
 
-              if (data?.ok) {
-                router.push("/");
-              } else {
-                setShowError(
-                  "Something went wrong, check if the credentials are correct"
-                );
-              }
-            }
-          }}
-        >
-          <LoginInput
-            placeholder="email"
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setShowError("");
-            }}
-          ></LoginInput>
-          <LoginInput
-            placeholder="password"
-            type="password"
-            wideOnContent={password.length > 0}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setShowError("");
-            }}
-          ></LoginInput>
-          {showError && <Error>{showError}</Error>}
-          <LoginButton type="submit">Access</LoginButton>
-        </FormContainer>
-        <SocialLogin>
-          <SecondaryLoginButton
-            onClick={() => {
-              signIn("github", {
-                redirect: true,
-                callbackUrl: "/",
-              });
-            }}
-          >
-            Sign in with Github
-          </SecondaryLoginButton>
-        </SocialLogin>
-      </LoginSection>
-    </MainContainer>
+                  const data = await signIn("credentials", {
+                    email,
+                    password,
+                    redirect: false,
+                  });
+
+                  if (data?.ok) {
+                    router.push("/");
+                  } else {
+                    setIsLoading(false);
+
+                    setShowError(
+                      "Something went wrong, check if the credentials are correct"
+                    );
+                  }
+                }
+              }}
+            >
+              <LoginInput
+                placeholder="email"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setShowError("");
+                }}
+              ></LoginInput>
+              <LoginInput
+                placeholder="password"
+                type="password"
+                wideOnContent={password.length > 0}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setShowError("");
+                }}
+              ></LoginInput>
+              {showError && <Error>{showError}</Error>}
+              <LoginButton type="submit">Access</LoginButton>
+            </FormContainer>
+            <SocialLogin>
+              <SecondaryLoginButton
+                onClick={() => {
+                  signIn("github", {
+                    redirect: true,
+                    callbackUrl: "/",
+                  });
+                }}
+              >
+                Sign in with Github
+              </SecondaryLoginButton>
+            </SocialLogin>
+          </LoginSection>
+        </MainContainer>
+      )}
+    </PageContainer>
   );
 };
 
 export default LogInPage;
+
+const PageContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  position: relative;
+`;
+
+const LoaderContainer = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
 
 const MainContainer = styled.div`
   display: flex;

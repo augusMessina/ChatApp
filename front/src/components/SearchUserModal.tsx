@@ -39,16 +39,19 @@ const SearchUserModal: FC<ModalProps> = ({
 
   useEffect(() => {
     const getPublicUsers = async () => {
-      const res = await fetch("http://localhost:8080/getPublicUsers", {
-        method: "POST",
-        body: JSON.stringify({
-          username: searchName,
-          userId,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/getPublicUsers`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            username: searchName,
+            userId,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
       setUsers(data.users);
     };

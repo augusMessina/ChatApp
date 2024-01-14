@@ -8,7 +8,7 @@ import { Notif, OutgoingRequest } from "../types/notif";
 import { io } from "socket.io-client";
 import { signOut } from "next-auth/react";
 
-const socket = io("ws://localhost:8080");
+const socket = io(`ws://${process.env.NEXT_PUBLIC_BACK_IP}:8080`);
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);

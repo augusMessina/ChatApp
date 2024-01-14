@@ -48,15 +48,18 @@ const JoinChatModal: FC<ModalProps> = ({
 
   useEffect(() => {
     const getPublicChats = async () => {
-      const res = await fetch("http://localhost:8080/getPublicChats", {
-        method: "POST",
-        body: JSON.stringify({
-          chatname: searchName,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/getPublicChats`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            chatname: searchName,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const data = await res.json();
       setPublicChats(data.chats);
     };
@@ -90,18 +93,21 @@ const JoinChatModal: FC<ModalProps> = ({
     chatname?: string,
     password?: string
   ) => {
-    const res = await fetch("http://localhost:8080/joinChat", {
-      method: "POST",
-      body: JSON.stringify({
-        chatId,
-        userId,
-        chatname,
-        password,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/joinChat`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          chatId,
+          userId,
+          chatname,
+          password,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
       if (data.message && data.message === "user already in chat") {

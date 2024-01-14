@@ -82,16 +82,19 @@ const MailboxModal: FC<ModalProps> = ({
     id_sender: string,
     username_sender: string
   ) => {
-    const res = await fetch("http://localhost:8080/acceptFriendRequest", {
-      method: "POST",
-      body: JSON.stringify({
-        id_sender,
-        user_id: userId,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/acceptFriendRequest`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          id_sender,
+          user_id: userId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (res.ok) {
       const data = await res.json();
       setChats((prev) => [
@@ -111,16 +114,19 @@ const MailboxModal: FC<ModalProps> = ({
   };
 
   const acceptChatInvitation = async (id_chat: string, chatname: string) => {
-    const res = await fetch("http://localhost:8080/acceptChatInvitation", {
-      method: "POST",
-      body: JSON.stringify({
-        id_chat,
-        user_id: userId,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/acceptChatInvitation`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          id_chat,
+          user_id: userId,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (res.ok) {
       socket.emit("joined-chat", {
         chatId: id_chat,
@@ -131,17 +137,20 @@ const MailboxModal: FC<ModalProps> = ({
   };
 
   const declineRequest = async (id_sender: string, id_chat?: string) => {
-    const res = await fetch("http://localhost:8080/declineRequest", {
-      method: "POST",
-      body: JSON.stringify({
-        id_chat,
-        id_user: userId,
-        id_sender: id_sender,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/declineRequest`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          id_chat,
+          id_user: userId,
+          id_sender: id_sender,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     if (res.ok) {
       setMailbox(
         mailbox.filter(

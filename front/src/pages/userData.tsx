@@ -10,6 +10,7 @@ import CustomSelect from "@/components/CustomSelect";
 import { colors } from "@/utils/colors";
 import { checkUsernameValid } from "@/utils/checkUsernameValid";
 import { breakpoints } from "@/utils/breakpoints";
+import { TailSpin } from "react-loader-spinner";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -40,19 +41,23 @@ const UserDataPage: FC<{
   const [username, setUsername] = useState("");
   const [language, setLanguage] = useState("");
   const [showError, setShowError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const { update, data: session } = useSession();
 
   const router = useRouter();
 
   const setUserdata = async () => {
-    const res = await fetch("http://localhost:8080/setUserData", {
-      method: "POST",
-      body: JSON.stringify({ username, language, id: userId }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const res = await fetch(
+      `http://${process.env.NEXT_PUBLIC_BACK_IP}:8080/setUserData`,
+      {
+        method: "POST",
+        body: JSON.stringify({ username, language, id: userId }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (res.ok) {
       const data = await res.json();
@@ -73,68 +78,92 @@ const UserDataPage: FC<{
   };
 
   return (
-    <MainContainer>
-      <TitleContainer>
-        <Title>
-          Looks like it's your <br></br> first time here, <br></br> {userEmail}
-        </Title>
-        <TitleMobile>
-          Looks like it's your first time here, <br />
-          {userEmail}
-        </TitleMobile>
-      </TitleContainer>
-      <Separator></Separator>
-      <LoginSection>
-        <FormContainer>
-          <LoginInput
-            placeholder="Username"
-            onChange={(e) => {
-              setUsername(e.target.value);
-              setShowError("");
-            }}
-          ></LoginInput>
+    <PageContainer>
+      {isLoading ? (
+        <LoaderContainer>
+          <TailSpin color={colors.mainWhite}></TailSpin>
+        </LoaderContainer>
+      ) : (
+        <MainContainer>
+          <TitleContainer>
+            <Title>
+              Looks like it's your <br></br> first time here, <br></br>{" "}
+              {userEmail}
+            </Title>
+            <TitleMobile>
+              Looks like it's your first time here, <br />
+              {userEmail}
+            </TitleMobile>
+          </TitleContainer>
+          <Separator></Separator>
+          <LoginSection>
+            <FormContainer>
+              <LoginInput
+                placeholder="Username"
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setShowError("");
+                }}
+              ></LoginInput>
 
-          <CustomSelect
-            defaultText="Language"
-            items={languagesList}
-            onChange={(item) => {
-              setLanguage(item);
-              setShowError("");
-            }}
-          ></CustomSelect>
-          {showError && <Error>{showError}</Error>}
+              <CustomSelect
+                defaultText="Language"
+                items={languagesList}
+                onChange={(item) => {
+                  setLanguage(item);
+                  setShowError("");
+                }}
+              ></CustomSelect>
+              {showError && <Error>{showError}</Error>}
 
-          <LoginButton
-            onClick={async () => {
-              if (language !== "") {
-                const isValid = checkUsernameValid(username);
-                if (isValid === "valid") {
-                  await setUserdata();
-                } else {
-                  setShowError(isValid);
-                }
-              } else {
-                setShowError("Choose a language");
-              }
-            }}
-            type="submit"
-          >
-            Set values
-          </LoginButton>
-        </FormContainer>
-        <SecondaryLoginButton
-          onClick={() => {
-            signOut();
-          }}
-        >
-          Cancel
-        </SecondaryLoginButton>
-      </LoginSection>
-    </MainContainer>
+              <LoginButton
+                onClick={async () => {
+                  if (language !== "") {
+                    const isValid = checkUsernameValid(username);
+                    if (isValid === "valid") {
+                      setIsLoading(true);
+                      await setUserdata();
+                      setIsLoading(false);
+                    } else {
+                      setShowError(isValid);
+                    }
+                  } else {
+                    setShowError("Choose a language");
+                  }
+                }}
+                type="submit"
+              >
+                Set values
+              </LoginButton>
+            </FormContainer>
+            <SecondaryLoginButton
+              onClick={() => {
+                signOut();
+              }}
+            >
+              Cancel
+            </SecondaryLoginButton>
+          </LoginSection>
+        </MainContainer>
+      )}
+    </PageContainer>
   );
 };
 
 export default UserDataPage;
+
+const PageContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  position: relative;
+`;
+
+const LoaderContainer = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
 
 const MainContainer = styled.div`
   display: flex;
