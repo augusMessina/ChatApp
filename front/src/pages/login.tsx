@@ -41,7 +41,7 @@ const LogInPage: FC = () => {
       ) : (
         <MainContainer>
           <TitleContainer>
-            <Title>TranslateGPT</Title>
+            <Title>Tradunite</Title>
             <Subtitle>
               The chat app that uses ChatGPT for translating messages
             </Subtitle>
