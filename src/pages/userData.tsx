@@ -101,11 +101,11 @@ const UserDataPage: FC<{
         <MainContainer>
           <TitleContainer>
             <Title>
-              Looks like it's your <br></br> first time here, <br></br>{" "}
+              Looks like it&apos;s your <br></br> first time here, <br></br>{" "}
               {userEmail}
             </Title>
             <TitleMobile>
-              Looks like it's your first time here, <br />
+              Looks like it&apos;s your first time here, <br />
               {userEmail}
             </TitleMobile>
           </TitleContainer>
