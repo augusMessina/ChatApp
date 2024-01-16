@@ -1,7 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { chatsCollection, usersCollection } from "@/db/connectMongo";
-import { ChatSchema, UserSchema } from "@/db/schema";
-import { NotifType } from "@/types/notif";
+import { usersCollection } from "@/db/connectMongo";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
