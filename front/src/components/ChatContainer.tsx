@@ -1,5 +1,12 @@
 import styled from "@emotion/styled";
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ChatDisplay from "./ChatDisplay";
 import { Socket } from "socket.io-client";
 import JoinChatModal from "./JoinChatModal";
@@ -60,6 +67,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   const [currentChat, setCurrentChat] = useState<string>(
     chats.length > 0 ? chats[0].id : ""
   );
+  const currentChatRef = useRef<string>(chats.length > 0 ? chats[0].id : "");
 
   const [currentAnimation, setCurrentAnimation] = useState({
     animationName: "",
@@ -83,6 +91,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
       );
       socket.emit("leave", currentChat);
       setCurrentChat("");
+      currentChatRef.current = "";
     });
     socket.on(
       "chat-new-message",
@@ -99,18 +108,19 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
             newChats.unshift({
               id: data.chatId,
               chatname: data.chatname,
-              unreads: data.chatId !== currentChat ? chatUnreads + 1 : 0,
+              unreads:
+                data.chatId !== currentChatRef.current ? chatUnreads + 1 : 0,
             });
             return newChats;
           }
           return prevChats;
         });
-        if (data.chatId === currentChat) {
-          socket.emit("read-chat", { userId, chatId: currentChat });
+        if (data.chatId === currentChatRef.current) {
+          socket.emit("read-chat", { userId, chatId: currentChatRef.current });
         }
       }
     );
-  });
+  }, [currentChat, setChats, setFriendList, userId, socket]);
 
   useEffect(() => {
     setChats((prev) =>
@@ -161,7 +171,10 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           moreOptionsOpen={moreOptionsOpen}
           setChangeValuesOpen={setChangeValuesOpen}
           setCreateChatOpen={setCreateChatOpen}
-          setCurrentChat={setCurrentChat}
+          setCurrentChat={(s) => {
+            currentChatRef.current = s;
+            setCurrentChat(s);
+          }}
           setJoinChatOpen={setJoinChatOpen}
           setMailboxOpen={setMailboxOpen}
           setMoreOptionsOpen={setMoreOptionsOpen}
@@ -171,7 +184,10 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
 
         <ChatDisplay
           chatId={currentChat}
-          setChatId={setCurrentChat}
+          setChatId={(s) => {
+            currentChatRef.current = s.toString();
+            setCurrentChat(s);
+          }}
           setChats={setChats}
           setFriendList={setFriendList}
           userId={userId}

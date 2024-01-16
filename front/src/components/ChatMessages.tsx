@@ -90,9 +90,17 @@ const ChatMessages: FC<MessagesProps> = ({
                           "0"
                         )}`}</p>
                       )}
-                      <UserBubble>{message.author.authorName}</UserBubble>
                       {message.author.authorId !== userId && (
-                        <p>{`${timestampDate.getHours()}:${timestampDate.getMinutes()}`}</p>
+                        <UserBubble>{message.author.authorName}</UserBubble>
+                      )}
+                      {message.author.authorId !== userId && (
+                        <p>{`${String(timestampDate.getHours()).padStart(
+                          2,
+                          "0"
+                        )}:${String(timestampDate.getMinutes()).padStart(
+                          2,
+                          "0"
+                        )}`}</p>
                       )}
                     </MessageHeader>
                     <MessageBubble>

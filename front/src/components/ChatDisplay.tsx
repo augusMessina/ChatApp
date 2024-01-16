@@ -637,6 +637,7 @@ const Separator = styled.div`
 const ChatKey = styled.h2`
   font-style: italic;
   font-weight: normal;
+  font-size: 16px;
   color: ${colors.darkText};
   cursor: pointer;
   padding: 8px 8px;
@@ -649,6 +650,7 @@ const ChatKey = styled.h2`
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     padding: 4px 4px;
+    font-size: 12px;
   }
 `;
 
