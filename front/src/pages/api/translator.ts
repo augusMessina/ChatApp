@@ -38,11 +38,7 @@ export default async function (req: Request) {
     model: "gpt-3.5-turbo",
     stream: true,
     messages: prompt,
-    max_tokens: 200,
-    temperature: 0.7,
-    top_p: 1,
-    frequency_penalty: 1,
-    presence_penalty: 1,
+    temperature: 0.4,
   });
 
   // Convert the response into a friendly text-stream

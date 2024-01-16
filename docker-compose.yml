@@ -12,7 +12,7 @@ services:
     command: bash -c "cd /usr/src && npm run dev"
     environment:
       - JWT_SECRET
-      - OPENAI_API_KEI
+      - OPENAI_API_KEY
       - GITHUB_CLIENT_ID
       - GITHUB_CLIENT_SECRET
       - NEXT_PUBLIC_BACK_IP
