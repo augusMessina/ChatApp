@@ -7,8 +7,11 @@ import ChatContainer from "@/components/ChatContainer";
 import { Notif, OutgoingRequest } from "../types/notif";
 import { Socket, io } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import Pusher from "pusher-js";
 
-let socket: Socket<DefaultEventsMap, DefaultEventsMap>;
+const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
+});
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -57,66 +60,6 @@ const Home: FC<HomeProps> = ({ user }) => {
   const [outgoingRequests, setOutgoingRequests] = useState(
     user.outgoingRequests
   );
-  const [socketReady, setSocketReady] = useState(false);
-
-  const socketInitializer = async () => {
-    await fetch("/api/socket");
-    socket = io();
-
-    socket.on("connect", () => {
-      console.log("connected");
-    });
-
-    setSocketReady(true);
-  };
-
-  useEffect(() => {
-    socketInitializer();
-  }, []);
-
-  useEffect(() => {
-    if (!socketReady) return;
-    socket.emit("login", user.id);
-
-    socket.on("new-notif", (newNotif: Notif) => {
-      setMailbox([newNotif, ...mailbox]);
-    });
-    socket.on(
-      "accepted-fr",
-      (data: { chat_id: string; friend_id: string; friend_name: string }) => {
-        setChats([
-          { id: data.chat_id, chatname: data.friend_name, unreads: 0 },
-          ...chats,
-        ]);
-        setFriendList([
-          ...friendList,
-          { friendId: data.friend_id, friendName: data.friend_name },
-        ]);
-      }
-    );
-    socket.on(
-      "friend-data-updated",
-      (data: { friendId: string; friendName: string; chatId: string }) => {
-        setFriendList(
-          friendList.map((friend) => {
-            if (friend.friendId === data.friendId) {
-              return { ...friend, friendName: data.friendName };
-            }
-            return friend;
-          })
-        );
-
-        setChats(
-          chats.map((chat) => {
-            if (chat.id === data.chatId) {
-              return { ...chat, chatname: data.friendName };
-            }
-            return chat;
-          })
-        );
-      }
-    );
-  }, [user, chats, friendList, mailbox, socketReady]);
 
   return (
     <MainContainer>
@@ -132,8 +75,7 @@ const Home: FC<HomeProps> = ({ user }) => {
         userId={user.id}
         userLanguage={user.language}
         username={user.name}
-        socket={socket}
-        socketReady={socketReady}
+        pusher={pusher}
       ></ChatContainer>
     </MainContainer>
   );

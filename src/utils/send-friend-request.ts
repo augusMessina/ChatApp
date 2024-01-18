@@ -1,10 +1,8 @@
 import { NotifType, OutgoingRequest } from "@/types/notif";
-import { Socket } from "socket.io-client";
 
 export const sendFriendRequest = async (
   userId: string,
   otherUserId: string,
-  socket: Socket,
   outgoingRequests: OutgoingRequest[],
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void
 ) => {
@@ -23,11 +21,5 @@ export const sendFriendRequest = async (
       ...outgoingRequests,
       { type: NotifType.FRIEND, id_receiver: otherUserId },
     ]);
-    const newNotif = {
-      id_sender: userId,
-      type: NotifType.FRIEND,
-      id_receiver: otherUserId,
-    };
-    socket.emit("new-notif", newNotif);
   }
 };

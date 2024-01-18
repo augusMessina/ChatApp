@@ -1,8 +1,9 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { chatsCollection, usersCollection } from "@/db/connectMongo";
-import { NotifType } from "@/types/notif";
+import { Notif, NotifType } from "@/types/notif";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { pusher } from "../../pusher/pusher";
 
 export default async function handler(
   req: NextApiRequest,
@@ -68,6 +69,16 @@ export default async function handler(
       }
     );
   }
+
+  const forwardedNotif: Notif = {
+    id_sender,
+    type: NotifType.FRIEND,
+    username_sender: sender.username,
+    chatname: chat?.chatname,
+    id_chat,
+  };
+
+  await pusher.trigger(id_receiver, "new-notif", forwardedNotif);
 
   res.status(200).send({});
 }

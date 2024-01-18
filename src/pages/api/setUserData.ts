@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { chatsCollection, usersCollection } from "@/db/connectMongo";
+import { pusher } from "@/pusher/pusher";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -91,6 +92,34 @@ export default async function handler(
       })
     );
   }
+
+  user?.friendList.forEach(async (friend) => {
+    const friendChat = await chatsCollection.findOne({
+      isFriendChat: true,
+      members: {
+        $in: [
+          { id: id, username: user.username },
+          { id: friend.friendId, username: friend.friendName },
+        ],
+      },
+    });
+
+    await pusher.trigger(friend.friendId, "friend-data-updated", {
+      friendId: id,
+      friendName: user.username,
+      chatId: friendChat?._id.toString(),
+    });
+  });
+  user?.chats.forEach(async (chat) => {
+    const chatObj = await chatsCollection.findOne({
+      _id: new ObjectId(chat.id),
+    });
+    await pusher.trigger(chat.id, "member-data-updated", {
+      memberId: id,
+      memberName: user.username,
+      chatLangs: chatObj?.languages,
+    });
+  });
 
   res.status(200).send({});
 }

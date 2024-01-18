@@ -6,7 +6,6 @@ export const sendChatInvitation = async (
   otherUserId: string,
   chatId: string,
   chatname: string,
-  socket: Socket,
   outgoingRequests: OutgoingRequest[],
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void
 ) => {
@@ -26,13 +25,5 @@ export const sendChatInvitation = async (
       ...outgoingRequests,
       { type: NotifType.CHAT, id_receiver: otherUserId, id_chat: chatId },
     ]);
-    const newNotif = {
-      id_sender: userId,
-      type: NotifType.CHAT,
-      id_receiver: otherUserId,
-      id_chat: chatId,
-      chatname,
-    };
-    socket.emit("new-notif", newNotif);
   }
 };

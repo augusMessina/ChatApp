@@ -5,6 +5,7 @@ import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { IoMdClose } from "react-icons/io";
 import { breakpoints } from "@/utils/breakpoints";
+import Pusher from "pusher-js";
 
 type ModalProps = {
   isOpen: boolean;
@@ -14,7 +15,6 @@ type ModalProps = {
   setChats: (
     chats: { id: string; chatname: string; unreads: number }[]
   ) => void;
-  socket: Socket;
 };
 
 type Chat = {
@@ -31,7 +31,6 @@ const JoinChatModal: FC<ModalProps> = ({
   userId,
   chats,
   setChats,
-  socket,
 }) => {
   const [searchName, setSearchName] = useState("");
   const [chatname, setChatname] = useState("");
@@ -108,10 +107,6 @@ const JoinChatModal: FC<ModalProps> = ({
         setShowError("You are already in this chat");
         return;
       }
-      socket.emit("joined-chat", {
-        chatId,
-        userId,
-      });
       setChats([
         { id: data.id, chatname: data.chatname, unreads: 0 },
         ...chats,

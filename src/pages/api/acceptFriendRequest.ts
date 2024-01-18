@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { chatsCollection, usersCollection } from "@/db/connectMongo";
+import { pusher } from "@/pusher/pusher";
 import { NotifType } from "@/types/notif";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -59,6 +60,12 @@ export default async function handler(
     messages: [],
     languages: Array.from(new Set([sender.language!, user.language!])),
     isFriendChat: true,
+  });
+
+  await pusher.trigger(id_sender, "accepted-fr", {
+    chat_id: chatId,
+    friend_id: user_id,
+    friend_name: user.username,
   });
 
   res.status(200).send({ chat_id: chatId });
