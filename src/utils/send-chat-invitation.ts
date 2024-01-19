@@ -6,11 +6,10 @@ export const sendChatInvitation = async (
   otherUserId: string,
   chatId: string,
   chatname: string,
-  socket: Socket,
   outgoingRequests: OutgoingRequest[],
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void
 ) => {
-  const res = await fetch("/api/sendChatInvitation", {
+  fetch("/api/sendChatInvitation", {
     method: "POST",
     body: JSON.stringify({
       id_sender: userId,
@@ -21,18 +20,8 @@ export const sendChatInvitation = async (
       "Content-Type": "application/json",
     },
   });
-  if (res.ok) {
-    setOutgoingRequests([
-      ...outgoingRequests,
-      { type: NotifType.CHAT, id_receiver: otherUserId, id_chat: chatId },
-    ]);
-    const newNotif = {
-      id_sender: userId,
-      type: NotifType.CHAT,
-      id_receiver: otherUserId,
-      id_chat: chatId,
-      chatname,
-    };
-    socket.emit("new-notif", newNotif);
-  }
+  setOutgoingRequests([
+    ...outgoingRequests,
+    { type: NotifType.CHAT, id_receiver: otherUserId, id_chat: chatId },
+  ]);
 };

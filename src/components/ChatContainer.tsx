@@ -19,6 +19,7 @@ import { colors } from "@/utils/colors";
 import ChangeValuesModal from "./ChangeValuesModal";
 import { breakpoints } from "@/utils/breakpoints";
 import LeftMenu from "./LeftMenu";
+import Pusher from "pusher-js";
 
 type ChatDisplayProps = {
   chats: { id: string; chatname: string; unreads: number }[];
@@ -47,8 +48,7 @@ type ChatDisplayProps = {
   userId: string;
   userLanguage: string;
   username: string;
-  socket: Socket;
-  socketReady: boolean;
+  pusher: Pusher;
 };
 
 const ChatConitainer: FC<ChatDisplayProps> = ({
@@ -63,8 +63,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   userId,
   userLanguage,
   username,
-  socket,
-  socketReady,
+  pusher,
 }) => {
   const [currentChat, setCurrentChat] = useState<string>(
     chats.length > 0 ? chats[0].id : ""
@@ -86,19 +85,65 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
   const [changeValuesOpen, setChangeValuesOpen] = useState(false);
 
   useEffect(() => {
-    if (!socketReady) return;
-    socket.on("unfriended", (data: { friendId: string; chatId: string }) => {
-      setChats((prev) => prev.filter((chat) => chat.id !== data.chatId));
-      setFriendList((prev) =>
-        prev.filter((friend) => friend.friendId !== data.friendId)
-      );
-      socket.emit("leave", currentChat);
-      setCurrentChat("");
-      currentChatRef.current = "";
+    const userChannel = pusher.subscribe(userId);
+
+    userChannel.bind("new-notif", (newNotif: Notif) => {
+      setMailbox([newNotif, ...mailbox]);
     });
-    socket.on(
+
+    userChannel.bind(
+      "accepted-fr",
+      (data: { chat_id: string; friend_id: string; friend_name: string }) => {
+        setChats([
+          { id: data.chat_id, chatname: data.friend_name, unreads: 0 },
+          ...chats,
+        ]);
+        setFriendList([
+          ...friendList,
+          { friendId: data.friend_id, friendName: data.friend_name },
+        ]);
+      }
+    );
+
+    userChannel.bind(
+      "friend-data-updated",
+      (data: { friendId: string; friendName: string; chatId: string }) => {
+        setFriendList(
+          friendList.map((friend) => {
+            if (friend.friendId === data.friendId) {
+              return { ...friend, friendName: data.friendName };
+            }
+            return friend;
+          })
+        );
+
+        setChats(
+          chats.map((chat) => {
+            if (chat.id === data.chatId) {
+              return { ...chat, chatname: data.friendName };
+            }
+            return chat;
+          })
+        );
+      }
+    );
+
+    userChannel.bind(
+      "unfriended",
+      (data: { friendId: string; chatId: string }) => {
+        setChats((prev) => prev.filter((chat) => chat.id !== data.chatId));
+        setFriendList((prev) =>
+          prev.filter((friend) => friend.friendId !== data.friendId)
+        );
+        pusher.unsubscribe(currentChat);
+        setCurrentChat("");
+        currentChatRef.current = "";
+      }
+    );
+
+    userChannel.bind(
       "chat-new-message",
-      (data: { chatId: string; chatname: string }) => {
+      async (data: { chatId: string; chatname: string }) => {
         setChats((prevChats) => {
           if (prevChats.length > 1) {
             const newChats = [...prevChats]; // Create a shallow copy
@@ -119,11 +164,31 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           return prevChats;
         });
         if (data.chatId === currentChatRef.current) {
-          socket.emit("read-chat", { userId, chatId: currentChatRef.current });
+          await fetch("/api/readChat", {
+            method: "POST",
+            body: JSON.stringify({ userId, chatId: currentChatRef.current }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
         }
       }
     );
-  }, [currentChat, setChats, setFriendList, userId, socket, socketReady]);
+
+    return () => {
+      pusher.unsubscribe(userId);
+    };
+  }, [
+    currentChat,
+    setChats,
+    setFriendList,
+    setMailbox,
+    userId,
+    pusher,
+    chats,
+    friendList,
+    mailbox,
+  ]);
 
   useEffect(() => {
     setChats((prev) =>
@@ -182,7 +247,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           setMailboxOpen={setMailboxOpen}
           setMoreOptionsOpen={setMoreOptionsOpen}
           setSearchUserOpen={setSearchUserOpen}
-          socket={socket}
+          pusher={pusher}
         ></LeftMenu>
 
         <ChatDisplay
@@ -195,8 +260,6 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           setFriendList={setFriendList}
           userId={userId}
           userLanguage={userLanguage}
-          socket={socket}
-          socketReady={socketReady}
           friendList={friendList}
           outgoingRequests={outgoingRequests}
           setOutgoingRequests={setOutgoingRequests}
@@ -208,6 +271,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
               animationFillMode: "forwards",
             });
           }}
+          pusher={pusher}
         ></ChatDisplay>
       </ChatRelative>
       <JoinChatModal
@@ -216,7 +280,6 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         userId={userId}
         chats={chats}
         setChats={setChats}
-        socket={socket}
       ></JoinChatModal>
       <CreateChatModal
         isOpen={createChatOpen}
@@ -232,7 +295,6 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         outgoingRequests={outgoingRequests}
         setOutgoingRequests={setOutgoingRequests}
         mailbox={mailbox}
-        socket={socket}
       ></SearchUserModal>
       <MailboxModal
         isOpen={mailboxOpen}
@@ -242,7 +304,6 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         setMailbox={setMailbox}
         setChats={setChats}
         setFriendList={setFriendList}
-        socket={socket}
       ></MailboxModal>
       <ChangeValuesModal
         isOpen={changeValuesOpen}
@@ -250,7 +311,6 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
         userId={userId}
         language={userLanguage}
         username={username}
-        socket={socket}
       ></ChangeValuesModal>
     </ChatLayout>
   );

@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { chatsCollection, usersCollection } from "@/db/connectMongo";
+import { pusher } from "@/pusher/pusher";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -8,14 +9,14 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { username, language, id } = req.body;
-  if (!id) {
+  if (!id || !username || !language) {
     res.status(400).send({});
     return;
   }
 
   const user = await usersCollection.findOne({ _id: new ObjectId(id) });
 
-  if (username) {
+  if (username !== user?.username) {
     const otherUser = await usersCollection.findOne({ username });
     if (otherUser) {
       res.status(200).send({ message: "username already taken" });
@@ -57,7 +58,7 @@ export default async function handler(
     });
   }
 
-  if (language) {
+  if (language !== user?.language) {
     await usersCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { language } }
@@ -91,6 +92,33 @@ export default async function handler(
       })
     );
   }
+
+  user?.friendList.forEach(async (friend) => {
+    const friendChat = await chatsCollection.findOne({
+      isFriendChat: true,
+      members: {
+        $in: [
+          { id: id, username: user.username },
+          { id: friend.friendId, username: friend.friendName },
+        ],
+      },
+    });
+    await pusher.trigger(friend.friendId, "friend-data-updated", {
+      friendId: id,
+      friendName: username,
+      chatId: friendChat?._id.toString(),
+    });
+  });
+  user?.chats.forEach(async (chat) => {
+    const chatObj = await chatsCollection.findOne({
+      _id: new ObjectId(chat.id),
+    });
+    await pusher.trigger(chat.id, "member-data-updated", {
+      memberId: id,
+      memberName: username,
+      chatLangs: chatObj?.languages,
+    });
+  });
 
   res.status(200).send({});
 }

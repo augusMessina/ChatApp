@@ -3,6 +3,7 @@ import { chatsCollection, usersCollection } from "@/db/connectMongo";
 import { ChatSchema } from "@/db/schema";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { pusher } from "../../pusher/pusher";
 
 export default async function handler(
   req: NextApiRequest,
@@ -72,6 +73,12 @@ export default async function handler(
       },
     }
   );
+
+  await pusher.trigger(chat._id.toString(), "new-member", {
+    memberId: userId,
+    memberName: user.username,
+    memberLan: user.language,
+  });
 
   res.status(200).send({ id: chat._id.toString(), chatname: chat.chatname });
 }

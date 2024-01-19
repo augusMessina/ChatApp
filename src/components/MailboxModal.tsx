@@ -5,7 +5,6 @@ import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { Dispatch, FC, SetStateAction, useEffect, useRef } from "react";
 import { IoMdClose } from "react-icons/io";
-import { Socket } from "socket.io-client";
 
 type ModalProps = {
   isOpen: boolean;
@@ -21,7 +20,6 @@ type ModalProps = {
       }[]
     >
   >;
-  socket: Socket;
   setChats: Dispatch<
     SetStateAction<
       {
@@ -33,12 +31,6 @@ type ModalProps = {
   >;
 };
 
-type User = {
-  id: string;
-  username: string;
-  language: string;
-};
-
 const MailboxModal: FC<ModalProps> = ({
   isOpen,
   close,
@@ -46,7 +38,6 @@ const MailboxModal: FC<ModalProps> = ({
   mailbox,
   setMailbox,
   setFriendList,
-  socket,
   setChats,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
@@ -94,11 +85,6 @@ const MailboxModal: FC<ModalProps> = ({
         ...prev,
         { friendId: id_sender, friendName: username_sender },
       ]);
-      socket.emit("accepted-fr", {
-        id_sender,
-        user_id: userId,
-        chat_id: data.chat_id,
-      });
     }
   };
 
@@ -114,16 +100,12 @@ const MailboxModal: FC<ModalProps> = ({
       },
     });
     if (res.ok) {
-      socket.emit("joined-chat", {
-        chatId: id_chat,
-        userId,
-      });
       setChats((prev) => [{ chatname, id: id_chat, unreads: 0 }, ...prev]);
     }
   };
 
-  const declineRequest = async (id_sender: string, id_chat?: string) => {
-    const res = await fetch("/api/declineRequest", {
+  const declineRequest = (id_sender: string, id_chat?: string) => {
+    fetch("/api/declineRequest", {
       method: "POST",
       body: JSON.stringify({
         id_chat,
@@ -134,13 +116,11 @@ const MailboxModal: FC<ModalProps> = ({
         "Content-Type": "application/json",
       },
     });
-    if (res.ok) {
-      setMailbox(
-        mailbox.filter(
-          (mail) => mail.id_sender !== id_sender && mail.id_chat !== id_chat
-        )
-      );
-    }
+    setMailbox(
+      mailbox.filter(
+        (mail) => mail.id_sender !== id_sender && mail.id_chat !== id_chat
+      )
+    );
   };
 
   return (
@@ -223,7 +203,8 @@ const MailboxModal: FC<ModalProps> = ({
                             </ModalButton>
                           )}
                           <ModalButton
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               declineRequest(mail.id_sender, mail.id_chat);
                             }}
                           >

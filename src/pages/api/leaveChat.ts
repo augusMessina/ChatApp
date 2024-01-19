@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { chatsCollection, usersCollection } from "@/db/connectMongo";
+import { pusher } from "@/pusher/pusher";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -59,6 +60,7 @@ export default async function handler(
       }
     );
   }
+  await pusher.trigger(chat_id, "left-chat", user_id);
 
   res.status(200).send({});
 }

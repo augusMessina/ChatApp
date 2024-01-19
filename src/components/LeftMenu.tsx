@@ -8,6 +8,7 @@ import { TbDotsVertical } from "react-icons/tb";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import MoreOptionsDropdown from "./MoreOptionsDropdown";
 import { Socket } from "socket.io-client";
+import Pusher from "pusher-js";
 
 type LeftMenuProps = {
   close: () => void;
@@ -23,7 +24,7 @@ type LeftMenuProps = {
   chats: { id: string; chatname: string; unreads: number }[];
   currentChat: string;
   setCurrentChat: (s: string) => void;
-  socket: Socket;
+  pusher: Pusher;
 };
 
 const LeftMenu: FC<LeftMenuProps> = ({
@@ -39,7 +40,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
   chats,
   currentChat,
   setCurrentChat,
-  socket,
+  pusher,
   subModalOpen,
 }) => {
   const leftMenuRef = useRef<HTMLDivElement>(null);
@@ -150,7 +151,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
             <Chat
               key={chat.id}
               onClick={() => {
-                socket.emit("leave", currentChat);
+                pusher.unsubscribe(currentChat);
                 setCurrentChat(chat.id);
                 close();
               }}

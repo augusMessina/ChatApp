@@ -6,7 +6,6 @@ import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useEffect, useRef, useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import { Socket } from "socket.io-client";
 
 type ModalProps = {
   isOpen: boolean;
@@ -15,7 +14,6 @@ type ModalProps = {
   outgoingRequests: OutgoingRequest[];
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void;
   mailbox: Notif[];
-  socket: Socket;
 };
 
 type User = {
@@ -31,7 +29,6 @@ const SearchUserModal: FC<ModalProps> = ({
   outgoingRequests,
   setOutgoingRequests,
   mailbox,
-  socket,
 }) => {
   const [searchName, setSearchName] = useState("");
   const [users, setUsers] = useState<User[]>([]);
@@ -109,7 +106,6 @@ const SearchUserModal: FC<ModalProps> = ({
                             sendFriendRequest(
                               userId,
                               user.id,
-                              socket,
                               outgoingRequests,
                               setOutgoingRequests
                             );

@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import { chatsCollection, usersCollection } from "@/db/connectMongo";
+import { pusher } from "@/pusher/pusher";
 import { ObjectId } from "mongodb";
 import type { NextApiRequest, NextApiResponse } from "next";
 
@@ -49,6 +50,11 @@ export default async function handler(
   );
 
   await chatsCollection.deleteOne({ _id: chat._id });
+
+  await pusher.trigger(friend_id, "unfriended", {
+    friendId: user_id,
+    chatId: chat_id,
+  });
 
   res.status(200).send({});
 }

@@ -17,13 +17,13 @@ import { MdGroups } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { TailSpin } from "react-loader-spinner";
 import { breakpoints } from "@/utils/breakpoints";
+import Pusher from "pusher-js";
 
 type ChatDisplayProps = {
   chatId: string;
   userId: string;
   userLanguage: string;
-  socket: Socket;
-  socketReady: boolean;
+  pusher: Pusher;
   friendList: {
     friendId: string;
     friendName: string;
@@ -65,8 +65,6 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   chatId,
   userId,
   userLanguage,
-  socket,
-  socketReady,
   friendList,
   outgoingRequests,
   setOutgoingRequests,
@@ -74,6 +72,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   setFriendList,
   setChatId,
   openLeftMenu,
+  pusher,
 }) => {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [chatname, setChatname] = useState<string>("");
@@ -94,14 +93,16 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
 
   const [shiftPressed, setShiftPressed] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [dataIsLoading, setDataIsLoading] = useState(false);
+  const [messageIsLoading, setMessageIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!socketReady) return;
-    socket.on("new-message", (newMessage: Message) => {
+    const chatChannel = pusher.subscribe(chatId);
+
+    chatChannel.bind("new-message", (newMessage: Message) => {
       setChatMessages([...chatMessages, newMessage]);
     });
-    socket.on(
+    chatChannel.bind(
       "new-member",
       (newMember: {
         memberId: string;
@@ -118,11 +119,11 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       }
     );
 
-    socket.on("left-chat", (memberId: string) => {
+    chatChannel.bind("left-chat", (memberId: string) => {
       setMembers((prev) => prev.filter((member) => member.id !== memberId));
     });
 
-    socket.on(
+    chatChannel.bind(
       "member-data-updated",
       (data: { memberName: string; memberId: string; chatLangs: string[] }) => {
         setMembers(
@@ -139,10 +140,16 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         }
       }
     );
-  }, [chatMessages, chatLang, members, socket, isFriendChat, socketReady]);
+
+    return () => {
+      pusher.unsubscribe(chatId);
+    };
+  }, [chatMessages, chatLang, members, pusher, isFriendChat, chatId]);
 
   useEffect(() => {
     const getChatData = async (chatId: string) => {
+      setDataIsLoading(true);
+
       const res = await fetch("/api/getChatData", {
         method: "POST",
         body: JSON.stringify({
@@ -162,18 +169,18 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       setIsFriendChat(data.isFriendChat);
       setChatLang(data.languages);
       setChatUnreads(data.chatUnreads);
+      setDataIsLoading(false);
     };
 
-    if (chatId && socketReady) {
-      socket.emit("join", chatId);
+    if (chatId) {
       getChatData(chatId);
     }
-  }, [chatId, socket, userId, socketReady]);
+  }, [chatId, userId]);
 
   const handleMesageSubmit = async () => {
     let translation: { language: string; message: string }[] = [];
     if (chatLang.length > 1) {
-      setIsLoading(true);
+      setMessageIsLoading(true);
       const aiRes = await fetch("/api/translator", {
         method: "POST",
         body: JSON.stringify({
@@ -190,20 +197,28 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
       const data = await aiRes.json();
       translation = data.translation;
     }
-    socket.emit("new-message", {
-      chatId,
-      message: [
-        { language: userLanguage, content: newMessage },
-        ...translation.map((trans) => ({
-          language: trans.language,
-          content: trans.message,
-        })),
-      ],
-      authorId: userId,
+    const res = await fetch("/api/newMessage", {
+      method: "POST",
+      body: JSON.stringify({
+        chatId,
+        message: [
+          { language: userLanguage, content: newMessage },
+          ...translation.map((trans) => ({
+            language: trans.language,
+            content: trans.message,
+          })),
+        ],
+        authorId: userId,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
-    setNewMessage("");
-    setChatUnreads(0);
-    setIsLoading(false);
+    if (res.ok) {
+      setNewMessage("");
+      setChatUnreads(0);
+      setMessageIsLoading(false);
+    }
   };
 
   return (
@@ -233,7 +248,6 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
           });
 
           if (res.ok) {
-            socket.emit("unfriended", { userId, friendId, chatId });
             setChats((prev) => prev.filter((chat) => chat.id !== chatId));
             setFriendList((prev) =>
               prev.filter((friend) => friend.friendId !== friendId)
@@ -263,156 +277,160 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
           });
 
           if (res.ok) {
-            socket.emit("leave", chatId);
-            socket.emit("left-chat", { userId, chatId });
+            pusher.unsubscribe(chatId);
             setChats((prev) => prev.filter((chat) => chat.id !== chatId));
             setChatname("");
             setChatId("");
           }
         }}
       ></AreYouSureModal>
-      <ChatHeader>
-        <div style={{ flex: 1 }}>
-          <MobileTopBarButton
-            onClick={(e) => {
-              e.stopPropagation();
-              openLeftMenu();
-            }}
-          >
-            <GiHamburgerMenu color={colors.mainWhite} />
-          </MobileTopBarButton>
-        </div>
-
-        <h2>{chatname}</h2>
-        <HeaderButtons isHidden={!chatId}>
-          {chatKey && (
-            <ChatKey
-              onClick={() => {
-                navigator.clipboard.writeText(chatKey);
+      {chatId && dataIsLoading && (
+        <LoaderContainer>
+          <TailSpin color={colors.darkText}></TailSpin>
+        </LoaderContainer>
+      )}
+      {chatId && !dataIsLoading && (
+        <ChatHeader>
+          <div style={{ flex: 1 }}>
+            <MobileTopBarButton
+              onClick={(e) => {
+                e.stopPropagation();
+                openLeftMenu();
               }}
             >
-              {chatKey}
-            </ChatKey>
-          )}
-          {!isFriendChat && (
-            <DropdownButtonContainer>
-              <TopBarButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setInviteDropdownOpen(false);
-                  setMembersDropdownOpen(true);
+              <GiHamburgerMenu color={colors.mainWhite} />
+            </MobileTopBarButton>
+          </div>
+
+          <h2>{chatname}</h2>
+          <HeaderButtons isHidden={!chatId}>
+            {chatKey && (
+              <ChatKey
+                onClick={() => {
+                  navigator.clipboard.writeText(chatKey);
                 }}
               >
-                <MdGroups color={colors.mainWhite}></MdGroups>
-              </TopBarButton>
-              <ScrollableDropdown
-                items={members
-                  .filter((member) => member.id !== userId)
-                  .map((member) => ({
-                    label: member.username,
-                    id: member.id,
-                    buttonLabel: "Send friend request",
+                {chatKey}
+              </ChatKey>
+            )}
+            {!isFriendChat && (
+              <DropdownButtonContainer>
+                <TopBarButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setInviteDropdownOpen(false);
+                    setMembersDropdownOpen(true);
+                  }}
+                >
+                  <MdGroups color={colors.mainWhite}></MdGroups>
+                </TopBarButton>
+                <ScrollableDropdown
+                  items={members
+                    .filter((member) => member.id !== userId)
+                    .map((member) => ({
+                      label: member.username,
+                      id: member.id,
+                      buttonLabel: "Send friend request",
+                    }))}
+                  isOpen={membersDropdownOpen}
+                  close={() => setMembersDropdownOpen(false)}
+                  emptyText="No members besides you"
+                  title="Members"
+                  onButtonClick={(memberId: string) =>
+                    sendFriendRequest(
+                      userId,
+                      memberId,
+                      outgoingRequests,
+                      setOutgoingRequests
+                    )
+                  }
+                  disabledCondition={(memberId) =>
+                    friendList.some((friend) => friend.friendId === memberId) ||
+                    outgoingRequests.some(
+                      (request) => request.id_receiver === memberId
+                    )
+                  }
+                  width={300}
+                  height={400}
+                ></ScrollableDropdown>
+              </DropdownButtonContainer>
+            )}
+            {!isFriendChat && (
+              <DropdownButtonContainer>
+                <TopBarButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMembersDropdownOpen(false);
+                    setInviteDropdownOpen(true);
+                  }}
+                >
+                  <MdGroupAdd color={colors.mainWhite}></MdGroupAdd>
+                </TopBarButton>
+                <ScrollableDropdown
+                  items={friendList.map((friend) => ({
+                    label: friend.friendName,
+                    id: friend.friendId,
+                    buttonLabel: "Invite to chat",
                   }))}
-                isOpen={membersDropdownOpen}
-                close={() => setMembersDropdownOpen(false)}
-                emptyText="No members besides you"
-                title="Members"
-                onButtonClick={(memberId: string) =>
-                  sendFriendRequest(
-                    userId,
-                    memberId,
-                    socket,
-                    outgoingRequests,
-                    setOutgoingRequests
-                  )
-                }
-                disabledCondition={(memberId) =>
-                  friendList.some((friend) => friend.friendId === memberId) ||
-                  outgoingRequests.some(
-                    (request) => request.id_receiver === memberId
-                  )
-                }
-                width={300}
-                height={400}
-              ></ScrollableDropdown>
-            </DropdownButtonContainer>
-          )}
-          {!isFriendChat && (
-            <DropdownButtonContainer>
+                  title="Invite"
+                  isOpen={inviteDropdownOpen}
+                  close={() => setInviteDropdownOpen(false)}
+                  emptyText="No friends available for invitation"
+                  onButtonClick={(friendId: string) =>
+                    sendChatInvitation(
+                      userId,
+                      friendId,
+                      chatId,
+                      chatname,
+                      outgoingRequests,
+                      setOutgoingRequests
+                    )
+                  }
+                  disabledCondition={(friendId) =>
+                    members.some((member) => member.id === friendId) ||
+                    outgoingRequests.some(
+                      (request) =>
+                        request.type === "CHAT" &&
+                        request.id_receiver === friendId &&
+                        request.id_chat === chatId
+                    )
+                  }
+                  width={300}
+                  height={400}
+                ></ScrollableDropdown>
+              </DropdownButtonContainer>
+            )}
+
+            {isFriendChat ? (
               <TopBarButton
                 onClick={(e) => {
                   e.stopPropagation();
-                  setMembersDropdownOpen(false);
-                  setInviteDropdownOpen(true);
+                  setSureFriendModalOpen(true);
                 }}
               >
-                <MdGroupAdd color={colors.mainWhite}></MdGroupAdd>
+                <FaUserMinus color={colors.red}></FaUserMinus>
               </TopBarButton>
-              <ScrollableDropdown
-                items={friendList.map((friend) => ({
-                  label: friend.friendName,
-                  id: friend.friendId,
-                  buttonLabel: "Invite to chat",
-                }))}
-                title="Invite"
-                isOpen={inviteDropdownOpen}
-                close={() => setInviteDropdownOpen(false)}
-                emptyText="No friends available for invitation"
-                onButtonClick={(friendId: string) =>
-                  sendChatInvitation(
-                    userId,
-                    friendId,
-                    chatId,
-                    chatname,
-                    socket,
-                    outgoingRequests,
-                    setOutgoingRequests
-                  )
-                }
-                disabledCondition={(friendId) =>
-                  members.some((member) => member.id === friendId) ||
-                  outgoingRequests.some(
-                    (request) =>
-                      request.type === "CHAT" &&
-                      request.id_receiver === friendId &&
-                      request.id_chat === chatId
-                  )
-                }
-                width={300}
-                height={400}
-              ></ScrollableDropdown>
-            </DropdownButtonContainer>
-          )}
+            ) : (
+              <TopBarButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSureChatModalOpen(true);
+                }}
+              >
+                <MdGroupOff color={colors.red}></MdGroupOff>
+              </TopBarButton>
+            )}
+          </HeaderButtons>
+        </ChatHeader>
+      )}
 
-          {isFriendChat ? (
-            <TopBarButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setSureFriendModalOpen(true);
-              }}
-            >
-              <FaUserMinus color={colors.red}></FaUserMinus>
-            </TopBarButton>
-          ) : (
-            <TopBarButton
-              onClick={(e) => {
-                e.stopPropagation();
-                setSureChatModalOpen(true);
-              }}
-            >
-              <MdGroupOff color={colors.red}></MdGroupOff>
-            </TopBarButton>
-          )}
-        </HeaderButtons>
-      </ChatHeader>
-
-      {chatId && <Separator></Separator>}
+      {chatId && !dataIsLoading && <Separator></Separator>}
       {!chatId && (
         <EmptyText>
           <p>No chat selected</p>
         </EmptyText>
       )}
-      {chatId && (
+      {chatId && !dataIsLoading && (
         <ChatMessages
           messages={chatMessages}
           userId={userId}
@@ -421,7 +439,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
         ></ChatMessages>
       )}
 
-      {chatId && (
+      {chatId && !dataIsLoading && (
         <InputArea>
           <TextArea
             onChange={(e) => {
@@ -447,15 +465,15 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
             }}
             value={newMessage}
             maxLength={300}
-            disabled={isLoading}
+            disabled={messageIsLoading}
           ></TextArea>
           <SendButton
-            disabled={newMessage === "" || isLoading}
+            disabled={newMessage === "" || messageIsLoading}
             onClick={async (e) => {
               await handleMesageSubmit();
             }}
           >
-            {!isLoading ? (
+            {!messageIsLoading ? (
               <IoSendSharp color={colors.mainWhite}></IoSendSharp>
             ) : (
               <TailSpin color={colors.mainWhite}></TailSpin>
@@ -479,6 +497,14 @@ const ChatDisplayContainer = styled.div`
   justify-content: flex-end;
   padding: 8px 16px;
   gap: 8px;
+`;
+
+const LoaderContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ChatHeader = styled.div`

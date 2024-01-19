@@ -5,7 +5,6 @@ import { IoMdClose } from "react-icons/io";
 import CustomSelect from "./CustomSelect";
 import { languagesList } from "@/utils/languages";
 import { useRouter } from "next/router";
-import { Socket } from "socket.io-client";
 import { checkUsernameValid } from "@/utils/checkUsernameValid";
 
 type ModalProps = {
@@ -14,7 +13,6 @@ type ModalProps = {
   userId: string;
   username: string;
   language: string;
-  socket: Socket;
 };
 
 const ChangeValuesModal: FC<ModalProps> = ({
@@ -23,7 +21,6 @@ const ChangeValuesModal: FC<ModalProps> = ({
   userId,
   username,
   language,
-  socket,
 }) => {
   const [inputUsername, setInputUsername] = useState(username);
   const [selectedLanguage, setSelectedLanguage] = useState(language);
@@ -78,7 +75,6 @@ const ChangeValuesModal: FC<ModalProps> = ({
         setShowError("Username already in use");
         return;
       }
-      socket.emit("user-data-updated", userId);
       router.reload();
     }
   };
@@ -106,6 +102,7 @@ const ChangeValuesModal: FC<ModalProps> = ({
               }}
               value={inputUsername}
               placeholder="Username"
+              maxLength={12}
             ></ModalInput>
             {showError && <Error>{showError}</Error>}
             <CustomSelect
