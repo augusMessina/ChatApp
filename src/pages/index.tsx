@@ -8,6 +8,7 @@ import { Notif, OutgoingRequest } from "../types/notif";
 import { Socket, io } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import Pusher from "pusher-js";
+import Head from "next/head";
 
 const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
   cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
@@ -63,6 +64,9 @@ const Home: FC<HomeProps> = ({ user }) => {
 
   return (
     <MainContainer>
+      <Head>
+        <title>{`Tradunite of ${user.name}`}</title>
+      </Head>
       <ChatContainer
         chats={chats}
         setChats={setChats}

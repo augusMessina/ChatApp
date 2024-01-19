@@ -72,7 +72,7 @@ export default async function handler(
 
   const forwardedNotif: Notif = {
     id_sender,
-    type: NotifType.FRIEND,
+    type: NotifType.CHAT,
     username_sender: sender.username,
     chatname: chat?.chatname,
     id_chat,

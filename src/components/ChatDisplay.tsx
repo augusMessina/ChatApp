@@ -99,10 +99,6 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
   useEffect(() => {
     const chatChannel = pusher.subscribe(chatId);
 
-    chatChannel.bind("test", () => {
-      window.alert("chat test");
-    });
-
     chatChannel.bind("new-message", (newMessage: Message) => {
       setChatMessages([...chatMessages, newMessage]);
     });

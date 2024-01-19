@@ -102,6 +102,7 @@ const ChangeValuesModal: FC<ModalProps> = ({
               }}
               value={inputUsername}
               placeholder="Username"
+              maxLength={12}
             ></ModalInput>
             {showError && <Error>{showError}</Error>}
             <CustomSelect

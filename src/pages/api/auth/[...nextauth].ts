@@ -34,6 +34,8 @@ export const authOptions: NextAuthOptions = {
           session.user.language = userData.language;
           session.user.outgoingRequests = userData.outgoingRequests;
           session.user.name = userData.username;
+        } else {
+          session.user.email = undefined;
         }
       }
 

@@ -104,8 +104,8 @@ const MailboxModal: FC<ModalProps> = ({
     }
   };
 
-  const declineRequest = async (id_sender: string, id_chat?: string) => {
-    const res = await fetch("/api/declineRequest", {
+  const declineRequest = (id_sender: string, id_chat?: string) => {
+    fetch("/api/declineRequest", {
       method: "POST",
       body: JSON.stringify({
         id_chat,
@@ -116,13 +116,11 @@ const MailboxModal: FC<ModalProps> = ({
         "Content-Type": "application/json",
       },
     });
-    if (res.ok) {
-      setMailbox(
-        mailbox.filter(
-          (mail) => mail.id_sender !== id_sender && mail.id_chat !== id_chat
-        )
-      );
-    }
+    setMailbox(
+      mailbox.filter(
+        (mail) => mail.id_sender !== id_sender && mail.id_chat !== id_chat
+      )
+    );
   };
 
   return (
@@ -205,7 +203,8 @@ const MailboxModal: FC<ModalProps> = ({
                             </ModalButton>
                           )}
                           <ModalButton
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               declineRequest(mail.id_sender, mail.id_chat);
                             }}
                           >

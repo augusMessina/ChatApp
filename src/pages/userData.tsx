@@ -11,6 +11,7 @@ import { colors } from "@/utils/colors";
 import { checkUsernameValid } from "@/utils/checkUsernameValid";
 import { breakpoints } from "@/utils/breakpoints";
 import { TailSpin } from "react-loader-spinner";
+import Head from "next/head";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
@@ -93,6 +94,9 @@ const UserDataPage: FC<{
 
   return (
     <PageContainer>
+      <Head>
+        <title>Tradunite | User Data</title>
+      </Head>
       {isLoading ? (
         <LoaderContainer>
           <TailSpin color={colors.mainWhite}></TailSpin>

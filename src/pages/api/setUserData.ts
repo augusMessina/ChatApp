@@ -9,14 +9,14 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const { username, language, id } = req.body;
-  if (!id) {
+  if (!id || !username || !language) {
     res.status(400).send({});
     return;
   }
 
   const user = await usersCollection.findOne({ _id: new ObjectId(id) });
 
-  if (username) {
+  if (username !== user?.username) {
     const otherUser = await usersCollection.findOne({ username });
     if (otherUser) {
       res.status(200).send({ message: "username already taken" });
@@ -58,7 +58,7 @@ export default async function handler(
     });
   }
 
-  if (language) {
+  if (language !== user?.language) {
     await usersCollection.updateOne(
       { _id: new ObjectId(id) },
       { $set: { language } }
@@ -103,10 +103,9 @@ export default async function handler(
         ],
       },
     });
-
     await pusher.trigger(friend.friendId, "friend-data-updated", {
       friendId: id,
-      friendName: user.username,
+      friendName: username,
       chatId: friendChat?._id.toString(),
     });
   });
@@ -116,7 +115,7 @@ export default async function handler(
     });
     await pusher.trigger(chat.id, "member-data-updated", {
       memberId: id,
-      memberName: user.username,
+      memberName: username,
       chatLangs: chatObj?.languages,
     });
   });

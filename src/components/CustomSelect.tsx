@@ -143,6 +143,7 @@ const Option = styled.div`
   width: 100%;
   background: transparent;
   transition: 0.3s;
+  cursor: pointer;
 
   :hover {
     background: ${colors.lightHoverGray};

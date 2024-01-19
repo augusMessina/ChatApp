@@ -74,7 +74,7 @@ export default async function handler(
     }
   );
 
-  await pusher.trigger(chatId, "new-member", {
+  await pusher.trigger(chat._id.toString(), "new-member", {
     memberId: userId,
     memberName: user.username,
     memberLan: user.language,

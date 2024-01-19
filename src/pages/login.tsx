@@ -6,6 +6,7 @@ import { validateEmail } from "@/utils/validateEmail";
 import { breakpoints } from "@/utils/breakpoints";
 import { useRouter } from "next/router";
 import { TailSpin } from "react-loader-spinner";
+import Head from "next/head";
 
 const LogInPage: FC = () => {
   const [email, setEmail] = useState("");
@@ -34,6 +35,9 @@ const LogInPage: FC = () => {
 
   return (
     <PageContainer>
+      <Head>
+        <title>Tradunite | Access</title>
+      </Head>
       {isLoading ? (
         <LoaderContainer>
           <TailSpin color={colors.mainWhite}></TailSpin>
