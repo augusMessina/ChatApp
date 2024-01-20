@@ -5,6 +5,7 @@ import { ObjectId } from "mongodb";
 export const getUserData = async (
   id: string
 ): Promise<Omit<User, "id" | "email"> | void> => {
+  console.log("getting user data", id);
   const user = await usersCollection.findOne({
     _id: new ObjectId(id),
   });

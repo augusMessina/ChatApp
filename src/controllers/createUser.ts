@@ -2,6 +2,7 @@ import { usersCollection } from "@/db/connectMongo";
 import { ObjectId } from "mongodb";
 
 export const createUser = async (email: string, password?: string) => {
+  console.log("checking user", createUser);
   const user = await usersCollection.findOne({ email });
   const userId = new ObjectId();
 
