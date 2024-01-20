@@ -14,6 +14,7 @@ const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
+  console.log("Inicieeee, soy", session?.user.email);
   if (!session?.user?.email) {
     return {
       redirect: {
