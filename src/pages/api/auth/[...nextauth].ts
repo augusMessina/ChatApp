@@ -34,18 +34,20 @@ export const authOptions: NextAuthOptions = {
           session.user.email = undefined;
         }
       }
-      console.log(session.user.email);
+      console.log("email:", session.user.email);
 
       return session;
     },
     async signIn({ user, account, profile }) {
+      console.log("starting sigin");
       if (
         (account?.provider === "google" || account?.provider === "github") &&
         profile &&
         profile.email
       ) {
+        console.log("getting github data");
         const data = await createUser(profile.email);
-
+        console.log("the data", data);
         if (data) {
           user.id = data.id;
           user.name = data.username;
