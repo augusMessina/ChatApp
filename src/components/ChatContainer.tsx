@@ -244,6 +244,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           setMailboxOpen={setMailboxOpen}
           setMoreOptionsOpen={setMoreOptionsOpen}
           setSearchUserOpen={setSearchUserOpen}
+          mailbox={mailbox}
           pusher={pusher}
         ></LeftMenu>
 

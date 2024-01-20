@@ -122,6 +122,7 @@ const UserDataPage: FC<{
                   setUsername(e.target.value);
                   setShowError("");
                 }}
+                maxLength={12}
               ></LoginInput>
 
               <CustomSelect

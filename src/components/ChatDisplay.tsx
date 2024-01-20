@@ -308,6 +308,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                 onClick={() => {
                   navigator.clipboard.writeText(chatKey);
                 }}
+                title="Chat password"
               >
                 {chatKey}
               </ChatKey>
@@ -320,6 +321,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                     setInviteDropdownOpen(false);
                     setMembersDropdownOpen(true);
                   }}
+                  title="Members"
                 >
                   <MdGroups color={colors.mainWhite}></MdGroups>
                 </TopBarButton>
@@ -349,7 +351,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                       (request) => request.id_receiver === memberId
                     )
                   }
-                  width={300}
+                  width={330}
                   height={400}
                 ></ScrollableDropdown>
               </DropdownButtonContainer>
@@ -362,6 +364,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                     setMembersDropdownOpen(false);
                     setInviteDropdownOpen(true);
                   }}
+                  title="Invite"
                 >
                   <MdGroupAdd color={colors.mainWhite}></MdGroupAdd>
                 </TopBarButton>
@@ -405,6 +408,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                   e.stopPropagation();
                   setSureFriendModalOpen(true);
                 }}
+                title="Delete friend"
               >
                 <FaUserMinus color={colors.red}></FaUserMinus>
               </TopBarButton>
@@ -414,6 +418,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                   e.stopPropagation();
                   setSureChatModalOpen(true);
                 }}
+                title="Leave chat"
               >
                 <MdGroupOff color={colors.red}></MdGroupOff>
               </TopBarButton>
