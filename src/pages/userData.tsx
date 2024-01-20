@@ -283,7 +283,7 @@ const LoginInput = styled.input`
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     font-size: 12px;
-    padding: 8px 4px;
+    padding: 12px 8px;
   }
 `;
 

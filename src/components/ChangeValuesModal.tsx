@@ -6,6 +6,7 @@ import CustomSelect from "./CustomSelect";
 import { languagesList } from "@/utils/languages";
 import { useRouter } from "next/router";
 import { checkUsernameValid } from "@/utils/checkUsernameValid";
+import { breakpoints } from "@/utils/breakpoints";
 
 type ModalProps = {
   isOpen: boolean;
@@ -231,6 +232,11 @@ const ModalInput = styled.input`
   :focus {
     border: 1px solid ${colors.mainWhite};
     border-radius: 3px;
+  }
+
+  @media screen and (max-width: ${breakpoints.smallScreen}) {
+    font-size: 12px;
+    padding: 12px 8px;
   }
 `;
 

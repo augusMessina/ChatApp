@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import ChatMessages from "./ChatMessages";
-import { Socket } from "socket.io-client";
 import ScrollableDropdown from "./ScrollableDropdown";
 import { sendFriendRequest } from "@/utils/send-friend-request";
 import { OutgoingRequest } from "@/types/notif";
@@ -381,7 +380,6 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                       userId,
                       friendId,
                       chatId,
-                      chatname,
                       outgoingRequests,
                       setOutgoingRequests
                     )

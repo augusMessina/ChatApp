@@ -7,7 +7,6 @@ import { IoIosChatboxes, IoMdMail } from "react-icons/io";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import MoreOptionsDropdown from "./MoreOptionsDropdown";
-import { Socket } from "socket.io-client";
 import Pusher from "pusher-js";
 
 type LeftMenuProps = {
@@ -114,6 +113,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
             setMailboxOpen(true);
             setMoreOptionsOpen(false);
           }}
+          style={{ position: "relative" }}
         >
           <IoMdMail color={colors.mainWhite}></IoMdMail>
         </TopBarButton>
@@ -316,6 +316,13 @@ const UnreadAlert = styled.div`
   border-radius: 50%;
   background: ${colors.blue};
   margin-right: 32px;
+`;
+
+const NotifAlert = styled(UnreadAlert)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
 `;
 
 const DropdownButtonContainer = styled.div`

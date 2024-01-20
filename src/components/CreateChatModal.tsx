@@ -267,7 +267,7 @@ const ModalInput = styled.input`
   }
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
-    padding: 8px 4px;
+    padding: 12px 8px;
     font-size: 14px;
   }
 `;
