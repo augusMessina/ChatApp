@@ -16,7 +16,13 @@ const client = new MongoClient(uri, {
 });
 
 const connect = async () => {
-  await client.connect();
+  try {
+    await client.connect();
+    console.log("connected to mongo");
+  } catch (error) {
+    console.error("Mongo error: ", error);
+    throw error;
+  }
 };
 connect();
 
