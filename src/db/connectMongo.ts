@@ -2,7 +2,7 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 import { ChatSchema, UserSchema } from "./schema";
 
 const uri = process.env.MONGO_URI;
-
+console.log("my mongo", uri);
 if (!uri) {
   throw new Error("Mongo URI missing");
 }
