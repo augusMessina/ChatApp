@@ -11,9 +11,12 @@ export const authOptions: NextAuthOptions = {
         return { ...token, ...session.user };
       }
       // token.name = user.name;
+      console.log("I get JWT", token);
       return { ...token, ...user };
     },
     async session({ session, token }) {
+      console.error("asking for session", token);
+      console.log("rarete");
       session.user.id = token.sub;
       session.user.name = token.name;
 
