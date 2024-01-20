@@ -11,7 +11,7 @@ export const authOptions: NextAuthOptions = {
         return { ...token, ...session.user };
       }
       // token.name = user.name;
-      console.log("I get JWT", token);
+      console.log("I get JWT :D", token);
       return { ...token, ...user };
     },
     async session({ session, token }) {
