@@ -20,6 +20,7 @@ export const authOptions: NextAuthOptions = {
       session.user.image = "default_image.jpg";
 
       if (session.user.id) {
+        console.log("i have id", session.user.id);
         const userData = await getUserData(session.user.id);
         if (userData) {
           session.user.chats = userData.chats;
@@ -28,10 +29,12 @@ export const authOptions: NextAuthOptions = {
           session.user.language = userData.language;
           session.user.outgoingRequests = userData.outgoingRequests;
           session.user.name = userData.username;
+          console.log("por aqui paso");
         } else {
           session.user.email = undefined;
         }
       }
+      console.log(session.user.email);
 
       return session;
     },
@@ -76,11 +79,13 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         try {
           if (credentials?.email) {
+            console.log("I have creds", credentials.email);
             const data = await createUser(
               credentials?.email,
               credentials?.password
             );
 
+            console.log("hhmm", data);
             if (data && data.id) {
               return {
                 id: data.id,
