@@ -1,5 +1,4 @@
-import { chatsCollection, usersCollection } from "@/db/connectMongo";
-import { User } from "@/types/user";
+import { usersCollection } from "@/db/connectMongo";
 import { ObjectId } from "mongodb";
 
 export const createUser = async (email: string, password?: string) => {

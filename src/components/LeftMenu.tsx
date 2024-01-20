@@ -7,8 +7,8 @@ import { IoIosChatboxes, IoMdMail } from "react-icons/io";
 import { TbDotsVertical } from "react-icons/tb";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import MoreOptionsDropdown from "./MoreOptionsDropdown";
-import { Socket } from "socket.io-client";
 import Pusher from "pusher-js";
+import { Notif } from "@/types/notif";
 
 type LeftMenuProps = {
   close: () => void;
@@ -24,6 +24,7 @@ type LeftMenuProps = {
   chats: { id: string; chatname: string; unreads: number }[];
   currentChat: string;
   setCurrentChat: (s: string) => void;
+  mailbox: Notif[];
   pusher: Pusher;
 };
 
@@ -42,6 +43,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
   setCurrentChat,
   pusher,
   subModalOpen,
+  mailbox,
 }) => {
   const leftMenuRef = useRef<HTMLDivElement>(null);
   const [windowWith, setWindowWith] = useState<number>();
@@ -87,6 +89,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
             setJoinChatOpen(true);
             setMoreOptionsOpen(false);
           }}
+          title="Join a chat"
         >
           <IoIosChatboxes color={colors.mainWhite}></IoIosChatboxes>
         </TopBarButton>
@@ -96,6 +99,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
             setCreateChatOpen(true);
             setMoreOptionsOpen(false);
           }}
+          title="Create a chat"
         >
           <FaPlus color={colors.mainWhite}></FaPlus>
         </TopBarButton>
@@ -105,6 +109,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
             setSearchUserOpen(true);
             setMoreOptionsOpen(false);
           }}
+          title="Search users"
         >
           <FaUserPlus color={colors.mainWhite}></FaUserPlus>
         </TopBarButton>
@@ -114,8 +119,11 @@ const LeftMenu: FC<LeftMenuProps> = ({
             setMailboxOpen(true);
             setMoreOptionsOpen(false);
           }}
+          style={{ position: "relative" }}
+          title="Mailbox"
         >
           <IoMdMail color={colors.mainWhite}></IoMdMail>
+          {mailbox.length > 0 && <NotifAlert></NotifAlert>}
         </TopBarButton>
         <DropdownButtonContainer>
           <TopBarButton
@@ -123,6 +131,7 @@ const LeftMenu: FC<LeftMenuProps> = ({
               e.stopPropagation();
               setMoreOptionsOpen(true);
             }}
+            title="More options"
           >
             <TbDotsVertical color={colors.mainWhite}></TbDotsVertical>
           </TopBarButton>
@@ -316,6 +325,13 @@ const UnreadAlert = styled.div`
   border-radius: 50%;
   background: ${colors.blue};
   margin-right: 32px;
+`;
+
+const NotifAlert = styled(UnreadAlert)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
 `;
 
 const DropdownButtonContainer = styled.div`

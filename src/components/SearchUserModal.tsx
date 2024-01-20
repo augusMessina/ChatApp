@@ -198,6 +198,7 @@ const PublicChatContainer = styled.div`
   justify-content: flex-start;
   align-items: center;
   gap: 24px;
+  width: 100%;
 `;
 
 const Scrollable = styled.div`
@@ -257,6 +258,7 @@ const ChatJoin = styled.div`
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     p {
       font-size: 12px;
+      margin-right: 8px;
     }
   }
 `;
@@ -308,7 +310,7 @@ const ModalInput = styled.input`
   }
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
-    padding: 8px 4px;
+    padding: 12px 8px;
     font-size: 14px;
   }
 `;

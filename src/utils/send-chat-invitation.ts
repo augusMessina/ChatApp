@@ -1,11 +1,9 @@
 import { NotifType, OutgoingRequest } from "@/types/notif";
-import { Socket } from "socket.io-client";
 
 export const sendChatInvitation = async (
   userId: string,
   otherUserId: string,
   chatId: string,
-  chatname: string,
   outgoingRequests: OutgoingRequest[],
   setOutgoingRequests: (newReqs: OutgoingRequest[]) => void
 ) => {

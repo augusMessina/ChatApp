@@ -1,10 +1,4 @@
-import NextAuth, {
-  Account,
-  NextAuthOptions,
-  Profile,
-  Session,
-  SessionStrategy,
-} from "next-auth";
+import NextAuth, { NextAuthOptions, SessionStrategy } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUserData } from "@/controllers/getUserData";

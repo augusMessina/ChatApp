@@ -2,11 +2,9 @@ import styled from "@emotion/styled";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import ChatContainer from "@/components/ChatContainer";
 import { Notif, OutgoingRequest } from "../types/notif";
-import { Socket, io } from "socket.io-client";
-import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import Pusher from "pusher-js";
 import Head from "next/head";
 
@@ -90,7 +88,7 @@ const MainContainer = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
 `;
 
 export default Home;

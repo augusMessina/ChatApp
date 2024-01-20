@@ -8,14 +8,11 @@ import {
   useState,
 } from "react";
 import ChatDisplay from "./ChatDisplay";
-import { Socket } from "socket.io-client";
 import JoinChatModal from "./JoinChatModal";
 import CreateChatModal from "./CreateChatModal";
 import SearchUserModal from "./SearchUserModal";
 import { Notif, OutgoingRequest } from "@/types/notif";
 import MailboxModal from "./MailboxModal";
-
-import { colors } from "@/utils/colors";
 import ChangeValuesModal from "./ChangeValuesModal";
 import { breakpoints } from "@/utils/breakpoints";
 import LeftMenu from "./LeftMenu";
@@ -247,6 +244,7 @@ const ChatConitainer: FC<ChatDisplayProps> = ({
           setMailboxOpen={setMailboxOpen}
           setMoreOptionsOpen={setMoreOptionsOpen}
           setSearchUserOpen={setSearchUserOpen}
+          mailbox={mailbox}
           pusher={pusher}
         ></LeftMenu>
 

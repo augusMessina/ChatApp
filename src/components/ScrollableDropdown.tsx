@@ -174,10 +174,15 @@ const ChatJoin = styled.div`
   border-bottom: 1px solid ${colors.darkText};
   padding-bottom: 8px;
   color: ${colors.mainWhite};
+  p {
+    margin-right: 8px;
+    white-space: nowrap;
+  }
 
   @media screen and (max-width: ${breakpoints.smallScreen}) {
     p {
       font-size: 12px;
+      margin-right: 8px;
     }
   }
 `;

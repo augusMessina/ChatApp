@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import ChatMessages from "./ChatMessages";
-import { Socket } from "socket.io-client";
 import ScrollableDropdown from "./ScrollableDropdown";
 import { sendFriendRequest } from "@/utils/send-friend-request";
 import { OutgoingRequest } from "@/types/notif";
@@ -309,6 +308,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                 onClick={() => {
                   navigator.clipboard.writeText(chatKey);
                 }}
+                title="Chat password"
               >
                 {chatKey}
               </ChatKey>
@@ -321,6 +321,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                     setInviteDropdownOpen(false);
                     setMembersDropdownOpen(true);
                   }}
+                  title="Members"
                 >
                   <MdGroups color={colors.mainWhite}></MdGroups>
                 </TopBarButton>
@@ -350,7 +351,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                       (request) => request.id_receiver === memberId
                     )
                   }
-                  width={300}
+                  width={330}
                   height={400}
                 ></ScrollableDropdown>
               </DropdownButtonContainer>
@@ -363,6 +364,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                     setMembersDropdownOpen(false);
                     setInviteDropdownOpen(true);
                   }}
+                  title="Invite"
                 >
                   <MdGroupAdd color={colors.mainWhite}></MdGroupAdd>
                 </TopBarButton>
@@ -381,7 +383,6 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                       userId,
                       friendId,
                       chatId,
-                      chatname,
                       outgoingRequests,
                       setOutgoingRequests
                     )
@@ -407,6 +408,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                   e.stopPropagation();
                   setSureFriendModalOpen(true);
                 }}
+                title="Delete friend"
               >
                 <FaUserMinus color={colors.red}></FaUserMinus>
               </TopBarButton>
@@ -416,6 +418,7 @@ const ChatDisplay: FC<ChatDisplayProps> = ({
                   e.stopPropagation();
                   setSureChatModalOpen(true);
                 }}
+                title="Leave chat"
               >
                 <MdGroupOff color={colors.red}></MdGroupOff>
               </TopBarButton>
