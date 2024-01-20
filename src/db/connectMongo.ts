@@ -6,7 +6,13 @@ if (!uri) {
   throw new Error("Mongo URI missing");
 }
 
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
 
 const connect = async () => {
   console.log("connecting");
