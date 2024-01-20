@@ -2,22 +2,14 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 import { ChatSchema, UserSchema } from "./schema";
 
 const uri = process.env.MONGO_URI;
-console.log("my mongo", uri);
 if (!uri) {
   throw new Error("Mongo URI missing");
 }
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-  connectTimeoutMS: 10000,
-  socketTimeoutMS: 10000,
-});
+const client = new MongoClient(uri);
 
 const connect = async () => {
+  console.log("connecting");
   try {
     await client.connect();
     console.log("connected to mongo");
