@@ -1,11 +1,16 @@
-import { chatsCollection, usersCollection } from "@/db/connectMongo";
-import { User } from "@/types/user";
+import clientPromise from "../lib/mongodb";
 import { ObjectId } from "mongodb";
+import { User } from "../types/user";
+import { ChatSchema, UserSchema } from "../lib/schema";
 
 export const getUserData = async (
   id: string
 ): Promise<Omit<User, "id" | "email"> | void> => {
-  console.log("getting user data", id);
+  const client = await clientPromise;
+  const db = client.db(process.env.MONGODB_DBNAME);
+  const usersCollection = db.collection<UserSchema>("Users");
+  const chatsCollection = db.collection<ChatSchema>("Chats");
+
   const user = await usersCollection.findOne({
     _id: new ObjectId(id),
   });

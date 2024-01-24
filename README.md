@@ -1,8 +1,30 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is the [Next.js](https://nextjs.org/) project of a chat application named Tradunite. It uses ChatGPT to translate messages between users. Made by [Augusto Messina](https://github.com/augusMessina)
 
 ## Getting Started
 
-First, run the development server:
+First, install all the dependencies by using:
+
+```bash
+npm install
+#or
+yarn
+```
+
+Second, include all the necessary environment variables in the `.env.local`:
+
+- `NEXTAUTH_SECRET`: Secret key of NextAuth.js. You can obtain yours through [this link](https://generate-secret.vercel.app/32).
+- `OPENAI_API_KEY`: API key for interacting with ChatGPT API. There is a free trial on OpenAI's website.
+- `MONGODB_URI`: URI to your MongoDB Atlas cluster.
+- `MONGODB_DBNAME`: Name of your database.
+- `PUSHER_APP_ID`: ID of your [Pusher](https://pusher.com/) application.
+- `NEXT_PUBLIC_PUSHER_KEY`.
+- `PUSHER_SECRET`.
+- `NEXT_PUBLIC_PUSHER_CLUSTER`.
+- `GITHUB_CLIENT_ID`: ID of your [Github OAuth application](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+- `GITHUB_CLIENT_SECRET`.
+- `ADMIN_KEY`: Key for accesing admin functions.
+
+To run the development server:
 
 ```bash
 npm run dev
@@ -13,8 +35,6 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
 [API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
 
@@ -28,11 +48,3 @@ To learn more about Next.js, take a look at the following resources:
 
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.

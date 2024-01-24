@@ -1,7 +1,7 @@
 import { Notif, OutgoingRequest } from "@/types/notif";
 import { breakpoints } from "@/utils/breakpoints";
 import { colors } from "@/utils/colors";
-import { sendFriendRequest } from "@/utils/send-friend-request";
+import { sendFriendRequest } from "@/controllers/sendFriendRequest";
 import styled from "@emotion/styled";
 import { ISODateString } from "next-auth";
 import { FC, useEffect, useRef, useState } from "react";

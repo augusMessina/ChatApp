@@ -1,5 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { usersCollection } from "@/db/connectMongo";
+import clientPromise from "@/lib/mongodb";
+import { UserSchema } from "@/lib/schema";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -11,6 +12,10 @@ export default async function handler(
     res.status(401).send({});
     return;
   }
+
+  const client = await clientPromise;
+  const db = client.db(process.env.MONGODB_DBNAME);
+  const usersCollection = db.collection<UserSchema>("Users");
 
   await usersCollection.deleteMany({});
 

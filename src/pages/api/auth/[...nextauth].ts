@@ -1,8 +1,9 @@
 import NextAuth, { NextAuthOptions, SessionStrategy } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getUserData } from "@/controllers/getUserData";
+import { getUserData } from "../../../controllers/getUserData";
 import { createUser } from "@/controllers/createUser";
+// import { createUser } from "@/controllers/createUser";
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
@@ -11,19 +12,13 @@ export const authOptions: NextAuthOptions = {
         return { ...token, ...session.user };
       }
       // token.name = user.name;
-      console.log("I get JWT :D", token);
       return { ...token, ...user };
     },
     async session({ session, token }) {
-      console.error("asking for session", token);
-      console.log("rarete");
       session.user.id = token.sub;
       session.user.name = token.name;
-
       session.user.image = "default_image.jpg";
-
       if (session.user.id) {
-        console.log("i have id", session.user.id);
         const userData = await getUserData(session.user.id);
         if (userData) {
           session.user.chats = userData.chats;
@@ -32,25 +27,15 @@ export const authOptions: NextAuthOptions = {
           session.user.language = userData.language;
           session.user.outgoingRequests = userData.outgoingRequests;
           session.user.name = userData.username;
-          console.log("por aqui paso");
         } else {
           session.user.email = undefined;
         }
       }
-      console.log("email:", session.user.email);
-
       return session;
     },
     async signIn({ user, account, profile }) {
-      console.log("starting sigin");
-      if (
-        (account?.provider === "google" || account?.provider === "github") &&
-        profile &&
-        profile.email
-      ) {
-        console.log("getting github data");
+      if (account?.provider === "github" && profile && profile.email) {
         const data = await createUser(profile.email);
-        console.log("the data", data);
         if (data) {
           user.id = data.id;
           user.name = data.username;
@@ -61,10 +46,6 @@ export const authOptions: NextAuthOptions = {
     },
   },
   providers: [
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID!,
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    // }),
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
@@ -84,13 +65,11 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         try {
           if (credentials?.email) {
-            console.log("I have creds", credentials.email);
             const data = await createUser(
               credentials?.email,
               credentials?.password
             );
 
-            console.log("hhmm", data);
             if (data && data.id) {
               return {
                 id: data.id,
@@ -110,7 +89,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt" as SessionStrategy,
   },
-  secret: process.env.JWT_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);

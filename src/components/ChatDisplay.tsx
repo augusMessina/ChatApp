@@ -2,9 +2,9 @@ import styled from "@emotion/styled";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import ChatMessages from "./ChatMessages";
 import ScrollableDropdown from "./ScrollableDropdown";
-import { sendFriendRequest } from "@/utils/send-friend-request";
+import { sendFriendRequest } from "@/controllers/sendFriendRequest";
 import { OutgoingRequest } from "@/types/notif";
-import { sendChatInvitation } from "@/utils/send-chat-invitation";
+import { sendChatInvitation } from "@/controllers/sendChatInvitation";
 import AreYouSureModal from "./AreYouSureModal";
 import { colors } from "@/utils/colors";
 

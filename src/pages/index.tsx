@@ -8,13 +8,8 @@ import { Notif, OutgoingRequest } from "../types/notif";
 import Pusher from "pusher-js";
 import Head from "next/head";
 
-const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
-});
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getServerSession(context.req, context.res, authOptions);
-  console.log("Inicieeee, soy", session?.user.email);
   if (!session?.user?.email) {
     return {
       redirect: {
@@ -27,7 +22,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   if (!session?.user?.name || session.user.name === "default_username") {
     return {
       redirect: {
-        destination: "/userData",
+        destination: "/user-data",
         permanent: false,
       },
     };
@@ -39,6 +34,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   };
 };
+
+const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
+});
 
 type HomeProps = {
   user: {

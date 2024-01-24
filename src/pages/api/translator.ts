@@ -6,6 +6,10 @@ import {
 } from "openai-edge";
 import { OpenAIStream } from "ai";
 
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('Invalid/Missing environment variable: "OPENAI_API_KEY"');
+}
+
 export const config = {
   runtime: "edge",
 };

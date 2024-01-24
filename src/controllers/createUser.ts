@@ -1,8 +1,12 @@
-import { usersCollection } from "@/db/connectMongo";
+import clientPromise from "@/lib/mongodb";
+import { ChatSchema, UserSchema } from "@/lib/schema";
 import { ObjectId } from "mongodb";
 
 export const createUser = async (email: string, password?: string) => {
-  console.info("checking user", email);
+  const client = await clientPromise;
+  const db = client.db(process.env.MONGODB_DBNAME);
+  const usersCollection = db.collection<UserSchema>("Users");
+
   const user = await usersCollection.findOne({ email });
   const userId = new ObjectId();
 
